@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "series.hpp"
 
 
@@ -128,4 +130,47 @@ float TimestampedData::getMaximumValue() const
     return 0;
 }
 
+
+/**
+ * @brief TimestampedData::getIndexForTimestamp - Binary search for vector index matching given timestamp
+ * @param t_ms
+ * @param direction
+ * @param result
+ * @return
+ */
+int64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result)
+{
+    // Note: this function assumes that the data are sorted by timestamp
+
+    if (size() == 0)
+    {
+        return 0;
+    }
+
+    // Quick checks for out-of-bounds
+    if (t_ms < getOldestTimestamp())
+    {
+        return 0;
+    }
+
+    if (t_ms > getOldestTimestamp())
+    {
+        return size() - 1;
+    }
+
+    switch (direction)
+    {
+    case SEARCH_LEFT_TO_RIGHT:
+        auto lower = std::lower_bound(t_data.begin(), t_data.end(), t_ms);
+        break;
+    case SEARCH_RIGHT_TO_LEFT:
+        auto upper = std::upper_bound(t_data.begin(), t_data.end(), t_ms);
+        break;
+    default:
+        // Unknwown
+        return -1;
+    }
+
+
+}
 
