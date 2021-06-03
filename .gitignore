@@ -1,0 +1,5 @@
+
+# Qt build files
+build-*
+qwt-6.1.4/
+*.pro.user
