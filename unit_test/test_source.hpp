@@ -82,6 +82,20 @@ private slots:
         labels = source.getSeriesLabels("cats dogs");
         QCOMPARE(labels.size(), 1);
 
+        // Remove by index
+        Q_ASSERT(source.removeSeriesByIndex(0));
+        QCOMPARE(source.getSeriesCount(), 4);
+
+        // Remove by invalid index
+        Q_ASSERT(!source.removeSeriesByIndex(999));
+
+        // Remove by label
+        Q_ASSERT(source.removeSeriesByLabel("Series 5"));
+        QCOMPARE(source.getSeriesCount(), 3);
+
+        // Remove by invalid label
+        Q_ASSERT(!source.removeSeriesByLabel("Series 5"));
+
     }
 
 protected:

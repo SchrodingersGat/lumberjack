@@ -138,6 +138,18 @@ QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
 }
 
 
+bool DataSource::removeSeriesByIndex(unsigned int index)
+{
+    if (index < data_series.size())
+    {
+        data_series.removeAt(index);
+        return true;
+    }
+
+    return false;
+}
+
+
 /*
  * Return a pointer to the DataSeries with the specified label.
  *
@@ -154,4 +166,21 @@ QSharedPointer<DataSeries> DataSource::getSeriesByLabel(QString label)
     }
 
     return QSharedPointer<DataSeries>(nullptr);
+}
+
+
+bool DataSource::removeSeriesByLabel(QString label)
+{
+    for (int idx = 0; idx < data_series.size(); idx++)
+    {
+        auto series = data_series.at(idx);
+
+        if (!series.isNull() && (*series).getLabel() == label)
+        {
+            data_series.removeAt(idx);
+            return true;
+        }
+    }
+
+    return false;
 }

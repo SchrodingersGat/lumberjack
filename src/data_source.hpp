@@ -41,6 +41,9 @@ public:
     QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
     QSharedPointer<DataSeries> getSeriesByLabel(QString label);
 
+    bool removeSeriesByIndex(unsigned int index);
+    bool removeSeriesByLabel(QString label);
+
     bool addSeries(QSharedPointer<DataSeries> series);
     bool addSeries(DataSeries* series);
 
