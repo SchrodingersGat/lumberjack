@@ -7,11 +7,27 @@
 
 #include <qwt_series_data.h>
 
+
+class DataPoint
+{
+public:
+    DataPoint() : timestamp(0), value(0) {}
+    DataPoint(double t, double v) : timestamp(t), value(v) {}
+
+    //! Timestamp (milliseconds)
+    double timestamp = 0;
+
+    //! Value
+    double value = 0;
+};
+
+
 class DataSeries : public QObject
 {
     Q_OBJECT
 
 public:
+    DataSeries();
     DataSeries(QString label, QString units=QString());
     DataSeries(const DataSeries& other);
     DataSeries(const DataSeries& other, int64_t t_min, int64_t t_max, unsigned int expand=0);
@@ -33,9 +49,10 @@ public slots:
     QString getUnits(void) const { return units; }
 
     /* Data insertion functions */
-    void addData(int64_t t_ms, float value, bool update=true);
+    void addData(DataPoint point, bool update=true);
+    void addData(double t_ms, float value, bool update=true);
 
-    void clipTimeRange(int64_t t_min, int64_t t_max, bool update=true);
+    void clipTimeRange(double t_min, double t_max, bool update=true);
 
     /* Data removal functions */
     void clearData(bool update=true);
@@ -43,22 +60,25 @@ public slots:
     /* Data access functions */
     size_t size() const;
 
-    int64_t getTimestamp(uint64_t idx) const;
-    QVector<int64_t> getTimestampData(void) const;
+    QVector<DataPoint> getData() const;
+    QVector<DataPoint> getData(double t_min, double t_max) const;
 
+    DataPoint getDataPoint(uint64_t idx) const;
+    double getTimestamp(uint64_t idx) const;
     float getValue(uint64_t idx) const;
-    QVector<float> getValueData(void) const;
 
-    int64_t getOldestTimestamp(void) const;
-    int64_t getNewestTimestamp(void) const;
+    DataPoint getOldestDataPoint(void) const;
+    double getOldestTimestamp(void) const;
+    double getOldestValue(void) const;
 
-    float getOldestValue(void) const;
-    float getNewestValue(void) const;
+    DataPoint getNewestDataPoint(void) const;
+    double getNewestTimestamp(void) const;
+    double getNewestValue(void) const;
 
-    float getMinimumValue(void) const;
-    float getMaximumValue(void) const;
+    double getMinimumValue(void) const;
+    double getMaximumValue(void) const;
 
-    uint64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction=SEARCH_LEFT_TO_RIGHT) const;
+    uint64_t getIndexForTimestamp(double t, SearchDirection direction=SEARCH_LEFT_TO_RIGHT) const;
 
     /* Status Functions */
     bool hasData() const { return size() > 0; }
@@ -71,10 +91,7 @@ signals:
 
 protected:
 
-    //! time samples
-    QVector<int64_t> t_data;
-    //! value samples
-    QVector<float> y_data;
+    QVector<DataPoint> data;
 
     //! mutex for controlling data access
     mutable QMutex data_mutex;

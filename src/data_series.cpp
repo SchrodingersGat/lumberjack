@@ -4,22 +4,53 @@
 #include "data_source.hpp"
 
 
-DataSeries::DataSeries(QString lbl, QString u) :
-    label(lbl),
-    units(u)
+// Comparison operators for DataPoint and timestamps
+bool operator== (const DataPoint point, const double timestamp)
+{
+    return point.timestamp == timestamp;
+}
+
+bool operator< (const DataPoint point, const double timestamp)
+{
+    return point.timestamp < timestamp;
+}
+
+bool operator< (const double timestamp, const DataPoint point)
+{
+    return timestamp < point.timestamp;
+}
+
+bool operator> (const DataPoint point, const double timestamp)
+{
+    return point.timestamp > timestamp;
+}
+
+bool operator> (const double timestamp, const DataPoint point)
+{
+    return timestamp > point.timestamp;
+}
+
+
+DataSeries::DataSeries()
 {
     clearData();
 }
 
 
+DataSeries::DataSeries(QString lbl, QString u) : DataSeries()
+{
+    label = lbl;
+    units = u;
+}
+
+
 // Copy from another data series
-DataSeries::DataSeries(const DataSeries &other)
+DataSeries::DataSeries(const DataSeries &other) : DataSeries()
 {
     label = other.getLabel();
     units = other.getUnits();
 
-    t_data = other.getTimestampData();
-    y_data = other.getValueData();
+    data = other.getData();
 
     // TODO - What else needs copying?
 
@@ -28,7 +59,7 @@ DataSeries::DataSeries(const DataSeries &other)
 
 
 // Copy from another data series, within the specified time range
-DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, unsigned int expand)
+DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, unsigned int expand) : DataSeries()
 {
     label = other.getLabel();
     units = other.getUnits();
@@ -36,7 +67,7 @@ DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, un
     // Ensure that the timestamps are the right way around!
     if (t_min > t_max)
     {
-        int64_t swap = t_min;
+        double swap = t_min;
 
         t_min = t_max;
         t_max = swap;
@@ -63,8 +94,7 @@ DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, un
     }
 
     // Allocate memory
-    t_data.reserve(idx_max - idx_min);
-    y_data.reserve(idx_max - idx_min);
+    data.reserve(idx_max - idx_min);
 
     auto length = other.size();
 
@@ -79,6 +109,13 @@ DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, un
     update();
 }
 
+void DataSeries::update(void)
+{
+    // TODO - What needs to happen here?
+
+    emit dataUpdated();
+}
+
 
 DataSeries::~DataSeries()
 {
@@ -88,68 +125,70 @@ DataSeries::~DataSeries()
 
 size_t DataSeries::size() const
 {
-    return t_data.size();
+    return data.size();
 }
 
-
-void DataSeries::update(void)
+QVector<DataPoint> DataSeries::getData(void) const
 {
-    // TODO - What needs to happen here?
-
-    emit dataUpdated();
+    return data;
 }
 
 
-int64_t DataSeries::getTimestamp(uint64_t idx) const
+QVector<DataPoint> DataSeries::getData(double t_min, double t_max) const
+{
+    // Ensure that the timestamps are the right way around!
+    if (t_min > t_max)
+    {
+        double swap = t_min;
+
+        t_min = t_max;
+        t_max = swap;
+    }
+
+    // Subsection
+    auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
+    auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
+
+    return data.mid(idx_min, idx_max - idx_min);
+}
+
+
+DataPoint DataSeries::getDataPoint(uint64_t idx) const
 {
     if (idx >= size())
     {
-        throw std::out_of_range("Index out of range for DataSeries::getTimestamp");
+        throw std::out_of_range("data index out of range");
     }
 
-    return t_data.at(idx);
+    return data[idx];
 }
 
 
-QVector<int64_t> DataSeries::getTimestampData(void) const
+double DataSeries::getTimestamp(uint64_t idx) const
 {
-    return t_data;
+    return getDataPoint(idx).timestamp;
 }
 
 
 float DataSeries::getValue(uint64_t idx) const
 {
-    if (idx >= size())
-    {
-        throw std::out_of_range("Index out of range for DataSeries::getValue");
-    }
-
-    return y_data.at(idx);
+    return getDataPoint(idx).value;
 }
 
 
-QVector<float> DataSeries::getValueData(void) const
-{
-    return y_data;
-}
-
-
-void DataSeries::addData(int64_t t_ms, float value, bool do_update)
+void DataSeries::addData(DataPoint point, bool do_update)
 {
     data_mutex.lock();
 
-    // Quicker if the timestamps are added in order
-    if (t_ms >= getNewestTimestamp())
+    if (size() == 0 || point.timestamp > getNewestTimestamp())
     {
-        t_data.push_back(t_ms);
-        y_data.push_back(value);
+        data.push_back(point);
     }
     else
     {
-        auto idx = getIndexForTimestamp(t_ms);
+        auto idx = getIndexForTimestamp(point.timestamp);
 
-        t_data.insert(t_data.begin() + idx, t_ms);
-        y_data.insert(y_data.begin() + idx, value);
+        data.insert(data.begin() + idx, point);
     }
 
     if (do_update)
@@ -161,12 +200,18 @@ void DataSeries::addData(int64_t t_ms, float value, bool do_update)
 }
 
 
-void DataSeries::clipTimeRange(int64_t t_min, int64_t t_max, bool do_update)
+void DataSeries::addData(double t, float value, bool do_update)
+{
+    addData(DataPoint(t, value), do_update);
+}
+
+
+void DataSeries::clipTimeRange(double t_min, double t_max, bool do_update)
 {
     // Ensure that the timestamps are the right way around!
     if (t_min > t_max)
     {
-        int64_t swap = t_min;
+        double swap = t_min;
 
         t_min = t_max;
         t_max = swap;
@@ -177,8 +222,7 @@ void DataSeries::clipTimeRange(int64_t t_min, int64_t t_max, bool do_update)
 
     auto span = idx_max - idx_min;
 
-    t_data = t_data.mid(idx_min, span);
-    y_data = y_data.mid(idx_min, span);
+    data = data.mid(idx_min, span);
 
     if (do_update)
     {
@@ -191,8 +235,7 @@ void DataSeries::clearData(bool do_update)
 {
     data_mutex.lock();
 
-    t_data.clear();
-    y_data.clear();
+    data.clear();
 
     data_mutex.unlock();
 
@@ -203,92 +246,90 @@ void DataSeries::clearData(bool do_update)
 }
 
 
-int64_t DataSeries::getOldestTimestamp() const
+DataPoint DataSeries::getOldestDataPoint() const
 {
-    int64_t t = 0;
-
     if (size() > 0)
     {
-        t = t_data.front();
+        return data.front();
     }
-
-    return t;
+    else
+    {
+        throw std::out_of_range("getOldestDataPoint called on empty TimeSeries");
+    }
 }
 
 
-int64_t DataSeries::getNewestTimestamp() const
+double DataSeries::getOldestTimestamp() const
 {
-    int64_t t = 0;
-
-    if (size() > 0)
-    {
-        t = t_data.back();
-    }
-
-    return t;
+    return getOldestDataPoint().timestamp;
 }
 
 
-float DataSeries::getOldestValue() const
+double DataSeries::getOldestValue() const
 {
-    float v = 0;
-
-    if (size() > 0)
-    {
-        v = y_data.front();
-    }
-
-    return v;
+    return getOldestDataPoint().value;
 }
 
 
-float DataSeries::getNewestValue() const
+DataPoint DataSeries::getNewestDataPoint() const
 {
-    float v = 0;
-
     if (size() > 0)
     {
-        v = y_data.back();
+        return data.back();
     }
-
-    return v;
+    else
+    {
+        throw std::out_of_range("getNewestDataPoint called on empty TimeSeries");
+    }
 }
 
 
-float DataSeries::getMinimumValue() const
+double DataSeries::getNewestTimestamp() const
+{
+    return getNewestDataPoint().timestamp;
+}
+
+
+double DataSeries::getNewestValue() const
+{
+    return getNewestDataPoint().value;
+}
+
+
+double DataSeries::getMinimumValue() const
 {
     // TODO
     return 0;
 }
 
 
-float DataSeries::getMaximumValue() const
+double DataSeries::getMaximumValue() const
 {
     // TODO
     return 0;
 }
 
 
-uint64_t DataSeries::getIndexForTimestamp(int64_t t_ms, SearchDirection direction) const
+uint64_t DataSeries::getIndexForTimestamp(double t, SearchDirection direction) const
 {
-    if (t_ms < getOldestTimestamp())
+    if (t < getOldestTimestamp())
     {
         return 0;
     }
 
-    else if (t_ms > getNewestTimestamp())
+    else if (t > getNewestTimestamp())
     {
         return size();
     }
 
     if (direction == SEARCH_LEFT_TO_RIGHT)
     {
-        auto upper= std::upper_bound(t_data.begin(), t_data.end(), t_ms);
-        return std::distance(t_data.begin(), upper);
+        auto upper= std::upper_bound(data.begin(), data.end(), t);
+        return std::distance(data.begin(), upper);
     }
     else
     {
-        auto lower = std::lower_bound(t_data.begin(), t_data.end(), t_ms);
-        return std::distance(t_data.begin(), lower);
+        auto lower = std::lower_bound(data.begin(), data.end(), t);
+        return std::distance(data.begin(), lower);
     }
 }

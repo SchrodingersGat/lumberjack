@@ -8,7 +8,6 @@
 
 #include "data_series.hpp"
 
-
 class DataSeriesTests : public QObject
 {
     Q_OBJECT
