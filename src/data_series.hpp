@@ -78,6 +78,9 @@ public slots:
     double getMinimumValue(void) const;
     double getMaximumValue(void) const;
 
+    double getMeanValue(void) const;
+    double getMeanValue(double t_min, double t_max) const;
+
     uint64_t getIndexForTimestamp(double t, SearchDirection direction=SEARCH_LEFT_TO_RIGHT) const;
 
     /* Status Functions */

@@ -188,6 +188,22 @@ private slots:
         QCOMPARE(series.getNewestTimestamp(), 94);
     }
 
+    // Test mean (average) calculation
+    void testMean(void)
+    {
+        series.clearData();
+
+        for (int idx = 0; idx < 100; idx++)
+        {
+            series.addData(idx, idx);
+        }
+
+        QCOMPARE(series.getMeanValue(), 49.5);
+        QCOMPARE(series.getMeanValue(10, 20), 15);
+        QCOMPARE(series.getMeanValue(-10, 10), 5);
+        QCOMPARE(series.getMeanValue(95, 900), 97);
+    }
+
 public slots:
     void onDataUpdated()
     {

@@ -310,6 +310,35 @@ double DataSeries::getMaximumValue() const
 }
 
 
+double DataSeries::getMeanValue(void) const
+{
+    return getMeanValue(getOldestTimestamp(), getNewestTimestamp());
+}
+
+
+double DataSeries::getMeanValue(double t_min, double t_max) const
+{
+    auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
+    auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
+
+    double accumulator = 0;
+    unsigned int count = 0;
+
+    unsigned int length = size();
+
+    for (size_t idx = idx_min; idx <= idx_max; idx++)
+    {
+        if (idx < length)
+        {
+            accumulator += getValue(idx);
+            count += 1;
+        }
+    }
+
+    return accumulator / count;
+}
+
+
 uint64_t DataSeries::getIndexForTimestamp(double t, SearchDirection direction) const
 {
     if (t < getOldestTimestamp())
