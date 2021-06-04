@@ -13,19 +13,22 @@ QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wn
 QMAKE_LFLAGS += --verbose
 
 # qwt toolkit
-INCLUDEPATH += qwt-6.1.4/src
-DEPENDPATH += qwt-6.1.4/src
+INCLUDEPATH += ../qwt-6.1.4/src
+INCLUDEPATH += ../qwt-6.1.4
+DEPENDPATH += ../qwt-6.1.4/src
+
+INCLUDEPATH += ../src
 
 include("qwt.pro")
 
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    series.cpp
+    ../src/series.cpp
 
 HEADERS += \
     mainwindow.h \
-    series.hpp
+    ../src/series.hpp
 
 FORMS += \
     mainwindow.ui

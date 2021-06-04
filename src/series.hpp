@@ -44,6 +44,14 @@ public:
     float getMinimumValue(void) const;
     float getMaximumValue(void) const;
 
+    enum SearchDirection
+    {
+        SEARCH_LEFT_TO_RIGHT,
+        SEARCH_RIGHT_TO_LEFT,
+    };
+
+    int64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result);
+
     /* Status Functions */
     bool hasData() const { return size() > 0; }
 

@@ -49,8 +49,18 @@ QPointF TimestampedData::sample(size_t idx) const
 
 bool TimestampedData::addData(int64_t t_ms, float value)
 {
-    // TODO
-    return false;
+    if (t_ms >= getNewestTimestamp())
+    {
+        t_data.push_back(t_ms);
+        y_data.push_back(value);
+
+        return true;
+    }
+    else
+    {
+        // TODO - Insert data into the array if out-of-order timestamps received
+        return false;
+    }
 }
 
 
@@ -158,6 +168,7 @@ int64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection dire
         return size() - 1;
     }
 
+    /*
     switch (direction)
     {
     case SEARCH_LEFT_TO_RIGHT:
@@ -171,6 +182,9 @@ int64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection dire
         return -1;
     }
 
+    */
 
+    // TODO
+    return 0;
 }
 
