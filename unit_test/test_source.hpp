@@ -37,8 +37,8 @@ private slots:
         // Add some series
         Q_ASSERT(source.addSeries(new DataSeries("Series 1")));
         Q_ASSERT(source.addSeries(new DataSeries("Series 2")));
-        Q_ASSERT(source.addSeries(new DataSeries("Series 3")));
-        Q_ASSERT(source.addSeries(new DataSeries("Series 4")));
+        Q_ASSERT(source.addSeries(new DataSeries("Series 3 - cats")));
+        Q_ASSERT(source.addSeries(new DataSeries("Series 4 - cats and dogs")));
         Q_ASSERT(source.addSeries(new DataSeries("Series 5")));
 
         QCOMPARE(source.getSeriesCount(), 5);
@@ -74,6 +74,14 @@ private slots:
 
         Q_ASSERT(labels.contains("Series 1"));
         Q_ASSERT(labels.contains("Series 5"));
+
+        // Extract series labels with filters
+        labels = source.getSeriesLabels("cats");
+        QCOMPARE(labels.size(), 2);
+
+        labels = source.getSeriesLabels("cats dogs");
+        QCOMPARE(labels.size(), 1);
+
     }
 
 protected:

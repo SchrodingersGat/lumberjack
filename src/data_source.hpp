@@ -36,7 +36,7 @@ public:
 
     /* DataSeries access functions */
     int getSeriesCount(void) const { return data_series.size(); }
-    QStringList getSeriesLabels(void) const;
+    QStringList getSeriesLabels(QString filter_string=QString()) const;
 
     QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
     QSharedPointer<DataSeries> getSeriesByLabel(QString label);

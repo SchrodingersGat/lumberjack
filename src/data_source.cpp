@@ -19,9 +19,26 @@ void DataSource::clear()
 }
 
 
-QStringList DataSource::getSeriesLabels(void) const
+QStringList DataSource::getSeriesLabels(QString filter_string) const
 {
     QStringList labels;
+
+    QList<QRegExp> patterns;
+
+    for (QString pattern : filter_string.trimmed().split(" "))
+    {
+        if (!pattern.startsWith("*"))
+        {
+            pattern.prepend("*");
+        }
+
+        if (!pattern.endsWith("*"))
+        {
+            pattern.append("*");
+        }
+
+        patterns.append(QRegExp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard));
+    }
 
     for (auto series : data_series)
     {
@@ -30,7 +47,24 @@ QStringList DataSource::getSeriesLabels(void) const
             continue;
         }
 
-        labels.append((*series).getLabel());
+        QString label = (*series).getLabel();
+
+        // Test if the label matches *ALL* the filters
+        bool matches_all = true;
+
+        for (auto pattern : patterns)
+        {
+            if (!pattern.exactMatch(label))
+            {
+                matches_all = false;
+                break;
+            }
+        }
+
+        if (matches_all)
+        {
+            labels.append(label);
+        }
     }
 
     return labels;
