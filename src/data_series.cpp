@@ -161,6 +161,32 @@ void DataSeries::addData(int64_t t_ms, float value, bool do_update)
 }
 
 
+void DataSeries::clipTimeRange(int64_t t_min, int64_t t_max, bool do_update)
+{
+    // Ensure that the timestamps are the right way around!
+    if (t_min > t_max)
+    {
+        int64_t swap = t_min;
+
+        t_min = t_max;
+        t_max = swap;
+    }
+
+    auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
+    auto idx_max = getIndexForTimestamp(t_max, SEARCH_LEFT_TO_RIGHT);
+
+    auto span = idx_max - idx_min;
+
+    t_data = t_data.mid(idx_min, span);
+    y_data = y_data.mid(idx_min, span);
+
+    if (do_update)
+    {
+        update();
+    }
+}
+
+
 void DataSeries::clearData(bool do_update)
 {
     data_mutex.lock();

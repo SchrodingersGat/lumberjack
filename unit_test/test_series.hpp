@@ -73,7 +73,7 @@ private slots:
 
         for (int ii = 0; ii < 500; ii++)
         {
-            series.addData(rand() % 100, rand() % 1000);
+            series.addData(rand() % 100, rand() % 1000, false);
         }
 
         // Updates should not have fired
@@ -180,6 +180,15 @@ private slots:
         QCOMPARE(slice_5.getNewestTimestamp(), 86);
     }
 
+    // Test timespan clipping
+    void testClip(void)
+    {
+        series.clipTimeRange(20, 94);
+
+        QCOMPARE(series.getOldestTimestamp(), 20);
+        QCOMPARE(series.getNewestTimestamp(), 94);
+    }
+
 public slots:
     void onDataUpdated()
     {
@@ -199,7 +208,7 @@ protected:
 
         int64_t ts = series.getOldestTimestamp();
 
-        for (int idx = 0; idx < series.size(); idx++)
+        for (size_t idx = 0; idx < series.size(); idx++)
         {
             int64_t t = series.getTimestamp(idx);
 

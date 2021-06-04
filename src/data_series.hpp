@@ -33,7 +33,9 @@ public slots:
     QString getUnits(void) const { return units; }
 
     /* Data insertion functions */
-    void addData(int64_t t_ms, float value, bool update=false);
+    void addData(int64_t t_ms, float value, bool update=true);
+
+    void clipTimeRange(int64_t t_min, int64_t t_max, bool update=true);
 
     /* Data removal functions */
     void clearData(bool update=true);
