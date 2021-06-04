@@ -3,3 +3,6 @@
 build-*
 qwt-6.1.4/
 *.pro.user
+
+# Unit testing
+test/build

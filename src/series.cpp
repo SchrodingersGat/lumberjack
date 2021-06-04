@@ -21,36 +21,54 @@ size_t TimestampedData::size() const
 }
 
 
-QRectF TimestampedData::boundingRect() const
-{
-    return QRectF(
-                QPointF(getOldestTimestamp(), getMinimumValue()),
-                QPointF(getNewestTimestamp(), getMaximumValue())
-                );
-}
-
-
-QPointF TimestampedData::sample(size_t idx) const
+int64_t TimestampedData::getTimestamp(uint64_t idx) const
 {
     data_mutex.lock();
 
+    int64_t timestamp = 0;
+
     if (idx < size())
     {
-        QPointF pt((float) t_data[idx], y_data[idx]);
-        data_mutex.unlock();
-        return pt;
+        timestamp = t_data.at(idx);
     }
 
     data_mutex.unlock();
 
-    return QPointF(0, 0);
+    return timestamp;
+}
+
+
+float TimestampedData::getValue(uint64_t idx) const
+{
+    data_mutex.lock();
+
+    float value = 0.0f;
+
+    if (idx < size())
+    {
+        value = y_data.at(idx);
+    }
+
+    data_mutex.unlock();
+
+    return value;
 }
 
 
 bool TimestampedData::addData(int64_t t_ms, float value)
 {
-    // TODO
-    return false;
+    if (t_ms >= getNewestTimestamp())
+    {
+        t_data.push_back(t_ms);
+        y_data.push_back(value);
+
+        return true;
+    }
+    else
+    {
+        // TODO - Insert data into the array if out-of-order timestamps received
+        return false;
+    }
 }
 
 
@@ -138,7 +156,7 @@ float TimestampedData::getMaximumValue() const
  * @param result
  * @return
  */
-int64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result)
+uint64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result)
 {
     // Note: this function assumes that the data are sorted by timestamp
 
@@ -158,6 +176,7 @@ int64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection dire
         return size() - 1;
     }
 
+    /*
     switch (direction)
     {
     case SEARCH_LEFT_TO_RIGHT:
@@ -171,6 +190,9 @@ int64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection dire
         return -1;
     }
 
+    */
 
+    // TODO
+    return 0;
 }
 

@@ -3,30 +3,14 @@
 
 #include <stdint.h>
 #include <vector>
-
-#include <qpoint.h>
-#include <qmutex.h>
-
-#include <qwt_series_data.h>
+#include <mutex>
 
 
-class TimestampedData : public QwtSeriesData<QPointF>
+class TimestampedData
 {
 public:
     TimestampedData();
     virtual ~TimestampedData();
-
-    /* Functions required for QwtSeriesData
-     * http://qwt.sourceforge.net/class_qwt_series_data.html
-     *
-     * virtual size_t size() const
-     * virtual <T> sample(size_t i) const
-     * virtual QRectF boundingRect() const
-     */
-
-    virtual size_t size() const override;
-    virtual QPointF sample(size_t idx) const override;
-    virtual QRectF boundingRect() const override;
 
     /* Data insertion functions */
     bool addData(int64_t t_ms, float value);
@@ -35,6 +19,11 @@ public:
     void clearData(void);
 
     /* Data access functions */
+    size_t size() const;
+
+    int64_t getTimestamp(uint64_t idx) const;
+    float getValue(uint64_t idx) const;
+
     int64_t getOldestTimestamp(void) const;
     int64_t getNewestTimestamp(void) const;
 
@@ -43,6 +32,14 @@ public:
 
     float getMinimumValue(void) const;
     float getMaximumValue(void) const;
+
+    enum SearchDirection
+    {
+        SEARCH_LEFT_TO_RIGHT,
+        SEARCH_RIGHT_TO_LEFT,
+    };
+
+    uint64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result);
 
     /* Status Functions */
     bool hasData() const { return size() > 0; }
@@ -55,7 +52,7 @@ protected:
     std::vector<float> y_data;
 
     //! mutex for controlling data access
-    mutable QMutex data_mutex;
+    mutable std::mutex data_mutex;
 
 };
 
