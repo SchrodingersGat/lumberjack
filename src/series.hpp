@@ -13,7 +13,7 @@ public:
     virtual ~TimestampedData();
 
     /* Data insertion functions */
-    bool addData(int64_t t_ms, float value);
+    void addData(int64_t t_ms, float value);
 
     /* Data removal functions */
     void clearData(void);
@@ -39,7 +39,7 @@ public:
         SEARCH_RIGHT_TO_LEFT,
     };
 
-    uint64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result);
+    uint64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction=SEARCH_LEFT_TO_RIGHT);
 
     /* Status Functions */
     bool hasData() const { return size() > 0; }
@@ -47,7 +47,7 @@ public:
 protected:
 
     //! time samples
-    std::vector<float> t_data;
+    std::vector<int64_t> t_data;
     //! value samples
     std::vector<float> y_data;
 

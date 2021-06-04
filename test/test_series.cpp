@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "gtest/gtest.h"
 
 #include "series.hpp"
@@ -20,6 +23,24 @@ protected:
     }
 
     TimestampedData data;
+
+    bool isInOrder()
+    {
+        if (data.size() == 0) return true;
+
+        int64_t ts = data.getOldestTimestamp();
+
+        for (int idx = 0; idx < data.size(); idx++)
+        {
+            auto t = data.getTimestamp(idx);
+
+            if (t < ts) return false;
+
+            ts = t;
+        }
+
+        return true;
+    }
 };
 
 
@@ -59,7 +80,15 @@ TEST_F(SeriesTest, TestAccess)
     }
 
     // Check out of bounds access
-    ASSERT_EQ(data.getTimestamp(1000), 0);
+    try
+    {
+        auto f = data.getValue(1000);
+        ASSERT_EQ(f, 1.2345);
+    }
+    catch (std::out_of_range const &exception)
+    {
+        
+    }
 }
 
 
@@ -73,7 +102,33 @@ TEST_F(SeriesTest, TestMinMax)
 
 TEST_F(SeriesTest, TestIndexing)
 {
-    // Tests for binary search indexing functionality
+    for (int ts = 0; ts < 990; ts++)
+    {
+        auto idx = data.getIndexForTimestamp(ts, TimestampedData::SEARCH_LEFT_TO_RIGHT);
 
-    // TODO
+        ASSERT_EQ(idx, (int) ((ts + 10) / 10));
+    }
+
+    ASSERT_TRUE(isInOrder());
+
+    data.clearData();
+    ASSERT_TRUE(isInOrder());
+
+    // Add linear samples
+    for (int ts = 0; ts < 100; ts++)
+    {
+        data.addData(ts, rand() % 100);
+    }
+
+    ASSERT_TRUE(isInOrder());
+    
+    data.clearData();
+
+    // Add random samples (must be inserted in order!)
+    for (int ii = 0; ii < 10000; ii++)
+    {
+        data.addData(rand() % 1000, rand() % 1000);
+    }
+
+    ASSERT_TRUE(isInOrder());
 }

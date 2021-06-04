@@ -23,51 +23,30 @@ size_t TimestampedData::size() const
 
 int64_t TimestampedData::getTimestamp(uint64_t idx) const
 {
-    data_mutex.lock();
-
-    int64_t timestamp = 0;
-
-    if (idx < size())
-    {
-        timestamp = t_data.at(idx);
-    }
-
-    data_mutex.unlock();
-
-    return timestamp;
+    return t_data.at(idx);
 }
 
 
 float TimestampedData::getValue(uint64_t idx) const
 {
-    data_mutex.lock();
-
-    float value = 0.0f;
-
-    if (idx < size())
-    {
-        value = y_data.at(idx);
-    }
-
-    data_mutex.unlock();
-
-    return value;
+    return y_data.at(idx);
 }
 
 
-bool TimestampedData::addData(int64_t t_ms, float value)
+void TimestampedData::addData(int64_t t_ms, float value)
 {
+    // Quicker if the timestamps are added in order
     if (t_ms >= getNewestTimestamp())
     {
         t_data.push_back(t_ms);
         y_data.push_back(value);
-
-        return true;
     }
     else
     {
-        // TODO - Insert data into the array if out-of-order timestamps received
-        return false;
+        auto idx = getIndexForTimestamp(t_ms);
+
+        t_data.insert(t_data.begin() + idx, t_ms);
+        y_data.insert(y_data.begin() + idx, value);
     }
 }
 
@@ -149,50 +128,26 @@ float TimestampedData::getMaximumValue() const
 }
 
 
-/**
- * @brief TimestampedData::getIndexForTimestamp - Binary search for vector index matching given timestamp
- * @param t_ms
- * @param direction
- * @param result
- * @return
- */
-uint64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result)
+uint64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction)
 {
-    // Note: this function assumes that the data are sorted by timestamp
-
-    if (size() == 0)
-    {
-        return 0;
-    }
-
-    // Quick checks for out-of-bounds
     if (t_ms < getOldestTimestamp())
     {
         return 0;
     }
 
-    if (t_ms > getOldestTimestamp())
+    else if (t_ms > getNewestTimestamp())
     {
-        return size() - 1;
+        return size();
     }
 
-    /*
-    switch (direction)
+    if (direction == SEARCH_LEFT_TO_RIGHT)
     {
-    case SEARCH_LEFT_TO_RIGHT:
+        auto upper= std::upper_bound(t_data.begin(), t_data.end(), t_ms);
+        return std::distance(t_data.begin(), upper);
+    }
+    else
+    {
         auto lower = std::lower_bound(t_data.begin(), t_data.end(), t_ms);
-        break;
-    case SEARCH_RIGHT_TO_LEFT:
-        auto upper = std::upper_bound(t_data.begin(), t_data.end(), t_ms);
-        break;
-    default:
-        // Unknwown
-        return -1;
+        return std::distance(t_data.begin(), lower);
     }
-
-    */
-
-    // TODO
-    return 0;
 }
-
