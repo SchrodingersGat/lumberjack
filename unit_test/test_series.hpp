@@ -119,6 +119,22 @@ private slots:
         QVERIFY(isInOrder());
     }
 
+    // Test that we can copy this series from another series
+    void testCopy(void)
+    {
+        QCOMPARE(series.size(), 100);
+
+        DataSeries copy = series;
+
+        QCOMPARE(copy.size(), 100);
+
+        // Clear the original series
+        series.clearData();
+
+        QCOMPARE(series.size(), 0);
+        QCOMPARE(copy.size(), 100);
+    }
+
 public slots:
     void onDataUpdated()
     {

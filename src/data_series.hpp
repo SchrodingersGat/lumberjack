@@ -12,7 +12,11 @@ class DataSeries : public QObject
     Q_OBJECT
 
 public:
-    DataSeries(QString label);
+    DataSeries(QString label, QString units=QString());
+    DataSeries(const DataSeries& other);
+
+//    DataSeries& operator=(const DataSeries& other);
+
     virtual ~DataSeries();
 
     enum SearchDirection
@@ -25,6 +29,8 @@ public slots:
 
     QString getLabel(void) const { return label; }
 
+    QString getUnits(void) const { return units; }
+
     /* Data insertion functions */
     void addData(int64_t t_ms, float value, bool update=false);
 
@@ -35,7 +41,10 @@ public slots:
     size_t size() const;
 
     int64_t getTimestamp(uint64_t idx) const;
+    QVector<int64_t> getTimestampData(void) const;
+
     float getValue(uint64_t idx) const;
+    QVector<float> getValueData(void) const;
 
     int64_t getOldestTimestamp(void) const;
     int64_t getNewestTimestamp(void) const;
@@ -66,6 +75,8 @@ protected:
     mutable QMutex data_mutex;
 
     QString label;
+
+    QString units;
 };
 
 

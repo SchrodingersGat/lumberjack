@@ -4,10 +4,24 @@
 #include "data_source.hpp"
 
 
-DataSeries::DataSeries(QString lbl) :
-    label(lbl)
+DataSeries::DataSeries(QString lbl, QString u) :
+    label(lbl),
+    units(u)
 {
     clearData();
+}
+
+
+// Copy from another data series
+DataSeries::DataSeries(const DataSeries &other)
+{
+    label = other.getLabel();
+    units = other.getUnits();
+
+    t_data = other.getTimestampData();
+    y_data = other.getValueData();
+
+    // TODO - What else needs copying?
 }
 
 
@@ -34,6 +48,12 @@ int64_t DataSeries::getTimestamp(uint64_t idx) const
 }
 
 
+QVector<int64_t> DataSeries::getTimestampData(void) const
+{
+    return t_data;
+}
+
+
 float DataSeries::getValue(uint64_t idx) const
 {
     if (idx >= size())
@@ -42,6 +62,12 @@ float DataSeries::getValue(uint64_t idx) const
     }
 
     return y_data.at(idx);
+}
+
+
+QVector<float> DataSeries::getValueData(void) const
+{
+    return y_data;
 }
 
 
