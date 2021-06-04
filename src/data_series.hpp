@@ -1,22 +1,33 @@
 #ifndef DATA_SERIES_H
 #define DATA_SERIES_H
 
-#include <stdint.h>
-#include <vector>
-#include <mutex>
+#include <qobject.h>
+#include <qvector.h>
+#include <qmutex.h>
 
+#include <qwt_series_data.h>
 
 // Forward-declaration of DataSource class
 class DataSource;
 
 
-class DataSeries
+class DataSeries : public QObject
 {
+    Q_OBJECT
+
 public:
-    DataSeries(DataSource& src, std::string label);
+    DataSeries(DataSource& src, QString label);
     virtual ~DataSeries();
 
-    std::string getLabel(void) const { return label; }
+    enum SearchDirection
+    {
+        SEARCH_LEFT_TO_RIGHT,
+        SEARCH_RIGHT_TO_LEFT,
+    };
+
+public slots:
+
+    QString getLabel(void) const { return label; }
 
     /* Data insertion functions */
     void addData(int64_t t_ms, float value);
@@ -39,12 +50,6 @@ public:
     float getMinimumValue(void) const;
     float getMaximumValue(void) const;
 
-    enum SearchDirection
-    {
-        SEARCH_LEFT_TO_RIGHT,
-        SEARCH_RIGHT_TO_LEFT,
-    };
-
     uint64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction=SEARCH_LEFT_TO_RIGHT);
 
     /* Status Functions */
@@ -53,16 +58,16 @@ public:
 protected:
 
     //! time samples
-    std::vector<int64_t> t_data;
+    QVector<int64_t> t_data;
     //! value samples
-    std::vector<float> y_data;
+    QVector<float> y_data;
 
     //! mutex for controlling data access
-    mutable std::mutex data_mutex;
+    mutable QMutex data_mutex;
 
     DataSource &source;
 
-    std::string label;
+    QString label;
 };
 
 

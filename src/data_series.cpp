@@ -4,7 +4,7 @@
 #include "data_source.hpp"
 
 
-DataSeries::DataSeries(DataSource& src, std::string lbl) :
+DataSeries::DataSeries(DataSource& src, QString lbl) :
     source(src),
     label(lbl)
 {
