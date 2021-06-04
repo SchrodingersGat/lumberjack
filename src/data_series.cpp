@@ -1,39 +1,42 @@
 #include <algorithm>
 
-#include "series.hpp"
+#include "data_series.hpp"
+#include "data_source.hpp"
 
 
-TimestampedData::TimestampedData()
+DataSeries::DataSeries(DataSource& src, std::string lbl) :
+    source(src),
+    label(lbl)
 {
     clearData();
 }
 
 
-TimestampedData::~TimestampedData()
+DataSeries::~DataSeries()
 {
     clearData();
 }
 
 
-size_t TimestampedData::size() const
+size_t DataSeries::size() const
 {
     return t_data.size();
 }
 
 
-int64_t TimestampedData::getTimestamp(uint64_t idx) const
+int64_t DataSeries::getTimestamp(uint64_t idx) const
 {
     return t_data.at(idx);
 }
 
 
-float TimestampedData::getValue(uint64_t idx) const
+float DataSeries::getValue(uint64_t idx) const
 {
     return y_data.at(idx);
 }
 
 
-void TimestampedData::addData(int64_t t_ms, float value)
+void DataSeries::addData(int64_t t_ms, float value)
 {
     // Quicker if the timestamps are added in order
     if (t_ms >= getNewestTimestamp())
@@ -51,7 +54,7 @@ void TimestampedData::addData(int64_t t_ms, float value)
 }
 
 
-void TimestampedData::clearData()
+void DataSeries::clearData()
 {
     data_mutex.lock();
 
@@ -62,7 +65,7 @@ void TimestampedData::clearData()
 }
 
 
-int64_t TimestampedData::getOldestTimestamp() const
+int64_t DataSeries::getOldestTimestamp() const
 {
     int64_t t = 0;
 
@@ -75,7 +78,7 @@ int64_t TimestampedData::getOldestTimestamp() const
 }
 
 
-int64_t TimestampedData::getNewestTimestamp() const
+int64_t DataSeries::getNewestTimestamp() const
 {
     int64_t t = 0;
 
@@ -88,7 +91,7 @@ int64_t TimestampedData::getNewestTimestamp() const
 }
 
 
-float TimestampedData::getOldestValue() const
+float DataSeries::getOldestValue() const
 {
     float v = 0;
 
@@ -101,7 +104,7 @@ float TimestampedData::getOldestValue() const
 }
 
 
-float TimestampedData::getNewestValue() const
+float DataSeries::getNewestValue() const
 {
     float v = 0;
 
@@ -114,21 +117,21 @@ float TimestampedData::getNewestValue() const
 }
 
 
-float TimestampedData::getMinimumValue() const
+float DataSeries::getMinimumValue() const
 {
     // TODO
     return 0;
 }
 
 
-float TimestampedData::getMaximumValue() const
+float DataSeries::getMaximumValue() const
 {
     // TODO
     return 0;
 }
 
 
-uint64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction)
+uint64_t DataSeries::getIndexForTimestamp(int64_t t_ms, SearchDirection direction)
 {
     if (t_ms < getOldestTimestamp())
     {

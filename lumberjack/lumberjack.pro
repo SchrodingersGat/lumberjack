@@ -22,13 +22,15 @@ INCLUDEPATH += ../src
 include("qwt.pro")
 
 SOURCES += \
+    ../src/data_series.cpp \
+    ../src/data_source.cpp \
     main.cpp \
-    mainwindow.cpp \
-    ../src/series.cpp
+    mainwindow.cpp
 
 HEADERS += \
-    mainwindow.h \
-    ../src/series.hpp
+    ../src/data_series.hpp \
+    ../src/data_source.hpp \
+    mainwindow.h
 
 FORMS += \
     mainwindow.ui

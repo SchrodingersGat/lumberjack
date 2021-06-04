@@ -3,12 +3,22 @@
 
 #include "gtest/gtest.h"
 
-#include "series.hpp"
+#include "data_source.cpp"
+#include "data_series.hpp"
 
 
 class SeriesTest : public :: testing::Test
 {
+    SeriesTest() :
+        testing::Test(),
+        data_source("my_source"),
+        data_series(data_source, "my_series")
+    {
+
+    }
+
 protected:
+
     virtual void SetUp() override
     {
         for (int idx = 0; idx < 100; idx++)
@@ -22,7 +32,8 @@ protected:
         data.clearData();
     }
 
-    TimestampedData data;
+    DataSource data_source;
+    DataSeries data_series
 
     bool isInOrder()
     {
@@ -104,7 +115,7 @@ TEST_F(SeriesTest, TestIndexing)
 {
     for (int ts = 0; ts < 990; ts++)
     {
-        auto idx = data.getIndexForTimestamp(ts, TimestampedData::SEARCH_LEFT_TO_RIGHT);
+        auto idx = data.getIndexForTimestamp(ts, DataSeries::SEARCH_LEFT_TO_RIGHT);
 
         ASSERT_EQ(idx, (int) ((ts + 10) / 10));
     }

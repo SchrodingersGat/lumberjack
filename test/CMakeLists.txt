@@ -21,7 +21,8 @@ include_directories(
 
 set (
     LUMBERJACK_SOURCES
-    ../src/series.cpp
+    ../src/data_source.cpp
+    ../src/data_series.cpp
 )
 
 add_executable(

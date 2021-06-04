@@ -1,16 +1,22 @@
-#ifndef SERIES_HPP
-#define SERIES_HPP
+#ifndef DATA_SERIES_H
+#define DATA_SERIES_H
 
 #include <stdint.h>
 #include <vector>
 #include <mutex>
 
 
-class TimestampedData
+// Forward-declaration of DataSource class
+class DataSource;
+
+
+class DataSeries
 {
 public:
-    TimestampedData();
-    virtual ~TimestampedData();
+    DataSeries(DataSource& src, std::string label);
+    virtual ~DataSeries();
+
+    std::string getLabel(void) const { return label; }
 
     /* Data insertion functions */
     void addData(int64_t t_ms, float value);
@@ -54,7 +60,10 @@ protected:
     //! mutex for controlling data access
     mutable std::mutex data_mutex;
 
+    DataSource &source;
+
+    std::string label;
 };
 
 
-#endif // SERIES_HPP
+#endif // DATA_SERIES_H
