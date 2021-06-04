@@ -4,8 +4,7 @@
 #include "data_source.hpp"
 
 
-DataSeries::DataSeries(DataSource& src, QString lbl) :
-    source(src),
+DataSeries::DataSeries(QString lbl) :
     label(lbl)
 {
     clearData();
@@ -26,12 +25,22 @@ size_t DataSeries::size() const
 
 int64_t DataSeries::getTimestamp(uint64_t idx) const
 {
+    if (idx >= size())
+    {
+        throw std::out_of_range("Index out of range for DataSeries::getTimestamp");
+    }
+
     return t_data.at(idx);
 }
 
 
 float DataSeries::getValue(uint64_t idx) const
 {
+    if (idx >= size())
+    {
+        throw std::out_of_range("Index out of range for DataSeries::getValue");
+    }
+
     return y_data.at(idx);
 }
 

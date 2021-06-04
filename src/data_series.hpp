@@ -7,16 +7,12 @@
 
 #include <qwt_series_data.h>
 
-// Forward-declaration of DataSource class
-class DataSource;
-
-
 class DataSeries : public QObject
 {
     Q_OBJECT
 
 public:
-    DataSeries(DataSource& src, QString label);
+    DataSeries(QString label);
     virtual ~DataSeries();
 
     enum SearchDirection
@@ -64,8 +60,6 @@ protected:
 
     //! mutex for controlling data access
     mutable QMutex data_mutex;
-
-    DataSource &source;
 
     QString label;
 };

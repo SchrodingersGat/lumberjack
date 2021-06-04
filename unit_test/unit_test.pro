@@ -1,8 +1,7 @@
-QT       += core gui opengl
+QT += core gui testlib
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-CONFIG += c++11
+CONFIG += c++11 console
+CONFIG -= app_bundle
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -27,15 +26,12 @@ SOURCES += \
     ../src/data_series.cpp \
     ../src/data_source.cpp \
     main.cpp \
-    mainwindow.cpp
 
 HEADERS += \
     ../src/data_series.hpp \
     ../src/data_source.hpp \
-    mainwindow.h
-
-FORMS += \
-    mainwindow.ui
+    test_series.hpp \
+    test_source.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
