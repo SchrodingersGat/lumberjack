@@ -45,8 +45,10 @@ float DataSeries::getValue(uint64_t idx) const
 }
 
 
-void DataSeries::addData(int64_t t_ms, float value)
+void DataSeries::addData(int64_t t_ms, float value, bool update)
 {
+    data_mutex.lock();
+
     // Quicker if the timestamps are added in order
     if (t_ms >= getNewestTimestamp())
     {
@@ -60,10 +62,17 @@ void DataSeries::addData(int64_t t_ms, float value)
         t_data.insert(t_data.begin() + idx, t_ms);
         y_data.insert(y_data.begin() + idx, value);
     }
+
+    if (update)
+    {
+        emit dataUpdated();
+    }
+
+    data_mutex.unlock();
 }
 
 
-void DataSeries::clearData()
+void DataSeries::clearData(bool update)
 {
     data_mutex.lock();
 
@@ -71,6 +80,11 @@ void DataSeries::clearData()
     y_data.clear();
 
     data_mutex.unlock();
+
+    if (update)
+    {
+        emit dataUpdated();
+    }
 }
 
 

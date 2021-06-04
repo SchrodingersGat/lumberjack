@@ -26,10 +26,10 @@ public slots:
     QString getLabel(void) const { return label; }
 
     /* Data insertion functions */
-    void addData(int64_t t_ms, float value);
+    void addData(int64_t t_ms, float value, bool update=false);
 
     /* Data removal functions */
-    void clearData(void);
+    void clearData(bool update=true);
 
     /* Data access functions */
     size_t size() const;
@@ -50,6 +50,10 @@ public slots:
 
     /* Status Functions */
     bool hasData() const { return size() > 0; }
+
+signals:
+    // Emitted when data are updated
+    void dataUpdated();
 
 protected:
 

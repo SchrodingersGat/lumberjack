@@ -60,6 +60,34 @@ private slots:
         QVERIFY_EXCEPTION_THROWN(series.getValue(1000), std::out_of_range);
     }
 
+    // Test for data update signals
+    void testDataSignals(void)
+    {
+        update_count = 0;
+
+        connect(&series, SIGNAL(dataUpdated()), this, SLOT(onDataUpdated()));
+
+        series.clearData();
+
+        QCOMPARE(update_count, 1);
+
+        for (int ii = 0; ii < 500; ii++)
+        {
+            series.addData(rand() % 100, rand() % 1000);
+        }
+
+        // Updates should not have fired
+        QCOMPARE(update_count, 1);
+
+        // Now add data, with updates on
+        for (int jj = 0; jj < 10; jj++)
+        {
+            series.addData(rand() % 100, rand() % 1000, true);
+        }
+
+        QCOMPARE(update_count, 11);
+    }
+
     // Tests for binary search indexing
     void testIndexing(void)
     {
@@ -78,7 +106,7 @@ private slots:
             QCOMPARE(idx, (int) ((ts + 10) / 10));
         }
 
-        Q_ASSERT(isInOrder());
+        QVERIFY(isInOrder());
 
         // Add random samples (must be inserted in order!)
 
@@ -88,11 +116,18 @@ private slots:
         }
 
         // Data must still be in correct timestamp order
-        Q_ASSERT(isInOrder());
+        QVERIFY(isInOrder());
     }
 
+public slots:
+    void onDataUpdated()
+    {
+        update_count++;
+    }
 
 protected:
+
+    int update_count = 0;
 
     DataSeries series;
 

@@ -5,9 +5,13 @@
 
 int main(int argc, char *argv[])
 {
+    int result = 0;
+
     DataSeriesTests test_series;
-    QTest::qExec(&test_series, argc, argv);
+    result += QTest::qExec(&test_series, argc, argv);
 
     DataSourceTests test_source;
-    QTest::qExec(&test_source, argc, argv);
+    result += QTest::qExec(&test_source, argc, argv);
+
+    return result;
 }
