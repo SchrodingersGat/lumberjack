@@ -96,6 +96,10 @@ private slots:
         // Remove by invalid label
         Q_ASSERT(!source.removeSeriesByLabel("Series 5"));
 
+        // Remove *all* series
+        source.removeAllSeries();
+        QCOMPARE(source.getSeriesCount(), 0);
+
     }
 
 protected:

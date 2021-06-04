@@ -184,3 +184,12 @@ bool DataSource::removeSeriesByLabel(QString label)
 
     return false;
 }
+
+
+void DataSource::removeAllSeries(void)
+{
+    while (data_series.size() > 0)
+    {
+        removeSeriesByIndex(0);
+    }
+}
