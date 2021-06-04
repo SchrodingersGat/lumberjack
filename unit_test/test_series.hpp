@@ -135,6 +135,51 @@ private slots:
         QCOMPARE(copy.size(), 100);
     }
 
+    // Test that we can correctly slice out a subsection of data
+    void testSubsection(void)
+    {
+        series.clearData();
+
+        // Construct a series of timestamps {0:100}
+        for (int idx = 0; idx <= 100; idx++)
+        {
+            series.addData(idx, rand() % 1000 - 500);
+        }
+
+        // We will slice out everything between {20:40}
+
+        DataSeries slice_1 = DataSeries(series, 20, 40);
+
+        QCOMPARE(slice_1.getOldestTimestamp(), 20);
+        QCOMPARE(slice_1.getNewestTimestamp(), 40);
+
+        // Slice in reverse, should get same result
+        DataSeries slice_2 = DataSeries(series, 40, 20);
+
+        QCOMPARE(slice_2.getOldestTimestamp(), 20);
+        QCOMPARE(slice_2.getNewestTimestamp(), 40);
+
+        // Slice across the lower-end
+        DataSeries slice_3 = DataSeries(series, -100, 10);
+
+        QCOMPARE(slice_3.size(), 11);
+        QCOMPARE(slice_3.getOldestTimestamp(), 0);
+        QCOMPARE(slice_3.getNewestTimestamp(), 10);
+
+        // Slice across the upper end
+        DataSeries slice_4 = DataSeries(series, 45, 1000);
+
+        QCOMPARE(slice_4.size(), 56);
+        QCOMPARE(slice_4.getOldestTimestamp(), 45);
+        QCOMPARE(slice_4.getNewestTimestamp(), 100);
+
+        // Slice in the middle, expand
+        DataSeries slice_5 = DataSeries(series, 10, 66, 20);
+
+        QCOMPARE(slice_5.getOldestTimestamp(), 0);
+        QCOMPARE(slice_5.getNewestTimestamp(), 86);
+    }
+
 public slots:
     void onDataUpdated()
     {

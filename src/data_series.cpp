@@ -22,6 +22,61 @@ DataSeries::DataSeries(const DataSeries &other)
     y_data = other.getValueData();
 
     // TODO - What else needs copying?
+
+    update();
+}
+
+
+// Copy from another data series, within the specified time range
+DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, unsigned int expand)
+{
+    label = other.getLabel();
+    units = other.getUnits();
+
+    // Ensure that the timestamps are the right way around!
+    if (t_min > t_max)
+    {
+        int64_t swap = t_min;
+
+        t_min = t_max;
+        t_max = swap;
+    }
+
+    // Construct a subsection
+    auto idx_min = other.getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
+    auto idx_max = other.getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
+
+    // Attempt to expand the indices by a single count on either side
+    while (expand > 0)
+    {
+        if (idx_min > 0)
+        {
+            idx_min--;
+        }
+
+        if (idx_max < (other.size() - 1))
+        {
+            idx_max++;
+        }
+
+        expand--;
+    }
+
+    // Allocate memory
+    t_data.reserve(idx_max - idx_min);
+    y_data.reserve(idx_max - idx_min);
+
+    auto length = other.size();
+
+    for (uint64_t idx = idx_min; idx <= idx_max; idx++)
+    {
+        if (idx < length)
+        {
+            addData(other.getTimestamp(idx), other.getValue(idx));
+        }
+    }
+
+    update();
 }
 
 
@@ -34,6 +89,14 @@ DataSeries::~DataSeries()
 size_t DataSeries::size() const
 {
     return t_data.size();
+}
+
+
+void DataSeries::update(void)
+{
+    // TODO - What needs to happen here?
+
+    emit dataUpdated();
 }
 
 
@@ -71,7 +134,7 @@ QVector<float> DataSeries::getValueData(void) const
 }
 
 
-void DataSeries::addData(int64_t t_ms, float value, bool update)
+void DataSeries::addData(int64_t t_ms, float value, bool do_update)
 {
     data_mutex.lock();
 
@@ -89,16 +152,16 @@ void DataSeries::addData(int64_t t_ms, float value, bool update)
         y_data.insert(y_data.begin() + idx, value);
     }
 
-    if (update)
+    if (do_update)
     {
-        emit dataUpdated();
+        update();
     }
 
     data_mutex.unlock();
 }
 
 
-void DataSeries::clearData(bool update)
+void DataSeries::clearData(bool do_update)
 {
     data_mutex.lock();
 
@@ -107,9 +170,9 @@ void DataSeries::clearData(bool update)
 
     data_mutex.unlock();
 
-    if (update)
+    if (do_update)
     {
-        emit dataUpdated();
+        update();
     }
 }
 
@@ -180,7 +243,7 @@ float DataSeries::getMaximumValue() const
 }
 
 
-uint64_t DataSeries::getIndexForTimestamp(int64_t t_ms, SearchDirection direction)
+uint64_t DataSeries::getIndexForTimestamp(int64_t t_ms, SearchDirection direction) const
 {
     if (t_ms < getOldestTimestamp())
     {

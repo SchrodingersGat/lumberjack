@@ -14,6 +14,7 @@ class DataSeries : public QObject
 public:
     DataSeries(QString label, QString units=QString());
     DataSeries(const DataSeries& other);
+    DataSeries(const DataSeries& other, int64_t t_min, int64_t t_max, unsigned int expand=0);
 
 //    DataSeries& operator=(const DataSeries& other);
 
@@ -55,10 +56,12 @@ public slots:
     float getMinimumValue(void) const;
     float getMaximumValue(void) const;
 
-    uint64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction=SEARCH_LEFT_TO_RIGHT);
+    uint64_t getIndexForTimestamp(int64_t t_ms, SearchDirection direction=SEARCH_LEFT_TO_RIGHT) const;
 
     /* Status Functions */
     bool hasData() const { return size() > 0; }
+
+    void update(void);
 
 signals:
     // Emitted when data are updated
