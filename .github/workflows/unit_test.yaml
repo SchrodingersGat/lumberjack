@@ -1,0 +1,27 @@
+# Run unit tests
+
+name: tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checksout@v2
+      name: Checkout Code
+    - name: Run Unit Tests
+      run: |
+        cd test
+        cmake -S . -B build
+        cmake --build build
+        cd build
+        ctest
