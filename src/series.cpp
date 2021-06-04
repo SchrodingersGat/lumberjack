@@ -21,29 +21,37 @@ size_t TimestampedData::size() const
 }
 
 
-QRectF TimestampedData::boundingRect() const
-{
-    return QRectF(
-                QPointF(getOldestTimestamp(), getMinimumValue()),
-                QPointF(getNewestTimestamp(), getMaximumValue())
-                );
-}
-
-
-QPointF TimestampedData::sample(size_t idx) const
+int64_t TimestampedData::getTimestamp(uint64_t idx) const
 {
     data_mutex.lock();
 
+    int64_t timestamp = 0;
+
     if (idx < size())
     {
-        QPointF pt((float) t_data[idx], y_data[idx]);
-        data_mutex.unlock();
-        return pt;
+        timestamp = t_data.at(idx);
     }
 
     data_mutex.unlock();
 
-    return QPointF(0, 0);
+    return timestamp;
+}
+
+
+float TimestampedData::getValue(uint64_t idx) const
+{
+    data_mutex.lock();
+
+    float value = 0.0f;
+
+    if (idx < size())
+    {
+        value = y_data.at(idx);
+    }
+
+    data_mutex.unlock();
+
+    return value;
 }
 
 
@@ -148,7 +156,7 @@ float TimestampedData::getMaximumValue() const
  * @param result
  * @return
  */
-int64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result)
+uint64_t TimestampedData::getIndexForTimestamp(int64_t t_ms, SearchDirection direction, bool &result)
 {
     // Note: this function assumes that the data are sorted by timestamp
 

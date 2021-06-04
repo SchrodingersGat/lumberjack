@@ -42,15 +42,24 @@ TEST_F(SeriesTest, TestSize)
 };
 
 
-TEST_F(SeriesTest, TestEndpoints)
+TEST_F(SeriesTest, TestAccess)
 {
-    // Tests for the front / back of the data
+    // Test accessor functions
 
     ASSERT_EQ(data.getOldestTimestamp(), 0);
     ASSERT_EQ(data.getNewestTimestamp(), 990);
 
     ASSERT_EQ(data.getOldestValue(), 15);
     ASSERT_EQ(data.getNewestValue(), 9915);
+
+    for (size_t idx = 0; idx < data.size(); idx++)
+    {
+        ASSERT_EQ(data.getTimestamp(idx), idx * 10);
+        ASSERT_FLOAT_EQ(data.getValue(idx), 15.0f + idx * 100);
+    }
+
+    // Check out of bounds access
+    ASSERT_EQ(data.getTimestamp(1000), 0);
 }
 
 
