@@ -1,8 +1,14 @@
-## Qt
+## Lumberjack
+
+**This project is a work in progress - more information coming soon**
+
+## Dependencies
+
+### Qt
 
 Qt 5.12.2
 
-## Qwt
+### Qwt
 
 Lumberjack makes use of the [Qt Widgets for Technical Applications (QWT) framework](https://qwt.sourceforge.io/).
 
