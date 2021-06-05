@@ -42,6 +42,12 @@ public:
         SEARCH_RIGHT_TO_LEFT,
     };
 
+    enum InterpolationMode
+    {
+        INTERPOLATE,
+        SAMPLE_HOLD,
+    };
+
 public slots:
 
     QString getLabel(void) const { return label; }
@@ -77,6 +83,8 @@ public slots:
 
     double getMinimumValue(void) const;
     double getMaximumValue(void) const;
+
+    double getValueAtTime(double timestamp, InterpolationMode mode=INTERPOLATE) const;
 
     double getMeanValue(void) const;
     double getMeanValue(double t_min, double t_max) const;

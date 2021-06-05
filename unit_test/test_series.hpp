@@ -202,6 +202,55 @@ private slots:
         QCOMPARE(series.getMeanValue(10, 20), 15);
         QCOMPARE(series.getMeanValue(-10, 10), 5);
         QCOMPARE(series.getMeanValue(95, 900), 97);
+
+        series.clearData();
+
+        // Create some custom data
+        for (int ii = 0; ii < 100; ii++)
+        {
+            series.addData((double) ii * 0.01, ii);
+        }
+
+        for (int ii = 0; ii <= 100; ii++)
+        {
+            series.addData(20, 20);
+        }
+
+        series.addData(25, 25);
+
+        // Selecting across the range {t=20 => t=25} should bias towards value=20
+        double mean = series.getMeanValue(20, 25);
+        double mean_expected = ((double) (20 * 100) + 25) / 101;
+
+        QVERIFY(abs(mean - mean_expected) < 0.001f);
+
+        // Exclude values at t=20
+        QCOMPARE(series.getMeanValue(20.01, 30), 25);
+    }
+
+    // Tests for data interpolation
+    void testInterpolation(void)
+    {
+        series.clearData();
+
+        for (int ii = 0; ii <= 10; ii++)
+        {
+            // Simple linear data set
+            series.addData(ii, ii);
+        }
+
+        // Check out of range values
+        QCOMPARE(series.getValueAtTime(-10), 0);
+        QCOMPARE(series.getValueAtTime(100), 10);
+
+        for (double t = 0; t <= 10; t += 0.072)
+        {
+            // Test linear interpolation
+            QCOMPARE(series.getValueAtTime(t), t);
+
+            // Test sample and hold
+            QCOMPARE(series.getValueAtTime(t, DataSeries::SAMPLE_HOLD), (int) t);
+        }
     }
 
 public slots:

@@ -310,6 +310,49 @@ double DataSeries::getMaximumValue() const
 }
 
 
+double DataSeries::getValueAtTime(double timestamp, InterpolationMode mode) const
+{
+    if (size() == 0)
+    {
+        return 0;
+    }
+
+    auto idx = getIndexForTimestamp(timestamp);
+
+    // Time is "before" the oldest timestamp
+    if (idx <= 0)
+    {
+        return getOldestValue();
+    }
+
+    // Time is "after" the newest timestamp
+    if (idx >= size())
+    {
+        return getNewestValue();
+    }
+
+    // Interpolate
+    auto point_a = getDataPoint(idx - 1);
+    auto point_b = getDataPoint(idx);
+
+    switch (mode)
+    {
+        case INTERPOLATE:
+        {
+            double dt = point_b.timestamp - point_a.timestamp;
+            double dv = point_b.value - point_a.value;
+
+            return point_a.value + dv * (timestamp - point_a.timestamp) / dt;
+        }
+        case SAMPLE_HOLD:
+        {
+            // Simply return the previous "most recent" value
+            return point_a.value;
+        }
+    }
+}
+
+
 double DataSeries::getMeanValue(void) const
 {
     return getMeanValue(getOldestTimestamp(), getNewestTimestamp());
