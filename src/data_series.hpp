@@ -82,7 +82,10 @@ public slots:
     double getNewestValue(void) const;
 
     double getMinimumValue(void) const;
+    double getMinimumValue(double t_min, double t_max) const;
+
     double getMaximumValue(void) const;
+    double getMaximumValue(double t_min, double t_max) const;
 
     double getValueAtTime(double timestamp, InterpolationMode mode=INTERPOLATE) const;
 

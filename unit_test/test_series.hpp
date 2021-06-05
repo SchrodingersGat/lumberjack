@@ -188,6 +188,26 @@ private slots:
         QCOMPARE(series.getNewestTimestamp(), 94);
     }
 
+    // Test minimum / maximum value functions
+    void testMinMax(void)
+    {
+        series.clearData();
+
+        for (int ii = 0; ii < 100; ii++)
+        {
+            series.addData(ii, ii - 50);
+        }
+
+        QCOMPARE(series.getMinimumValue(), -50);
+        QCOMPARE(series.getMaximumValue(), 49);
+
+        QCOMPARE(series.getMinimumValue(10, 25), -40);
+        QCOMPARE(series.getMinimumValue(56, 105), 6);
+
+        QCOMPARE(series.getMaximumValue(10, 25), -25);
+        QCOMPARE(series.getMaximumValue(56, 105), 49);
+    }
+
     // Test mean (average) calculation
     void testMean(void)
     {
