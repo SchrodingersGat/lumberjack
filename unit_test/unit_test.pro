@@ -33,6 +33,7 @@ HEADERS += \
     ../src/data_series.hpp \
     ../src/data_source.hpp \
     ../src/plot_curve.hpp \
+    test_curve.hpp \
     test_series.hpp \
     test_source.hpp
 
