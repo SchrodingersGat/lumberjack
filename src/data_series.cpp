@@ -298,15 +298,102 @@ double DataSeries::getNewestValue() const
 
 double DataSeries::getMinimumValue() const
 {
-    // TODO
-    return 0;
+    return getMinimumValue(getOldestTimestamp(), getNewestTimestamp());
+}
+
+
+double DataSeries::getMinimumValue(double t_min, double t_max) const
+{
+    if (size() == 0) return 0;
+
+    auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
+    auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
+
+    double value = getValue(idx_min);
+
+    for (auto idx = idx_min + 1; idx <= idx_max && idx < size(); idx++)
+    {
+        double v = getValue(idx);
+
+        if (v < value)
+        {
+            value = v;
+        }
+    }
+
+    return value;
 }
 
 
 double DataSeries::getMaximumValue() const
 {
-    // TODO
-    return 0;
+    return getMaximumValue(getOldestTimestamp(), getNewestTimestamp());
+}
+
+
+double DataSeries::getMaximumValue(double t_min, double t_max) const
+{
+    if (size() == 0) return 0;
+
+    auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
+    auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
+
+    double value = getValue(idx_min);
+
+    for (auto idx = idx_min + 1; idx <= idx_max && idx < size(); idx++)
+    {
+        double v = getValue(idx);
+
+        if (v > value)
+        {
+            value = v;
+        }
+    }
+
+    return value;
+}
+
+
+double DataSeries::getValueAtTime(double timestamp, InterpolationMode mode) const
+{
+    if (size() == 0)
+    {
+        return 0;
+    }
+
+    auto idx = getIndexForTimestamp(timestamp);
+
+    // Time is "before" the oldest timestamp
+    if (idx <= 0)
+    {
+        return getOldestValue();
+    }
+
+    // Time is "after" the newest timestamp
+    if (idx >= size())
+    {
+        return getNewestValue();
+    }
+
+    // Interpolate
+    auto point_a = getDataPoint(idx - 1);
+    auto point_b = getDataPoint(idx);
+
+    switch (mode)
+    {
+        case INTERPOLATE:
+        {
+            double dt = point_b.timestamp - point_a.timestamp;
+            double dv = point_b.value - point_a.value;
+
+            return point_a.value + dv * (timestamp - point_a.timestamp) / dt;
+        }
+        case SAMPLE_HOLD:
+        {
+            // Simply return the previous "most recent" value
+            return point_a.value;
+        }
+    }
 }
 
 
@@ -326,7 +413,7 @@ double DataSeries::getMeanValue(double t_min, double t_max) const
 
     unsigned int length = size();
 
-    for (size_t idx = idx_min; idx <= idx_max; idx++)
+    for (size_t idx = idx_min; idx <= idx_max && idx < size(); idx++)
     {
         if (idx < length)
         {
