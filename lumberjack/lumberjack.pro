@@ -27,12 +27,14 @@ INCLUDEPATH += ../src
 SOURCES += \
     ../src/data_series.cpp \
     ../src/data_source.cpp \
+    ../src/plot_curve.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     ../src/data_series.hpp \
     ../src/data_source.hpp \
+    ../src/plot_curve.hpp \
     mainwindow.h
 
 FORMS += \

@@ -7,22 +7,29 @@
 
 #include "data_series.hpp"
 
-/*
 class PlotCurve;
 
 class PlotCurveUpdater : public QObject
 {
     Q_OBJECT
 
-public slots:
-    PlotCurveUpdater(PlotCurve &curve) : plot_curve(curve) {}
+public:
+    PlotCurveUpdater(void);
 
-    void updateCurveSamples(double t_min, double t_max, unsigned int n_pixels);
+public slots:
+
+    void updateCurveSamples(const DataSeries &series, double t_min, double t_max, unsigned int n_pixels);
+
+signals:
+    // Sampled data is returned
+    void sampleComplete(const QVector<double>&, const QVector<double>&);
 
 protected:
-    PlotCurve &plot_curve;
+    //! Mutex to prevent simultaneous sampling
+    mutable QMutex mutex;
+
+    bool is_sampling = false;
 };
-*/
 
 /*
  * An extension of the QwtPlotCurve class,
@@ -44,21 +51,19 @@ public:
 
     virtual ~PlotCurve();
 
-    bool isSampling(void) const { return is_sampling;  }
-
 public slots:
     void resampleData(double t_min, double t_max, unsigned int n_pixels);
+
+protected slots:
+    void onDataResampled(const QVector<double> &t_data, const QVector<double> &y_data);
 
 protected:
     QSharedPointer<DataSeries> series;
 
+    PlotCurveUpdater worker;
+
     //! Thread for re-sampling curve data
-    QThread samplerThread;
-
-    //! Mutext eo
-    mutable QMutex samplerMutex;
-
-    bool is_sampling = false;
+    QThread workerThread;
 };
 
 #endif // PLOT_CURVE_H
