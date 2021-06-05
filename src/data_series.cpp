@@ -153,7 +153,7 @@ QVector<DataPoint> DataSeries::getData(double t_min, double t_max) const
 }
 
 
-DataPoint DataSeries::getDataPoint(uint64_t idx) const
+const DataPoint& DataSeries::getDataPoint(uint64_t idx) const
 {
     if (idx >= size())
     {
@@ -170,7 +170,7 @@ double DataSeries::getTimestamp(uint64_t idx) const
 }
 
 
-float DataSeries::getValue(uint64_t idx) const
+double DataSeries::getValue(uint64_t idx) const
 {
     return getDataPoint(idx).value;
 }
@@ -246,7 +246,7 @@ void DataSeries::clearData(bool do_update)
 }
 
 
-DataPoint DataSeries::getOldestDataPoint() const
+const DataPoint& DataSeries::getOldestDataPoint() const
 {
     if (size() > 0)
     {
@@ -271,7 +271,7 @@ double DataSeries::getOldestValue() const
 }
 
 
-DataPoint DataSeries::getNewestDataPoint() const
+const DataPoint& DataSeries::getNewestDataPoint() const
 {
     if (size() > 0)
     {
