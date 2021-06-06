@@ -5,6 +5,16 @@
 
 PlotWidget::PlotWidget() : QwtPlot()
 {
+    initZoomer();
+    initPanner();
+}
+
+
+/*
+ * Initialize QwtPlotZoomer to handle mouse driven zoom events
+ */
+void PlotWidget::initZoomer()
+{
     zoomer = new QwtPlotZoomer(canvas(), true);
 
     zoomer->setMaxStackDepth(20);
@@ -19,9 +29,16 @@ PlotWidget::PlotWidget() : QwtPlot()
     zoomer->setMousePattern(QwtPlotZoomer::MouseSelect6, Qt::MouseButton::NoButton);
 
     connect(zoomer, SIGNAL(zoomed(const QRectF&)), this, SLOT(onViewChanged(const QRectF&)));
-//    connect(zoomer, &QwtPlotZoomer::zoomed, this, &PlotWidget::onViewChanged);
+}
 
-    // TODO
+
+/*
+ * Initialize QwtPlotPanner to handle mouse panning events
+ */
+void PlotWidget::initPanner()
+{
+    panner = new QwtPlotPanner(canvas());
+    panner->setMouseButton(Qt::MiddleButton);
 }
 
 

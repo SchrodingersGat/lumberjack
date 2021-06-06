@@ -37,7 +37,11 @@ protected slots:
 protected:
     void wheelEvent(QWheelEvent *event);
 
+    void initZoomer(void);
+    void initPanner(void);
+
     QwtPlotZoomer *zoomer;
+    QwtPlotPanner *panner;
 
     // List of curves attached to this widget
     QList<QSharedPointer<PlotCurve>> curves;
