@@ -31,6 +31,10 @@ protected:
     mutable QMutex mutex;
 
     bool is_sampling = false;
+
+    double t_min_latest = -1;
+    double t_max_latest = -1;
+    unsigned int n_pixels_latest = 0;
 };
 
 /*

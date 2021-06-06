@@ -12,26 +12,33 @@ PlotCurveUpdater::PlotCurveUpdater(DataSeries &data_series) : QObject(), series(
  * Re-sample the data for the provided data series, between the specified timestamps
  *
  * TODO: Description of how the algorithm works!
+ *
+ * TODO: This algorithm constructs two arrays, and then the QwtPlotCurve->setSamples() function
+ *       *COPIES* the data across to the curve.
+ *       Instead, perhaps we could use setRawSamples() function to prevent an unnecessary copy operation.
  */
 void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned int n_pixels)
 {
-    // TODO: Save the sampling parameters, and ignore if we've previously sampled them!
-    // This prevents duplicate events or non-zooms from forcing a recalculation!!!
+    // If the arguments are the same as last time, ignore
+    if (t_min == t_min_latest && t_max == t_max_latest && n_pixels == n_pixels_latest)
+    {
+        return;
+    }
+
+    t_min_latest = t_min;
+    t_max_latest = t_max;
+    n_pixels_latest = n_pixels;
 
     // Profiling timer
     QElapsedTimer elapsed;
     elapsed.restart();
-
-    // TODO - Check if we are already updating the curve, and if so
-    //        then we schedule another call to updateCurveSamples
-    //        once this call is complete
 
     // Initialize empty arrays
     QVector<double> t_data;
     QVector<double> y_data;
 
     // Quick check for an empty series
-    if (series.size() == 0)
+    if (series.size() == 0 || n_pixels == 0)
     {
         emit sampleComplete(t_data, y_data);
         return;
@@ -272,7 +279,7 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
         QwtPlotCurve::setTitle((*series).getLabel());
     }
 
-    setPen(QColor(150, 250, 250));
+    setPen(QColor(50, 150, 150));
 
     worker.moveToThread(&workerThread);
 

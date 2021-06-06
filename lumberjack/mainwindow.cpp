@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     for (int idx = 0; idx < 5000; idx += 50)
     {
-        for (double t = -10; t <= 10; t += 0.001)
+        for (double t = -10; t <= 10; t += 0.01)
         {
             series->addData(t + idx, (double) (rand() % 1000) - 500);
         }
