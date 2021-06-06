@@ -15,6 +15,9 @@ PlotCurveUpdater::PlotCurveUpdater() : QObject()
  */
 void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min, double t_max, unsigned int n_pixels)
 {
+    // TODO: Save the sampling parameters, and ignore if we've previously sampled them!
+    // This prevents duplicate events or non-zooms from forcing a recalculation!!!
+
     // Profiling timer
     QElapsedTimer elapsed;
     elapsed.restart();
@@ -117,13 +120,17 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
     DataPoint pt_first = series.getDataPoint(idx_min);
     DataPoint pt_min = pt_first;
     DataPoint pt_max = pt_first;
+    DataPoint pt_last = pt_first;
 
-    int pt_counter = 0;
+    int pt_counter = 1;
 
     if (idx_max >= series.size())
     {
         idx_max = series.size() - 1;
     }
+
+    bool min_value_found = false;
+    bool max_value_found = false;
 
     for (uint64_t idx = idx_min; idx <= idx_max; idx++)
     {
@@ -143,6 +150,9 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
             {
                 pt_max = point;
             }
+
+            // Record this as the "most recent" point
+            pt_last = point;
         }
         else
         {
@@ -151,7 +161,7 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
              */
 
             // Record the current time as the start of the next "pixel"
-            t = point.timestamp;
+            t = t_next;
             t_next = t + dt;
 
             // Add in the data points as required
@@ -164,14 +174,56 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
             if (pt_counter > 2)
             {
                 // If the "minimum" value was lower than the first and last points
-                if ((pt_min.value < pt_first.value) && (pt_min.value < point.value))
+                if ((pt_min.value < pt_first.value) && (pt_min.value < pt_last.value))
                 {
-                    t_data.push_back(pt_min.timestamp);
-                    y_data.push_back(pt_min.value);
+                    min_value_found = true;
+                }
+                else
+                {
+                    min_value_found = false;
                 }
 
                 // If the "maximum" value was greater than the first and last points
-                if ((pt_max.value > pt_first.value) && (pt_max.value > point.value))
+                if ((pt_max.value > pt_first.value) && (pt_max.value > pt_last.value))
+                {
+                    max_value_found = true;
+                }
+                else
+                {
+                    max_value_found = false;
+                }
+
+                // Now work out the timestamp order in which to add the point(s)
+                if (min_value_found)
+                {
+                    // Min *and* max value found, determine which one is first
+                    if (max_value_found)
+                    {
+                        if (pt_min.timestamp <= pt_max.timestamp)
+                        {
+                            t_data.push_back(pt_min.timestamp);
+                            y_data.push_back(pt_min.value);
+
+                            t_data.push_back(pt_max.timestamp);
+                            y_data.push_back(pt_max.value);
+                        }
+                        else
+                        {
+                            t_data.push_back(pt_max.timestamp);
+                            y_data.push_back(pt_max.value);
+
+                            t_data.push_back(pt_min.timestamp);
+                            y_data.push_back(pt_min.value);
+                        }
+                    }
+                    else
+                    {
+                        // Just the minimum value
+                        t_data.push_back(pt_min.timestamp);
+                        y_data.push_back(pt_min.value);
+                    }
+                }
+                else if (max_value_found)
                 {
                     t_data.push_back(pt_max.timestamp);
                     y_data.push_back(pt_max.value);
@@ -179,16 +231,17 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
             }
 
             // Always add the "last" value
-            if (pt_counter > 1)
+            if (pt_counter >= 1)
             {
-                t_data.push_back(point.timestamp);
-                y_data.push_back(point.value);
+                t_data.push_back(pt_last.timestamp);
+                y_data.push_back(pt_last.value);
             }
 
             // Reset point data
             pt_first = point;
             pt_min = point;
             pt_max = point;
+            pt_last = point;
 
             // Reset point counter
             pt_counter = 1;
@@ -221,6 +274,8 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
     {
         QwtPlotCurve::setTitle((*series).getLabel());
     }
+
+    setPen(QColor(150, 250, 250));
 
     worker.moveToThread(&workerThread);
 
