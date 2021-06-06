@@ -1,6 +1,7 @@
 #ifndef PLOT_WIDGET_HPP
 #define PLOT_WIDGET_HPP
 
+#include <QMouseEvent>
 #include <QWheelEvent>
 
 #include <qwt_plot.h>
@@ -33,12 +34,16 @@ public slots:
 
 protected slots:
     void onViewChanged(const QRectF &viewrect);
+    void onViewPanned(int dx, int dy);
 
 protected:
     void wheelEvent(QWheelEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 
     void initZoomer(void);
     void initPanner(void);
+
+    void resampleCurves(void);
 
     QwtPlotZoomer *zoomer;
     QwtPlotPanner *panner;

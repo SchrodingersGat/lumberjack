@@ -5,6 +5,9 @@
 
 PlotWidget::PlotWidget() : QwtPlot()
 {
+    // Enable secondary axis
+    enableAxis(QwtPlot::yRight, true);
+
     initZoomer();
     initPanner();
 }
@@ -28,6 +31,8 @@ void PlotWidget::initZoomer()
     zoomer->setMousePattern(QwtPlotZoomer::MouseSelect5, Qt::MouseButton::NoButton);
     zoomer->setMousePattern(QwtPlotZoomer::MouseSelect6, Qt::MouseButton::NoButton);
 
+    zoomer->setZoomBase();
+
     connect(zoomer, SIGNAL(zoomed(const QRectF&)), this, SLOT(onViewChanged(const QRectF&)));
 }
 
@@ -39,6 +44,8 @@ void PlotWidget::initPanner()
 {
     panner = new QwtPlotPanner(canvas());
     panner->setMouseButton(Qt::MiddleButton);
+
+    connect(panner, SIGNAL(panned(int, int)), this, SLOT(onViewPanned(int, int)));
 }
 
 
@@ -46,6 +53,24 @@ PlotWidget::~PlotWidget()
 {
     delete zoomer;
     // TODO
+}
+
+
+/*
+ * Resample all attached curves to the displayed time region
+ */
+void PlotWidget::resampleCurves()
+{
+    auto interval = axisInterval(QwtPlot::xBottom);
+
+    int n_pixels = getHorizontalPixels();
+
+    for (auto curve : curves)
+    {
+        if (curve.isNull()) continue;
+
+        curve->resampleData(interval.minValue(), interval.maxValue(), n_pixels);
+    }
 }
 
 
@@ -71,17 +96,35 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 }
 
 
+void PlotWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::BackButton)
+    {
+        zoomer->zoom(-1);
+    }
+    else if (event->button() == Qt::ForwardButton)
+    {
+        zoomer->zoom(+1);
+    }
+}
+
+
 void PlotWidget::onViewChanged(const QRectF &viewrect)
 {
-    double t_min = viewrect.left();
-    double t_max = viewrect.right();
+    Q_UNUSED(viewrect);
 
-    for (auto curve : curves)
-    {
-        if (curve.isNull()) continue;
+    resampleCurves();
+}
 
-        curve->resampleData(t_min, t_max, getHorizontalPixels());
-    }
+
+/*
+ * Callback when the view is panned
+ */
+void PlotWidget::onViewPanned(int dx, int dy)
+{
+    qDebug() << "panned:" << dx << dy;
+
+    resampleCurves();
 }
 
 
