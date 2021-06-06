@@ -2,7 +2,7 @@
 
 #include "plot_curve.hpp"
 
-PlotCurveUpdater::PlotCurveUpdater() : QObject()
+PlotCurveUpdater::PlotCurveUpdater(DataSeries &data_series) : QObject(), series(data_series)
 {
     // TODO
 }
@@ -13,7 +13,7 @@ PlotCurveUpdater::PlotCurveUpdater() : QObject()
  *
  * TODO: Description of how the algorithm works!
  */
-void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min, double t_max, unsigned int n_pixels)
+void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned int n_pixels)
 {
     // TODO: Save the sampling parameters, and ignore if we've previously sampled them!
     // This prevents duplicate events or non-zooms from forcing a recalculation!!!
@@ -264,7 +264,8 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
 
 PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
     QwtPlotCurve(),
-    series(s)
+    series(s),
+    worker(*s)
 {
     if (!series.isNull())
     {
@@ -301,7 +302,7 @@ void PlotCurve::resampleData(double t_min, double t_max, unsigned int n_pixels)
 {
     if (!series.isNull())
     {
-        worker.updateCurveSamples(*series, t_min, t_max, n_pixels);
+        worker.updateCurveSamples(t_min, t_max, n_pixels);
     }
 }
 

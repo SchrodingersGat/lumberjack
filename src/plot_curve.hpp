@@ -14,17 +14,19 @@ class PlotCurveUpdater : public QObject
     Q_OBJECT
 
 public:
-    PlotCurveUpdater(void);
+    PlotCurveUpdater(DataSeries &data_series);
 
 public slots:
 
-    void updateCurveSamples(const DataSeries &series, double t_min, double t_max, unsigned int n_pixels);
+    void updateCurveSamples(double t_min, double t_max, unsigned int n_pixels);
 
 signals:
     // Sampled data is returned
     void sampleComplete(const QVector<double>&, const QVector<double>&);
 
 protected:
+    DataSeries &series;
+
     //! Mutex to prevent simultaneous sampling
     mutable QMutex mutex;
 
