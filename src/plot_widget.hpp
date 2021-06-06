@@ -19,6 +19,8 @@ public:
     PlotWidget();
     virtual ~PlotWidget();
 
+    virtual void updateLayout(void) override;
+
 signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QRectF &viewrect);

@@ -10,8 +10,16 @@ PlotWidget::PlotWidget() : QwtPlot()
 
     initZoomer();
     initPanner();
+
+    // Re-sample curve data when the plot is resized
+//    connec(canvas(), SIGNAL(resized))
 }
 
+PlotWidget::~PlotWidget()
+{
+    delete zoomer;
+    // TODO
+}
 
 /*
  * Initialize QwtPlotZoomer to handle mouse driven zoom events
@@ -33,7 +41,7 @@ void PlotWidget::initZoomer()
 
     zoomer->setZoomBase();
 
-    connect(zoomer, SIGNAL(zoomed(const QRectF&)), this, SLOT(onViewChanged(const QRectF&)));
+    // connect(zoomer, SIGNAL(zoomed(const QRectF&)), this, SLOT(onViewChanged(const QRectF&)));
 }
 
 
@@ -45,14 +53,16 @@ void PlotWidget::initPanner()
     panner = new QwtPlotPanner(canvas());
     panner->setMouseButton(Qt::MiddleButton);
 
-    connect(panner, SIGNAL(panned(int, int)), this, SLOT(onViewPanned(int, int)));
+    connect(panner, SIGNAL(moved(int, int)), this, SLOT(onViewPanned(int, int)));
 }
 
 
-PlotWidget::~PlotWidget()
+void PlotWidget::updateLayout()
 {
-    delete zoomer;
-    // TODO
+
+    QwtPlot::updateLayout();
+
+    resampleCurves();
 }
 
 
@@ -77,6 +87,9 @@ void PlotWidget::resampleCurves()
 void PlotWidget::wheelEvent(QWheelEvent *event)
 {
     int delta = event->delta();
+
+    // Convert the on-screen position to axes coordinates
+//    auto pos = canvas()->mapT
 
     if (QApplication::keyboardModifiers() == Qt::ShiftModifier)
     {
@@ -112,8 +125,6 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
 void PlotWidget::onViewChanged(const QRectF &viewrect)
 {
     Q_UNUSED(viewrect);
-
-    resampleCurves();
 }
 
 
@@ -122,9 +133,10 @@ void PlotWidget::onViewChanged(const QRectF &viewrect)
  */
 void PlotWidget::onViewPanned(int dx, int dy)
 {
-    qDebug() << "panned:" << dx << dy;
+    Q_UNUSED(dx);
+    Q_UNUSED(dy);
 
-    resampleCurves();
+    // TODO: Push the current view rect onto the zoomer history stack
 }
 
 
