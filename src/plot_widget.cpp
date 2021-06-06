@@ -40,8 +40,6 @@ void PlotWidget::initZoomer()
     zoomer->setMousePattern(QwtPlotZoomer::MouseSelect6, Qt::MouseButton::NoButton);
 
     zoomer->setZoomBase();
-
-    // connect(zoomer, SIGNAL(zoomed(const QRectF&)), this, SLOT(onViewChanged(const QRectF&)));
 }
 
 
@@ -50,18 +48,16 @@ void PlotWidget::initZoomer()
  */
 void PlotWidget::initPanner()
 {
-    panner = new QwtPlotPanner(canvas());
+    panner = new PlotPanner(canvas());
     panner->setMouseButton(Qt::MiddleButton);
-
-    connect(panner, SIGNAL(moved(int, int)), this, SLOT(onViewPanned(int, int)));
 }
 
 
 void PlotWidget::updateLayout()
 {
-
     QwtPlot::updateLayout();
 
+    // Force re-sampling of attached curve data when canvas dimensions are changed
     resampleCurves();
 }
 
@@ -87,6 +83,11 @@ void PlotWidget::resampleCurves()
 void PlotWidget::wheelEvent(QWheelEvent *event)
 {
     int delta = event->delta();
+
+    if (delta == 0) return;
+
+    // Prevent accidental zoom in-out while panning
+    if (event->buttons() & Qt::MiddleButton) return;
 
     bool zoom_vertical = true;
     bool zoom_horizontal = true;
@@ -181,24 +182,6 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
 }
 
 
-void PlotWidget::onViewChanged(const QRectF &viewrect)
-{
-    Q_UNUSED(viewrect);
-}
-
-
-/*
- * Callback when the view is panned
- */
-void PlotWidget::onViewPanned(int dx, int dy)
-{
-    Q_UNUSED(dx);
-    Q_UNUSED(dy);
-
-    // TODO: Push the current view rect onto the zoomer history stack
-}
-
-
 bool PlotWidget::addSeries(QSharedPointer<DataSeries> series)
 {
     if (series.isNull()) return false;
@@ -226,8 +209,6 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series)
 
     // Perform initial data sampling
     curve->resampleData(interval.minValue(), interval.maxValue(), getHorizontalPixels());
-
-    qDebug() << "Added curve (" << curves.size() << ")";
 
     return true;
 }

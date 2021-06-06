@@ -264,8 +264,6 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
     // Signal that the downsampling process is now complete
     emit sampleComplete(t_data, y_data);
-
-    qInfo() << "updateCurveSamples reduced" << n_samples << "samples to" << t_data.size() << "points in" << elapsed.elapsed() << "ms";
 }
 
 
@@ -289,12 +287,9 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
 
 PlotCurve::~PlotCurve()
 {
-    qDebug() << "~PlotCurve()";
     // Wait for the resampling thread to complete
     workerThread.quit();
     workerThread.wait();
-
-    qDebug() << "~PlotCurve() complete";
 }
 
 
