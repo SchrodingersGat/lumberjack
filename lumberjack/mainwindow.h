@@ -25,6 +25,9 @@ protected:
     void initSignalsSlots(void);
     void initStatusBar(void);
 
+protected slots:
+    void showAboutInfo();
+
 private:
     Ui::MainWindow *ui;
 

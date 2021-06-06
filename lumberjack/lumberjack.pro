@@ -22,7 +22,8 @@ win32 { # windows
     }
 }
 
-INCLUDEPATH += ../src
+INCLUDEPATH += ../src \
+               widgets
 
 SOURCES += \
     ../src/data_series.cpp \
@@ -30,7 +31,8 @@ SOURCES += \
     ../src/plot_curve.cpp \
     ../src/plot_widget.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    widgets/about_dialog.cpp
 
 HEADERS += \
     ../src/data_series.hpp \
@@ -38,10 +40,20 @@ HEADERS += \
     ../src/lumberjack_version.hpp \
     ../src/plot_curve.hpp \
     ../src/plot_widget.hpp \
-    mainwindow.h
+    mainwindow.h \
+    widgets/about_dialog.hpp
 
 FORMS += \
+    about_dialog.ui \
     mainwindow.ui
+
+#Set the location for the generated ui_xxxx.h files
+UI_DIR = ui_tmp/
+
+# Add some build info defines
+DEFINES += COMPILER=\\\"$$QMAKE_CXX\\\" \
+           COMPILER_VERSION=\\\"$$system($$QMAKE_CXX ' -dumpversion')\\\" \
+           ARCHITECTURE=\\\"$$QT_ARCH\\\" \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

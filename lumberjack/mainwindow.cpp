@@ -1,20 +1,26 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include <stdlib.h>
+#include <qdockwidget.h>
 
+#include <qwt_plot.h>
+
+#include "lumberjack_version.hpp"
 #include "plot_curve.hpp"
 #include "data_series.hpp"
 #include "plot_widget.hpp"
 
-#include <qdockwidget.h>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
-#include <stdlib.h>
-#include <qwt_plot.h>
+#include "about_dialog.hpp"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
 
     initStatusBar();
     initSignalsSlots();
@@ -54,7 +60,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::initSignalsSlots()
 {
-
+    connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
 }
 
 
@@ -67,4 +73,12 @@ void MainWindow::initStatusBar()
 
     ui->statusbar->addPermanentWidget(&t_pos);
     ui->statusbar->addPermanentWidget(&y_pos);
+}
+
+
+void MainWindow::showAboutInfo()
+{
+    AboutDialog dlg;
+
+    dlg.exec();
 }
