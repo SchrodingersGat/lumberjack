@@ -11,7 +11,12 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
 
     ui.softwareVersion->setText(LUMBERJACK_VERSION_STRING);
-    ui.buildDate->setText(LUMBERJACK_BUILD_DATE);
+    ui.buildDate->setText(__DATE__);
+    ui.qtVersion->setText(QT_VERSION_STR);
+
+    ui.compiler->setText(COMPILER);
+    ui.compilerVersion->setText(COMPILER_VERSION);
+    ui.architecture->setText(ARCHITECTURE);
 
     ui.projectLInk->setTextFormat(Qt::RichText);
     ui.projectLInk->setOpenExternalLinks(true);

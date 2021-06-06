@@ -50,6 +50,11 @@ FORMS += \
 #Set the location for the generated ui_xxxx.h files
 UI_DIR = ui_tmp/
 
+# Add some build info defines
+DEFINES += COMPILER=\\\"$$QMAKE_CXX\\\" \
+           COMPILER_VERSION=\\\"$$system($$QMAKE_CXX ' -dumpversion')\\\" \
+           ARCHITECTURE=\\\"$$QT_ARCH\\\" \
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
