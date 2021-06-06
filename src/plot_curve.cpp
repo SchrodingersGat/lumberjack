@@ -26,8 +26,6 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
     //        then we schedule another call to updateCurveSamples
     //        once this call is complete
 
-    qDebug() << "updateCurveSamples" << series.getLabel() << t_min << t_max << n_pixels;
-
     // Initialize empty arrays
     QVector<double> t_data;
     QVector<double> y_data;
@@ -91,8 +89,6 @@ void PlotCurveUpdater::updateCurveSamples(const DataSeries &series, double t_min
         }
 
         emit sampleComplete(t_data, y_data);
-
-        qInfo() << "updateCurveSamples pushed" << t_data.size() << "samples in" << elapsed.elapsed() << "ms";
 
         return;
     }

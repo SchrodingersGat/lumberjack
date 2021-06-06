@@ -88,24 +88,83 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 {
     int delta = event->delta();
 
-    // Convert the on-screen position to axes coordinates
-//    auto pos = canvas()->mapT
+    bool zoom_vertical = true;
+    bool zoom_horizontal = true;
 
     if (QApplication::keyboardModifiers() == Qt::ShiftModifier)
     {
-        // TODO - Handle vertical zoom only
+        // Vertical zoom only!
+        zoom_horizontal = false;
     }
     else if (QApplication::keyboardModifiers() == Qt::ControlModifier)
     {
-        // TODO - Handle horizontal zoom only
+        // Horizontal zoom only
+        zoom_vertical = false;
     }
-    else
+
+    double factor = 1.25;
+
+    if (delta > 0)
     {
-        if (delta > 0)
-        {
-            // TODO
-        }
+        factor = 1 / factor;
     }
+
+    // Map the mouse position to the underlying canvas,
+    // otherwise the size of the displayed axes causes offset issues
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    for (int axis_id = 0; axis_id < QwtPlot::axisCnt; axis_id++)
+    {
+        if (!axisEnabled(axis_id)) continue;
+
+        const auto canvas_map = canvasMap(axis_id);
+
+        double v1 = canvas_map.s1();
+        double v2 = canvas_map.s2();
+
+        if (canvas_map.transformation())
+        {
+            v1 = canvas_map.transform(v1);
+            v2 = canvas_map.transform(v2);
+        }
+
+        double c = 0;
+
+        switch (axis_id)
+        {
+        case QwtPlot::xBottom:
+            if (!zoom_horizontal) continue;
+
+            c = canvas_map.invTransform(canvas_pos.x());
+            break;
+        case QwtPlot::yLeft:
+        case QwtPlot::yRight:
+            if (!zoom_vertical) continue;
+
+            c = canvas_map.invTransform(canvas_pos.y());
+            break;
+        default:
+            continue;
+        }
+
+        const double center = 0.5 * (v1 + v2);
+        const double width_2 = 0.5 * (v2 - v1) * factor;
+        const double new_center = c - factor * (c - center);
+
+        v1 = new_center - width_2;
+        v2 = new_center + width_2;
+
+        if (canvas_map.transformation())
+        {
+            v1 = canvas_map.invTransform(v1);
+            v2 = canvas_map.invTransform(v2);
+        }
+
+        setAxisScale(axis_id, v1, v2);
+
+    }
+
+    replot();
 }
 
 

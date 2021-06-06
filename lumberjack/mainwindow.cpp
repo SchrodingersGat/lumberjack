@@ -33,9 +33,12 @@ MainWindow::MainWindow(QWidget *parent)
     // Construct a new series
     series = QSharedPointer<DataSeries>(new DataSeries("My Series"));
 
-    for (double ts = 0; ts < 100000; ts++)
+    for (int idx = 0; idx < 5000; idx += 50)
     {
-        series->addData(ts * 0.001, (rand() % 1000) - 500);
+        for (double t = -10; t <= 10; t += 0.001)
+        {
+            series->addData(t + idx, (double) (rand() % 1000) - 500);
+        }
     }
 
     plot->addSeries(series);
