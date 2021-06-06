@@ -28,13 +28,16 @@ SOURCES += \
     ../src/data_series.cpp \
     ../src/data_source.cpp \
     ../src/plot_curve.cpp \
+    ../src/plot_widget.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     ../src/data_series.hpp \
     ../src/data_source.hpp \
+    ../src/lumberjack_version.hpp \
     ../src/plot_curve.hpp \
+    ../src/plot_widget.hpp \
     mainwindow.h
 
 FORMS += \

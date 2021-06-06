@@ -1,6 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "plot_curve.hpp"
+#include "data_series.hpp"
+#include "plot_widget.hpp"
+
+#include <qdockwidget.h>
+
+#include <stdlib.h>
+#include <qwt_plot.h>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -9,6 +18,30 @@ MainWindow::MainWindow(QWidget *parent)
 
     initStatusBar();
     initSignalsSlots();
+
+
+    // Add a grapho
+    QDockWidget *dock = new QDockWidget("Graph", this);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+    PlotWidget *plot = new PlotWidget();
+
+    dock->setWidget(plot);
+
+    this->addDockWidget(Qt::LeftDockWidgetArea, dock);
+
+    // Construct a new series
+    series = QSharedPointer<DataSeries>(new DataSeries("My Series"));
+
+    for (double ts = 0; ts < 100000; ts++)
+    {
+        series->addData(ts * 0.001, (rand() % 1000) - 500);
+    }
+
+    plot->addSeries(series);
+    plot->addSeries(series);
+    plot->addSeries(series);
+
 }
 
 MainWindow::~MainWindow()

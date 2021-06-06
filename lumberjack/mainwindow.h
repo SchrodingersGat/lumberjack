@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <qlabel.h>
 
+#include "data_series.hpp"
+#include "plot_curve.hpp"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -27,6 +30,8 @@ private:
 
     QLabel t_pos;
     QLabel y_pos;
+
+    QSharedPointer<DataSeries> series;
 
 };
 #endif // MAINWINDOW_H

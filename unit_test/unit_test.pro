@@ -32,6 +32,7 @@ SOURCES += \
 HEADERS += \
     ../src/data_series.hpp \
     ../src/data_source.hpp \
+    ../src/lumberjack_version.hpp \
     ../src/plot_curve.hpp \
     test_curve.hpp \
     test_series.hpp \

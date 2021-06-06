@@ -49,6 +49,9 @@ public:
     PlotCurve(QSharedPointer<DataSeries> series);
     PlotCurve(DataSeries* series) : PlotCurve(QSharedPointer<DataSeries>(series)) {}
 
+    QSharedPointer<DataSeries> getDataSeries(void) { return series; }
+
+
     virtual ~PlotCurve();
 
 public slots:

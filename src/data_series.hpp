@@ -50,9 +50,9 @@ public:
 
 public slots:
 
-    QString getLabel(void) const { return label; }
+    const QString& getLabel(void) const { return label; }
 
-    QString getUnits(void) const { return units; }
+    const QString& getUnits(void) const { return units; }
 
     /* Data insertion functions */
     void addData(DataPoint point, bool update=true);
