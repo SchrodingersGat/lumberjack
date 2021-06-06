@@ -114,7 +114,30 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
     // otherwise the size of the displayed axes causes offset issues
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
-    for (int axis_id = 0; axis_id < QwtPlot::axisCnt; axis_id++)
+    // List of axes we can zoom
+    QList<int> axes;
+
+    // If the mouse position is over a particular axis, we will *only* zoom that axis!
+    if (canvas_pos.x() < 0)
+    {
+        axes.append(QwtPlot::yLeft);
+    }
+    else if (canvas_pos.x() > canvas()->width())
+    {
+        axes.append(QwtPlot::yRight);
+    }
+    else if (canvas_pos.y() > canvas()->height())
+    {
+        axes.append(QwtPlot::xBottom);
+    }
+    else
+    {
+        axes.append(QwtPlot::xBottom);
+        axes.append(QwtPlot::yLeft);
+        axes.append(QwtPlot::yRight);
+    }
+
+    for (int axis_id : axes)
     {
         if (!axisEnabled(axis_id)) continue;
 
