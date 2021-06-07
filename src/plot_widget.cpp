@@ -76,7 +76,7 @@ void PlotWidget::initLegend()
 
     insertLegend(legend, QwtPlot::TopLegend);
 
-    connect(legend, SIGNAL(clicked(const QVariant&, int)), this, SLOT(legendClicked(const QVariant&, int)));
+    connect(legend, SIGNAL(clicked(const QVariant, int)), this, SLOT(legendClicked(const QVariant, int)));
 }
 
 
@@ -204,6 +204,9 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
             else if (modifiers == Qt::AltModifier)
             {
                 // Switch curve to the other axis
+                int axis = curve->yAxis();
+
+                curve->setYAxis(axis == QwtPlot::yLeft ? QwtPlot::yRight : QwtPlot::yLeft);
             }
             else
             {
@@ -229,12 +232,12 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
     bool zoom_vertical = true;
     bool zoom_horizontal = true;
 
-    if (QApplication::keyboardModifiers() == Qt::ShiftModifier)
+    if (QApplication::keyboardModifiers() == Qt::ControlModifier)
     {
         // Vertical zoom only!
         zoom_horizontal = false;
     }
-    else if (QApplication::keyboardModifiers() == Qt::ControlModifier)
+    else if (QApplication::keyboardModifiers() == Qt::ShiftModifier)
     {
         // Horizontal zoom only
         zoom_vertical = false;
@@ -477,7 +480,9 @@ void PlotWidget::autoScale(int axis_id)
     QwtInterval interval_left;
     QwtInterval interval_right;
 
-    bool do_update = false;
+    bool update = false;
+    bool update_left = false;
+    bool update_right = false;
 
     for (auto curve : curves)
     {
@@ -495,29 +500,31 @@ void PlotWidget::autoScale(int axis_id)
         if (curve->yAxis() == QwtPlot::yLeft)
         {
             interval_left |= y;
+            update_left = true;
         }
         else if (curve->yAxis() == QwtPlot::yRight)
         {
             interval_right |= y;
+            update_right = true;
         }
 
-        do_update = true;
+        update = true;
     }
 
     // Return if no curves were available for updating
-    if (!do_update) return;
+    if (!update) return;
 
     if (axis_id == QwtPlot::xBottom || axis_id == yBoth)
     {
         setAxisScale(QwtPlot::xBottom, interval_bottom.minValue(), interval_bottom.maxValue());
     }
 
-    if (axis_id == QwtPlot::yLeft || axis_id == yBoth)
+    if (update_left && (axis_id == QwtPlot::yLeft || axis_id == yBoth))
     {
         setAxisScale(QwtPlot::yLeft, interval_left.minValue(), interval_left.maxValue());
     }
 
-    if (axis_id == QwtPlot::yRight || axis_id == yBoth)
+    if (update_right && (axis_id == QwtPlot::yRight || axis_id == yBoth))
     {
         setAxisScale(QwtPlot::yRight, interval_right.minValue(), interval_right.maxValue());
     }
