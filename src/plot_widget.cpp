@@ -522,11 +522,23 @@ void PlotWidget::autoScale(int axis_id)
     if (update_left && (axis_id == QwtPlot::yLeft || axis_id == yBoth))
     {
         setAxisScale(QwtPlot::yLeft, interval_left.minValue(), interval_left.maxValue());
+
+        // No curves available on the right axis, so update to match
+        if (!update_right && axis_id == yBoth)
+        {
+            setAxisScale(QwtPlot::yRight, interval_left.minValue(), interval_left.maxValue());
+        }
     }
 
     if (update_right && (axis_id == QwtPlot::yRight || axis_id == yBoth))
     {
         setAxisScale(QwtPlot::yRight, interval_right.minValue(), interval_right.maxValue());
+
+        // No curves available on the left axis, so update to match
+        if (!update_left && axis_id == yBoth)
+        {
+            setAxisScale(QwtPlot::yLeft, interval_right.minValue(), interval_right.maxValue());
+        }
     }
 
     setAutoReplot(true);
