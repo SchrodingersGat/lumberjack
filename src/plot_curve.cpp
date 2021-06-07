@@ -287,9 +287,13 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
 
 PlotCurve::~PlotCurve()
 {
+    qDebug() << "Deleting PlotCurve";
+
     // Wait for the resampling thread to complete
     workerThread.quit();
     workerThread.wait();
+
+    qDebug() << "~PlotCurve() complete";
 }
 
 

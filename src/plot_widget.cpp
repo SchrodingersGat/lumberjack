@@ -187,9 +187,27 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
     {
         if (!curve.isNull() && (QwtPlotItem*) &(*curve) == item)
         {
+            auto series = curve->getDataSeries();
+
+            if (series.isNull()) continue;
+
             if (modifiers == Qt::ShiftModifier)
             {
+                // Toggle curve visibility
                 curve->setVisible(!curve->isVisible());
+            }
+            else if (modifiers == Qt::ControlModifier)
+            {
+                // Remove the data series
+                removeSeries(series);
+            }
+            else if (modifiers == Qt::AltModifier)
+            {
+                // Switch curve to the other axis
+            }
+            else
+            {
+                // Track?
             }
         }
     }
@@ -427,7 +445,25 @@ bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
         if (!curve.isNull() && curve->getDataSeries() == series)
         {
             curves.removeAt(idx);
+            replot();
             return true;
+        }
+    }
+
+    return false;
+}
+
+
+/*
+ * Remove the first attached curve which matches the provided label string
+ */
+bool PlotWidget::removeSeries(QString label)
+{
+    for (auto curve : curves)
+    {
+        if (!curve.isNull() && curve->getDataSeries()->getLabel() == label)
+        {
+            return removeSeries(curve->getDataSeries());
         }
     }
 

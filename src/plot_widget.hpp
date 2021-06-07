@@ -71,6 +71,7 @@ public slots:
 
     bool removeSeries(QSharedPointer<DataSeries> series);
     bool removeSeries(DataSeries *series) { return removeSeries(QSharedPointer<DataSeries>(series)); }
+    bool removeSeries(QString label);
 
     void autoScale(int axis_id = yBoth);
 
