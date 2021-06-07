@@ -51,6 +51,15 @@ MainWindow::MainWindow(QWidget *parent)
     plot->addSeries(series);
     plot->addSeries(series);
 
+    auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
+
+    for (double t = 0; t < 100; t += 0.001)
+    {
+        series_2->addData(t, 10 * cos(0.1 * t));
+    }
+
+    plot->addSeries(series_2, QwtPlot::yRight);
+
 }
 
 MainWindow::~MainWindow()

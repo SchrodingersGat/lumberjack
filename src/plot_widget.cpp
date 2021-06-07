@@ -11,6 +11,12 @@ PlotWidget::PlotWidget() : QwtPlot()
     initZoomer();
     initPanner();
 
+    legend = new QwtLegend();
+
+    legend->setDefaultItemMode(QwtLegendData::Clickable);
+
+    insertLegend(legend, QwtPlot::TopLegend);
+
     // Re-sample curve data when the plot is resized
 //    connec(canvas(), SIGNAL(resized))
 }
@@ -64,9 +70,14 @@ void PlotWidget::updateLayout()
 
 /*
  * Resample all attached curves to the displayed time region
+ *
+ * The y-axis can be specified if only one axis is to be updated
  */
-void PlotWidget::resampleCurves()
+void PlotWidget::resampleCurves(int axis_id)
 {
+    bool axis_left = (axis_id == -1) || (axis_id == QwtPlot::yLeft);
+    bool axis_right = (axis_id == -1) || (axis_id == QwtPlot::yRight);
+
     auto interval = axisInterval(QwtPlot::xBottom);
 
     int n_pixels = getHorizontalPixels();
@@ -74,6 +85,18 @@ void PlotWidget::resampleCurves()
     for (auto curve : curves)
     {
         if (curve.isNull()) continue;
+
+        int axis = ((QwtPlotCurve*) &(*curve))->yAxis();
+
+        if (axis == QwtPlot::yLeft && !axis_left)
+        {
+            continue;
+        }
+
+        if (axis == QwtPlot::yRight && !axis_right)
+        {
+            continue;
+        }
 
         curve->resampleData(interval.minValue(), interval.maxValue(), n_pixels);
     }
@@ -118,14 +141,20 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
     QList<int> axes;
 
     // If the mouse position is over a particular axis, we will *only* zoom that axis!
+
+    // Cursor is over the left axis
     if (canvas_pos.x() < 0)
     {
         axes.append(QwtPlot::yLeft);
     }
+
+    // Cursor is over the right axis
     else if (canvas_pos.x() > canvas()->width())
     {
         axes.append(QwtPlot::yRight);
     }
+
+    // Cursor is over the bottom axis
     else if (canvas_pos.y() > canvas()->height())
     {
         axes.append(QwtPlot::xBottom);
@@ -205,7 +234,7 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
 }
 
 
-bool PlotWidget::addSeries(QSharedPointer<DataSeries> series)
+bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
 {
     if (series.isNull()) return false;
 
@@ -223,8 +252,8 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series)
     // Create a new PlotCurve for the DataSeries
     PlotCurve *curve = new PlotCurve(series);
 
-    // Attach the curve to the plot
     ((QwtPlotCurve*) curve)->attach(this);
+    ((QwtPlotCurve*) curve)->setYAxis(axis_id);
 
     curves.push_back(QSharedPointer<PlotCurve>(curve));
 

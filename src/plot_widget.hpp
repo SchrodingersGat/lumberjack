@@ -7,6 +7,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
+#include <qwt_legend.h>
 
 #include "plot_curve.hpp"
 
@@ -62,7 +63,7 @@ signals:
 public slots:
     int getHorizontalPixels(void) const;
 
-    bool addSeries(QSharedPointer<DataSeries> series);
+    bool addSeries(QSharedPointer<DataSeries> series, int axis_id = QwtPlot::yLeft);
     bool addSeries(DataSeries *series) { return addSeries(QSharedPointer<DataSeries>(series)); }
 
     bool removeSeries(QSharedPointer<DataSeries> series);
@@ -77,10 +78,11 @@ protected:
     void initZoomer(void);
     void initPanner(void);
 
-    void resampleCurves(void);
+    void resampleCurves(int axis_id=-1);
 
     QwtPlotZoomer *zoomer;
     PlotPanner *panner;
+    QwtLegend *legend;
 
     // List of curves attached to this widget
     QList<QSharedPointer<PlotCurve>> curves;
