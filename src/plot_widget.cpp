@@ -10,15 +10,8 @@ PlotWidget::PlotWidget() : QwtPlot()
 
     initZoomer();
     initPanner();
+    initLegend();
 
-    legend = new QwtLegend();
-
-    legend->setDefaultItemMode(QwtLegendData::Clickable);
-
-    insertLegend(legend, QwtPlot::TopLegend);
-
-    // Re-sample curve data when the plot is resized
-//    connec(canvas(), SIGNAL(resized))
 }
 
 PlotWidget::~PlotWidget()
@@ -59,6 +52,18 @@ void PlotWidget::initPanner()
 }
 
 
+void PlotWidget::initLegend()
+{
+    legend = new QwtLegend();
+
+    legend->setDefaultItemMode(QwtLegendData::Clickable);
+
+    insertLegend(legend, QwtPlot::TopLegend);
+
+    connect(legend, SIGNAL(clicked(QVariant, int)), this, SLOT(legendCLicked(QVariant, int)));
+}
+
+
 void PlotWidget::updateLayout()
 {
     QwtPlot::updateLayout();
@@ -75,8 +80,8 @@ void PlotWidget::updateLayout()
  */
 void PlotWidget::resampleCurves(int axis_id)
 {
-    bool axis_left = (axis_id == -1) || (axis_id == QwtPlot::yLeft);
-    bool axis_right = (axis_id == -1) || (axis_id == QwtPlot::yRight);
+    bool axis_left = (axis_id == yBoth) || (axis_id == QwtPlot::yLeft);
+    bool axis_right = (axis_id == yBoth) || (axis_id == QwtPlot::yRight);
 
     auto interval = axisInterval(QwtPlot::xBottom);
 
@@ -100,6 +105,12 @@ void PlotWidget::resampleCurves(int axis_id)
 
         curve->resampleData(interval.minValue(), interval.maxValue(), n_pixels);
     }
+}
+
+
+void PlotWidget::legendClicked(QVariant &item_info, int index)
+{
+    // TODO
 }
 
 
@@ -234,6 +245,32 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
 }
 
 
+void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::MiddleButton)
+    {
+        QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+        int axis_id = yBoth;
+
+        if (canvas_pos.x() < 0)
+        {
+            axis_id = QwtPlot::yLeft;
+        }
+        else if (canvas_pos.x() > canvas()->width())
+        {
+            axis_id = QwtPlot::yRight;
+        }
+        else if (canvas_pos.y() > canvas()->height())
+        {
+            axis_id = QwtPlot::xBottom;
+        }
+
+        autoScale(axis_id);
+    }
+}
+
+
 bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
 {
     if (series.isNull()) return false;
@@ -280,6 +317,54 @@ bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
     }
 
     return false;
+}
+
+
+void PlotWidget::autoScale(int axis_id)
+{
+    QwtInterval interval_bottom;
+    QwtInterval interval_left;
+    QwtInterval interval_right;
+
+    for (auto curve : curves)
+    {
+        if (curve.isNull()) continue;
+
+        auto series = curve->getDataSeries();
+
+        if (series.isNull() || series->size() == 0) continue;
+
+        interval_bottom |= QwtInterval(series->getOldestTimestamp(), series->getNewestTimestamp());
+
+        QwtInterval y(series->getMinimumValue(), series->getMaximumValue());
+
+        if (curve->getYAxis() == QwtPlot::yLeft)
+        {
+            interval_left |= y;
+        }
+        else if (curve->getYAxis() == QwtPlot::yRight)
+        {
+            interval_right |= y;
+        }
+    }
+
+    if (axis_id == QwtPlot::xBottom || axis_id == yBoth)
+    {
+        setAxisScale(QwtPlot::xBottom, interval_bottom.minValue(), interval_bottom.maxValue());
+    }
+
+    if (axis_id == QwtPlot::yLeft || axis_id == yBoth)
+    {
+        setAxisScale(QwtPlot::yLeft, interval_left.minValue(), interval_left.maxValue());
+    }
+
+    if (axis_id == QwtPlot::yRight || axis_id == yBoth)
+    {
+        setAxisScale(QwtPlot::yRight, interval_right.minValue(), interval_right.maxValue());
+    }
+
+    setAutoReplot(true);
+    replot();
 }
 
 

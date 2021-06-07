@@ -69,16 +69,21 @@ public slots:
     bool removeSeries(QSharedPointer<DataSeries> series);
     bool removeSeries(DataSeries *series) { return removeSeries(QSharedPointer<DataSeries>(series)); }
 
+    void autoScale(int axis_id = yBoth);
 protected slots:
+
+    void legendClicked(QVariant &item_info, int index);
 
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
     void initZoomer(void);
     void initPanner(void);
+    void initLegend(void);
 
-    void resampleCurves(int axis_id=-1);
+    void resampleCurves(int axis_id=yBoth);
 
     QwtPlotZoomer *zoomer;
     PlotPanner *panner;
@@ -86,6 +91,9 @@ protected:
 
     // List of curves attached to this widget
     QList<QSharedPointer<PlotCurve>> curves;
+
+    // Specify "both" y axes
+    static const int yBoth = -1;
 };
 
 #endif // PLOT_WIDGET_HPP

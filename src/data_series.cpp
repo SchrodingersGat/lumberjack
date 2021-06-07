@@ -128,6 +128,23 @@ size_t DataSeries::size() const
     return data.size();
 }
 
+
+QRectF DataSeries::getBounds() const
+{
+    if (size() == 0) return QRectF();
+
+    auto oldest = getOldestDataPoint();
+    auto newest = getNewestDataPoint();
+
+    return QRectF(
+                oldest.timestamp,
+                qMax(oldest.value, newest.value),
+                newest.timestamp - newest.timestamp,
+                qMin(oldest.value, newest.value)
+                );
+}
+
+
 QVector<DataPoint> DataSeries::getData(void) const
 {
     return data;

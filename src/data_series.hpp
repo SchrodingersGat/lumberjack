@@ -4,6 +4,7 @@
 #include <qobject.h>
 #include <qvector.h>
 #include <qmutex.h>
+#include <QRectF>
 
 #include <qwt_series_data.h>
 
@@ -65,6 +66,8 @@ public slots:
 
     /* Data access functions */
     size_t size() const;
+
+    QRectF getBounds(void) const;
 
     QVector<DataPoint> getData() const;
     QVector<DataPoint> getData(double t_min, double t_max) const;

@@ -57,11 +57,12 @@ public:
 
     QSharedPointer<DataSeries> getDataSeries(void) { return series; }
 
-
     virtual ~PlotCurve();
 
 public slots:
     void resampleData(double t_min, double t_max, unsigned int n_pixels);
+
+    int getYAxis(void) { return QwtPlotCurve::yAxis(); }
 
 protected slots:
     void onDataResampled(const QVector<double> &t_data, const QVector<double> &y_data);
