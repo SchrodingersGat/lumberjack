@@ -47,7 +47,7 @@ protected:
  * A background thread performs the task of re-sampling data (as required).
  *
  */
-class PlotCurve : public QObject, QwtPlotCurve
+class PlotCurve : public QObject, public QwtPlotCurve
 {
    Q_OBJECT
 
@@ -61,8 +61,9 @@ public:
 
 public slots:
     void resampleData(double t_min, double t_max, unsigned int n_pixels);
+    void updateLabel(void);
 
-    int getYAxis(void) { return QwtPlotCurve::yAxis(); }
+    virtual void setVisible(bool on) override;
 
 protected slots:
     void onDataResampled(const QVector<double> &t_data, const QVector<double> &y_data);

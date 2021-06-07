@@ -8,6 +8,7 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_legend.h>
+#include <qwt_plot_marker.h>
 
 #include "plot_curve.hpp"
 
@@ -60,6 +61,8 @@ signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QRectF &viewrect);
 
+    void cursorPositionChanged(double &t, double &y1, double &y2);
+
 public slots:
     int getHorizontalPixels(void) const;
 
@@ -70,24 +73,32 @@ public slots:
     bool removeSeries(DataSeries *series) { return removeSeries(QSharedPointer<DataSeries>(series)); }
 
     void autoScale(int axis_id = yBoth);
+
+    void setBackgroundColor(QColor color);
+
 protected slots:
 
-    void legendClicked(QVariant &item_info, int index);
+    void legendClicked(const QVariant &item_info, int index);
 
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
     void initZoomer(void);
     void initPanner(void);
     void initLegend(void);
+    void initCrosshairs(void);
 
     void resampleCurves(int axis_id=yBoth);
 
     QwtPlotZoomer *zoomer;
     PlotPanner *panner;
     QwtLegend *legend;
+
+    QwtPlotMarker *crosshair;
+    QwtPlotMarker *curveTracker;
 
     // List of curves attached to this widget
     QList<QSharedPointer<PlotCurve>> curves;

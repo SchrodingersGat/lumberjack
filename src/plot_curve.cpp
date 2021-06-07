@@ -309,4 +309,38 @@ void PlotCurve::resampleData(double t_min, double t_max, unsigned int n_pixels)
 }
 
 
+void PlotCurve::setVisible(bool on)
+{
+    QwtPlotCurve::setVisible(on);
+    updateLabel();
+}
+
+
+/*
+ * Update the QwtText label used in the legend
+ */
+void PlotCurve::updateLabel()
+{
+    QwtText label;
+
+    QFont font = label.font();
+
+    if (isVisible())
+    {
+        font.setItalic(false);
+        label.setColor(QColor(0x30, 0x30, 0x30));
+    }
+    else
+    {
+        font.setItalic(true);
+        label.setColor(QColor(0xA0, 0xA0, 0xA0));
+    }
+
+    label.setFont(font);
+    label.setText(series->getLabel());
+
+    setTitle(label);
+}
+
+
 

@@ -8,16 +8,32 @@ PlotWidget::PlotWidget() : QwtPlot()
     // Enable secondary axis
     enableAxis(QwtPlot::yRight, true);
 
+    setMinimumWidth(50);
+    setMinimumHeight(50);
+
+    auto policy = sizePolicy();
+    policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    policy.setVerticalPolicy(QSizePolicy::Expanding);
+    policy.setHorizontalStretch(1);
+    policy.setVerticalStretch(1);
+    setSizePolicy(policy);
+
     initZoomer();
     initPanner();
     initLegend();
+    initCrosshairs();
 
 }
 
 PlotWidget::~PlotWidget()
 {
     delete zoomer;
-    // TODO
+
+    crosshair->detach();
+    delete crosshair;
+
+    curveTracker->detach();
+    delete curveTracker;
 }
 
 /*
@@ -60,7 +76,41 @@ void PlotWidget::initLegend()
 
     insertLegend(legend, QwtPlot::TopLegend);
 
-    connect(legend, SIGNAL(clicked(QVariant, int)), this, SLOT(legendCLicked(QVariant, int)));
+    connect(legend, SIGNAL(clicked(const QVariant&, int)), this, SLOT(legendClicked(const QVariant&, int)));
+}
+
+
+/*
+ * Configure crosshairs which track the mouse cursor,
+ * and (optionally) a selected curve
+ */
+void PlotWidget::initCrosshairs()
+{
+    setMouseTracking(true);
+    canvas()->setMouseTracking(true);
+
+    // Configure a crosshair marker which will follow the mouse cursor
+    crosshair = new QwtPlotMarker();
+    crosshair->setLineStyle(QwtPlotMarker::Cross);
+    crosshair->setZ(100);
+
+    QPen pen;
+    pen.setWidth(1);
+    pen.setStyle(Qt::DashLine);
+    pen.setColor(QColor(150, 150, 150));
+
+    crosshair->setLinePen(pen);
+    crosshair->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
+    crosshair->attach(this);
+
+    curveTracker = new QwtPlotMarker();
+    curveTracker->setLineStyle(QwtPlotMarker::HLine);
+    curveTracker->setZ(101);
+
+    curveTracker->setLinePen(pen);
+    curveTracker->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
+    curveTracker->attach(this);
+    curveTracker->setVisible(false);
 }
 
 
@@ -70,6 +120,24 @@ void PlotWidget::updateLayout()
 
     // Force re-sampling of attached curve data when canvas dimensions are changed
     resampleCurves();
+}
+
+
+/*
+ * Set the background color for the plot.
+ *
+ * Also updates the color of the crosshair,
+ * ensuring it always stands out against the background.
+ */
+void PlotWidget::setBackgroundColor(QColor color)
+{
+    QBrush b = canvasBackground();
+
+    b.setColor(color);
+
+    setCanvasBackground(b);
+
+    // TODO - Update the color of the crosshair
 }
 
 
@@ -91,7 +159,7 @@ void PlotWidget::resampleCurves(int axis_id)
     {
         if (curve.isNull()) continue;
 
-        int axis = ((QwtPlotCurve*) &(*curve))->yAxis();
+        int axis = curve->yAxis();
 
         if (axis == QwtPlot::yLeft && !axis_left)
         {
@@ -108,9 +176,26 @@ void PlotWidget::resampleCurves(int axis_id)
 }
 
 
-void PlotWidget::legendClicked(QVariant &item_info, int index)
+void PlotWidget::legendClicked(const QVariant &item_info, int index)
 {
-    // TODO
+    auto modifiers = QApplication::keyboardModifiers();
+    auto buttons = QApplication::mouseButtons();
+
+    QwtPlotItem* item = qvariant_cast<QwtPlotItem*>(item_info);
+
+    for (auto curve : curves)
+    {
+        if (!curve.isNull() && (QwtPlotItem*) &(*curve) == item)
+        {
+            if (modifiers == Qt::ShiftModifier)
+            {
+                curve->setVisible(!curve->isVisible());
+            }
+        }
+    }
+
+    setAutoReplot(false);
+    replot();
 }
 
 
@@ -153,8 +238,14 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 
     // If the mouse position is over a particular axis, we will *only* zoom that axis!
 
+    // Ignore if mouse wheel is over the legend
+    if (canvas_pos.y() < 0)
+    {
+        return;
+    }
+
     // Cursor is over the left axis
-    if (canvas_pos.x() < 0)
+    else if (canvas_pos.x() < 0)
     {
         axes.append(QwtPlot::yLeft);
     }
@@ -232,6 +323,25 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 }
 
 
+void PlotWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    // Update crosshair
+
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    double x = invTransform(QwtPlot::xBottom, canvas_pos.x());
+    double y1 = invTransform(QwtPlot::yLeft, canvas_pos.y());
+    double y2 = invTransform(QwtPlot::yRight, canvas_pos.y());
+
+    crosshair->setXValue(x);
+    crosshair->setYValue(y1);
+
+    emit cursorPositionChanged(x, y1, y2);
+
+    replot();
+}
+
+
 void PlotWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::BackButton)
@@ -253,7 +363,12 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
 
         int axis_id = yBoth;
 
-        if (canvas_pos.x() < 0)
+        if (canvas_pos.y() < 0)
+        {
+            // Ignore if user clicked on the legend
+            return;
+        }
+        else if (canvas_pos.x() < 0)
         {
             axis_id = QwtPlot::yLeft;
         }
@@ -289,8 +404,8 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     // Create a new PlotCurve for the DataSeries
     PlotCurve *curve = new PlotCurve(series);
 
-    ((QwtPlotCurve*) curve)->attach(this);
-    ((QwtPlotCurve*) curve)->setYAxis(axis_id);
+    curve->attach(this);
+    curve->setYAxis(axis_id);
 
     curves.push_back(QSharedPointer<PlotCurve>(curve));
 
@@ -326,9 +441,12 @@ void PlotWidget::autoScale(int axis_id)
     QwtInterval interval_left;
     QwtInterval interval_right;
 
+    bool do_update = false;
+
     for (auto curve : curves)
     {
-        if (curve.isNull()) continue;
+        // Ignore hidden data curves
+        if (curve.isNull() || !curve->isVisible()) continue;
 
         auto series = curve->getDataSeries();
 
@@ -338,15 +456,20 @@ void PlotWidget::autoScale(int axis_id)
 
         QwtInterval y(series->getMinimumValue(), series->getMaximumValue());
 
-        if (curve->getYAxis() == QwtPlot::yLeft)
+        if (curve->yAxis() == QwtPlot::yLeft)
         {
             interval_left |= y;
         }
-        else if (curve->getYAxis() == QwtPlot::yRight)
+        else if (curve->yAxis() == QwtPlot::yRight)
         {
             interval_right |= y;
         }
+
+        do_update = true;
     }
+
+    // Return if no curves were available for updating
+    if (!do_update) return;
 
     if (axis_id == QwtPlot::xBottom || axis_id == yBoth)
     {
