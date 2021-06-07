@@ -32,7 +32,8 @@ SOURCES += \
     ../src/plot_widget.cpp \
     main.cpp \
     mainwindow.cpp \
-    widgets/about_dialog.cpp
+    widgets/about_dialog.cpp \
+    widgets/dataview_widget.cpp
 
 HEADERS += \
     ../src/data_series.hpp \
@@ -41,10 +42,12 @@ HEADERS += \
     ../src/plot_curve.hpp \
     ../src/plot_widget.hpp \
     mainwindow.h \
-    widgets/about_dialog.hpp
+    widgets/about_dialog.hpp \
+    widgets/dataview_widget.hpp
 
 FORMS += \
     about_dialog.ui \
+    dataview_widget.ui \
     mainwindow.ui
 
 #Set the location for the generated ui_xxxx.h files

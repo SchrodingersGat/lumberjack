@@ -38,6 +38,8 @@ public:
     int getSeriesCount(void) const { return data_series.size(); }
     QStringList getSeriesLabels(QString filter_string=QString()) const;
 
+    QStringList getGroupLabels(void) const;
+
     bool addSeries(QSharedPointer<DataSeries> series);
     bool addSeries(DataSeries* series);
 
@@ -49,16 +51,11 @@ public:
 
     void removeAllSeries(void);
 
-    /* DataSource access functions */
-    int getSourceCount(void) const { return data_sources.size(); }
-    QStringList getSourceLabels(void) const;
-
 protected:
 
     QString label;
 
     QVector<QSharedPointer<DataSeries>> data_series;
-    QVector<QSharedPointer<DataSource>> data_sources;
 };
 
 

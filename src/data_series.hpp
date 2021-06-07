@@ -29,7 +29,8 @@ class DataSeries : public QObject
 
 public:
     DataSeries();
-    DataSeries(QString label, QString units=QString());
+    DataSeries(QString label);
+    DataSeries(QString group, QString label);
     DataSeries(const DataSeries& other);
     DataSeries(const DataSeries& other, int64_t t_min, int64_t t_max, unsigned int expand=0);
 
@@ -51,9 +52,14 @@ public:
 
 public slots:
 
+    const QString& getGroup(void) const { return group; }
+    void setGroup(QString g) { group = g; }
+
     const QString& getLabel(void) const { return label; }
+    void setLabel(QString l) { label = l; }
 
     const QString& getUnits(void) const { return units; }
+    void setUnits(QString u) { units = u; }
 
     /* Data insertion functions */
     void addData(DataPoint point, bool update=true);
@@ -112,6 +118,8 @@ protected:
 
     //! mutex for controlling data access
     mutable QMutex data_mutex;
+
+    QString group;
 
     QString label;
 

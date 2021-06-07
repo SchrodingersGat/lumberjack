@@ -102,6 +102,22 @@ private slots:
 
     }
 
+    void testGroups(void)
+    {
+        source.addSeries(new DataSeries("Animals", "Cat"));
+        source.addSeries(new DataSeries("Animals", "Dog"));
+        source.addSeries(new DataSeries("Animals", "Bird"));
+        source.addSeries(new DataSeries("Animals", "Giraffe"));
+
+        source.addSeries(new DataSeries("Plants", "Tree"));
+        source.addSeries(new DataSeries("Plants", "Flower"));
+        source.addSeries(new DataSeries("Plants", "Grass"));
+
+        auto groups = source.getGroupLabels();
+
+        QCOMPARE(groups.size(), 2);
+    }
+
 protected:
     DataSource source;
 };

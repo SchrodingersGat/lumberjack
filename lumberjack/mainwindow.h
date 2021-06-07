@@ -7,6 +7,8 @@
 #include "data_series.hpp"
 #include "plot_curve.hpp"
 
+#include "dataview_widget.hpp"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -35,6 +37,8 @@ private:
     QLabel y_pos;
 
     QSharedPointer<DataSeries> series;
+
+    DataviewWidget dataview;
 
 };
 #endif // MAINWINDOW_H

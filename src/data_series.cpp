@@ -37,10 +37,16 @@ DataSeries::DataSeries()
 }
 
 
-DataSeries::DataSeries(QString lbl, QString u) : DataSeries()
+DataSeries::DataSeries(QString lbl) : DataSeries()
 {
     label = lbl;
-    units = u;
+}
+
+
+DataSeries::DataSeries(QString grp, QString lbl) : DataSeries()
+{
+    group = grp;
+    label = lbl;
 }
 
 

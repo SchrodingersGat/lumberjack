@@ -36,6 +36,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->addDockWidget(Qt::LeftDockWidgetArea, dock);
 
+    dock = new QDockWidget(tr("Data View"), this);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dock->setWidget(&dataview);
+
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
+
     // Construct a new series
     series = QSharedPointer<DataSeries>(new DataSeries("My Series"));
 

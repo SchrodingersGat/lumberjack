@@ -71,24 +71,6 @@ QStringList DataSource::getSeriesLabels(QString filter_string) const
 }
 
 
-QStringList DataSource::getSourceLabels() const
-{
-    QStringList labels;
-
-    for (auto source : data_sources)
-    {
-        if (source.isNull())
-        {
-            continue;
-        }
-
-        labels.append((*source).getLabel());
-    }
-
-    return labels;
-}
-
-
 /*
  * Add the provided DataSeries to the list of series associated with this source.
  * If the series is null, or already present, it will not be added.
@@ -192,4 +174,23 @@ void DataSource::removeAllSeries(void)
     {
         removeSeriesByIndex(0);
     }
+}
+
+
+/*
+ * Construct a list of all "group" labels within this dataset
+ */
+QStringList DataSource::getGroupLabels() const
+{
+    QStringList labels;
+
+    for (auto series : data_series)
+    {
+        if (!series.isNull() && !labels.contains(series->getGroup()))
+        {
+            labels.append(series->getGroup());
+        }
+    }
+
+    return labels;
 }
