@@ -205,6 +205,21 @@ DataSourceManager::DataSourceManager()
 }
 
 
+QStringList DataSourceManager::getSourceLabels() const
+{
+    QStringList labels;
+
+    for (auto src : sources)
+    {
+        if (src.isNull()) continue;
+
+        labels.push_back(src->getLabel());
+    }
+
+    return labels;
+}
+
+
 bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
 {
     if (source.isNull()) return false;
@@ -220,6 +235,8 @@ bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
     }
 
     sources.push_back(source);
+
+    return true;
 }
 
 

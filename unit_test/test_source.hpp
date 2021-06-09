@@ -128,9 +128,9 @@ private slots:
         auto src_1 = QSharedPointer<DataSource>(new DataSource("Source 1"));
 
         // Test that a given source can only be added once
-        manager->addSource(src_1);
-        manager->addSource(src_1);
-        manager->addSource(src_1);
+        QCOMPARE(manager->addSource(src_1), true);
+        QCOMPARE(manager->addSource(src_1), false);
+        QCOMPARE(manager->addSource(src_1), false);
 
         QCOMPARE(manager->getSourceCount(), 1);
 
@@ -147,6 +147,19 @@ private slots:
         QCOMPARE(manager->getSourceCount(), 2);
 
         manager->addSource(src_3);
+
+        QCOMPARE(manager->getSourceCount(), 3);
+
+        // Extract source labels
+        auto labels = manager->getSourceLabels();
+
+        QCOMPARE(labels.size(), 3);
+        QVERIFY(labels.contains("Source 1"));
+        QVERIFY(labels.contains("Source 2"));
+        QVERIFY(labels.contains("Source 3"));
+
+        // Grab the pointer again
+        manager = DataSourceManager::getInstance();
 
         QCOMPARE(manager->getSourceCount(), 3);
     }
