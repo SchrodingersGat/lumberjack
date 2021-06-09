@@ -311,3 +311,11 @@ bool DataSourceManager::removeSourceByLabel(QString label)
 
     return false;
 }
+
+
+void DataSourceManager::removeAllSources()
+{
+    sources.clear();
+
+    emit sourcesChanged();
+}

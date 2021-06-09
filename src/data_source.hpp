@@ -100,6 +100,8 @@ public slots:
     bool removeSourceByIndex(int idx);
     bool removeSourceByLabel(QString label);
 
+    void removeAllSources(void);
+
 signals:
     void sourcesChanged();
 

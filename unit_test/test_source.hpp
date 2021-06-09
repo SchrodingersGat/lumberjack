@@ -191,6 +191,10 @@ private slots:
         QCOMPARE(manager->removeSourceByLabel("Source 2"), true);
 
         QCOMPARE(manager->getSourceCount(), 1);
+
+        // Test clearing all sources
+        manager->removeAllSources();
+        QCOMPARE(manager->getSourceCount(), 0);
     }
 
 protected:
