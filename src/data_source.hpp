@@ -97,6 +97,12 @@ public slots:
     bool removeSource(QSharedPointer<DataSource> source);
     bool removeSource(DataSource* source) { return removeSource(QSharedPointer<DataSource>(source)); }
 
+    bool removeSourceByIndex(int idx);
+    bool removeSourceByLabel(QString label);
+
+signals:
+    void sourcesChanged();
+
 protected:
     QVector<QSharedPointer<DataSource>> sources;
 };

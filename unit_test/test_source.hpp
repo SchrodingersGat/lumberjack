@@ -178,6 +178,19 @@ private slots:
         src = manager->getSourceByLabel("Source 2");
         QVERIFY(!src.isNull());
         QCOMPARE(src->getLabel(), "Source 2");
+
+        // Test removal functions
+        QCOMPARE(manager->removeSourceByIndex(500), false);
+        QCOMPARE(manager->getSourceCount(), 3);
+
+        QCOMPARE(manager->removeSourceByLabel("NOOO"), false);
+        QCOMPARE(manager->getSourceCount(), 3);
+
+        QCOMPARE(manager->removeSourceByIndex(0), true);
+        QCOMPARE(manager->removeSourceByLabel("Source 1"), false);
+        QCOMPARE(manager->removeSourceByLabel("Source 2"), true);
+
+        QCOMPARE(manager->getSourceCount(), 1);
     }
 
 protected:

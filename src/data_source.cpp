@@ -260,6 +260,8 @@ bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
 
     sources.push_back(source);
 
+    emit sourcesChanged();
+
     return true;
 }
 
@@ -273,7 +275,37 @@ bool DataSourceManager::removeSource(QSharedPointer<DataSource> source)
         if (src == source)
         {
             sources.removeAt(idx);
+            emit sourcesChanged();
             return true;
+        }
+    }
+
+    return false;
+}
+
+
+bool DataSourceManager::removeSourceByIndex(int idx)
+{
+    if (idx < sources.size())
+    {
+        sources.removeAt(idx);
+        emit sourcesChanged();
+        return true;
+    }
+
+    return false;
+}
+
+
+bool DataSourceManager::removeSourceByLabel(QString label)
+{
+    for (int idx = 0; idx < sources.size(); idx++)
+    {
+        auto src = sources.at(idx);
+
+        if (!src.isNull() && src->getLabel() == label)
+        {
+            return removeSourceByIndex(idx);
         }
     }
 
