@@ -28,6 +28,7 @@ INCLUDEPATH += ../src \
 SOURCES += \
     ../src/data_series.cpp \
     ../src/data_source.cpp \
+    ../src/lumberjack_settings.cpp \
     ../src/plot_curve.cpp \
     ../src/plot_widget.cpp \
     main.cpp \
@@ -38,6 +39,7 @@ SOURCES += \
 HEADERS += \
     ../src/data_series.hpp \
     ../src/data_source.hpp \
+    ../src/lumberjack_settings.hpp \
     ../src/lumberjack_version.hpp \
     ../src/plot_curve.hpp \
     ../src/plot_widget.hpp \
