@@ -474,16 +474,25 @@ uint64_t DataSeries::getIndexForTimestamp(double t, SearchDirection direction) c
 }
 
 
+/**
+ * @brief DataSeries::getIndexForClosestPoint - Find the index of the point on the curve closest to the specified point
+ * @param point - Point to compare to the curve
+ * @param distance - Reference to variable where calculated distance will be stored
+ * @param max_distance - Maximum search distance (based on timestamp value) to employ
+ * @return
+ */
 uint64_t DataSeries::getIndexForClosestPoint(const DataPoint point, double &distance, double max_distance) const
 {
     // Bounds checking
-    if (size() == 0) return 0;
-
-    if (point.timestamp < getOldestTimestamp()) return 0;
-    if (point.timestamp > getNewestTimestamp()) return size() - 1;
+    if (size() == 0)
+    {
+        distance = -1;
+        return 0;
+    }
 
     uint64_t idx_min, idx_max;
 
+    // Maximum search distance was specified
     if (max_distance > 0)
     {
         idx_min = getIndexForTimestamp(point.timestamp - max_distance);

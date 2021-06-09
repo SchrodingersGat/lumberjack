@@ -302,6 +302,9 @@ private slots:
                 QCOMPARE(idx - 5, series.getIndexForClosestPoint(idx, idx - 10, distance));
                 QCOMPARE(distance, sqrt(50));
             }
+
+            // Specify maximum search distance
+            QCOMPARE(idx + 2, series.getIndexForClosestPoint(idx, idx + 10, distance, 1));
         }
     }
 
