@@ -273,6 +273,38 @@ private slots:
         }
     }
 
+    void testClosestPoint(void)
+    {
+        series.clearData();
+
+        for (int idx = 0; idx < 100; idx++)
+        {
+            series.addData(idx, idx);
+        }
+
+        double distance;
+
+        for (uint64_t idx = 0; idx < 100; idx += 10)
+        {
+            // Check exact matches
+            QCOMPARE(idx, series.getIndexForClosestPoint(idx, idx, distance));
+            QCOMPARE(distance, 0);
+
+            // Test vertical offset
+            if (idx < series.size() - 10)
+            {
+                QCOMPARE(idx + 5, series.getIndexForClosestPoint(idx, idx + 10, distance));
+                QCOMPARE(distance, sqrt(50));
+            }
+
+            if (idx > 10)
+            {
+                QCOMPARE(idx - 5, series.getIndexForClosestPoint(idx, idx - 10, distance));
+                QCOMPARE(distance, sqrt(50));
+            }
+        }
+    }
+
 public slots:
     void onDataUpdated()
     {

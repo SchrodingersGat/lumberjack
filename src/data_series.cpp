@@ -472,3 +472,50 @@ uint64_t DataSeries::getIndexForTimestamp(double t, SearchDirection direction) c
         return std::distance(data.begin(), lower);
     }
 }
+
+
+uint64_t DataSeries::getIndexForClosestPoint(const DataPoint point, double &distance, double max_distance) const
+{
+    // Bounds checking
+    if (size() == 0) return 0;
+
+    if (point.timestamp < getOldestTimestamp()) return 0;
+    if (point.timestamp > getNewestTimestamp()) return size() - 1;
+
+    uint64_t idx_min, idx_max;
+
+    if (max_distance > 0)
+    {
+        idx_min = getIndexForTimestamp(point.timestamp - max_distance);
+        idx_max = getIndexForTimestamp(point.timestamp + max_distance);
+    }
+    else
+    {
+        idx_min = 0;
+        idx_max = size() - 1;
+    }
+
+    uint64_t index = 0;
+
+    double d_squared_min = -1;
+
+    for (auto idx = idx_min; (idx <= idx_max) && (idx < size()); idx++)
+    {
+        const auto pt = getDataPoint(idx);
+
+        double dx = point.timestamp - pt.timestamp;
+        double dy = point.value - pt.value;
+
+        double d_squared = (dx * dx) + (dy * dy);
+
+        if ((d_squared_min < 0) || (d_squared < d_squared_min))
+        {
+            d_squared_min = d_squared;
+            index = idx;
+        }
+    }
+
+    distance = sqrt(d_squared_min);
+
+    return index;
+}

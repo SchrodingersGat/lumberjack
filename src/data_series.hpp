@@ -34,8 +34,6 @@ public:
     DataSeries(const DataSeries& other);
     DataSeries(const DataSeries& other, int64_t t_min, int64_t t_max, unsigned int expand=0);
 
-//    DataSeries& operator=(const DataSeries& other);
-
     virtual ~DataSeries();
 
     enum SearchDirection
@@ -102,6 +100,9 @@ public slots:
     double getMeanValue(double t_min, double t_max) const;
 
     uint64_t getIndexForTimestamp(double t, SearchDirection direction=SEARCH_LEFT_TO_RIGHT) const;
+
+    uint64_t getIndexForClosestPoint(const DataPoint point, double &distance, double max_distance = 0) const;
+    uint64_t getIndexForClosestPoint(double t, double v, double &distance, double max_distance = 0) const { return getIndexForClosestPoint(DataPoint(t, v), distance, max_distance); }
 
     /* Status Functions */
     bool hasData() const { return size() > 0; }
