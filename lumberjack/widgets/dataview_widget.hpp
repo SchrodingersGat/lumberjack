@@ -14,6 +14,9 @@ class DataviewWidget : public QWidget
 public:
     DataviewWidget(QWidget *parent = nullptr);
 
+public slots:
+    void refresh();
+
 protected:
     Ui::dataview ui;
 };

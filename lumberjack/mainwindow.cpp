@@ -66,6 +66,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     plot->addSeries(series_2, QwtPlot::yRight);
 
+    // Construct some sources
+    auto *manager = DataSourceManager::getInstance();
+
+    manager->addSource(new DataSource("Source A"));
+    manager->addSource(new DataSource("Source B"));
+    manager->addSource(new DataSource("Source C"));
+    manager->addSource(new DataSource("Source D"));
 }
 
 MainWindow::~MainWindow()
