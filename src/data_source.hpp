@@ -88,6 +88,9 @@ public slots:
     int getSourceCount(void) const { return sources.size(); }
     QStringList getSourceLabels(void) const;
 
+    QSharedPointer<DataSource> getSourceByIndex(int idx);
+    QSharedPointer<DataSource> getSourceByLabel(QString label);
+
     bool addSource(QSharedPointer<DataSource> source);
     bool addSource(DataSource* source) { return addSource(QSharedPointer<DataSource>(source)); }
 

@@ -162,6 +162,22 @@ private slots:
         manager = DataSourceManager::getInstance();
 
         QCOMPARE(manager->getSourceCount(), 3);
+
+        // Tests for source access!
+
+        auto src = manager->getSourceByIndex(100);
+        QVERIFY(src.isNull());
+
+        src = manager->getSourceByLabel("Does not exist");
+        QVERIFY(src.isNull());
+
+        src = manager->getSourceByIndex(0);
+        QVERIFY(!src.isNull());
+        QCOMPARE(src->getLabel(), "Source 1");
+
+        src = manager->getSourceByLabel("Source 2");
+        QVERIFY(!src.isNull());
+        QCOMPARE(src->getLabel(), "Source 2");
     }
 
 protected:

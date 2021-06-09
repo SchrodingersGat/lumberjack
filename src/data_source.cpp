@@ -220,6 +220,30 @@ QStringList DataSourceManager::getSourceLabels() const
 }
 
 
+QSharedPointer<DataSource> DataSourceManager::getSourceByIndex(int idx)
+{
+    if (idx < sources.size()) return sources.at(idx);
+
+    return QSharedPointer<DataSource>(nullptr);
+}
+
+
+QSharedPointer<DataSource> DataSourceManager::getSourceByLabel(QString label)
+{
+    for (auto src : sources)
+    {
+        if (src.isNull()) continue;
+
+        if (src->getLabel() == label)
+        {
+            return src;
+        }
+    }
+
+    return QSharedPointer<DataSource>(nullptr);
+}
+
+
 bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
 {
     if (source.isNull()) return false;
