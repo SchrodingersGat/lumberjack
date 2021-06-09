@@ -59,4 +59,43 @@ protected:
 };
 
 
+/*
+ * Data source manager class:
+ * - Manages all data sources
+ * - Employs singleton design pattern so can be accessed globally
+ */
+class DataSourceManager : public QObject
+{
+    Q_OBJECT
+
+    static DataSourceManager *instance;
+
+public:
+    DataSourceManager();
+
+    static DataSourceManager *getInstance()
+    {
+        if (!instance)
+        {
+            instance = new DataSourceManager;
+        }
+
+        return instance;
+    }
+
+public slots:
+
+    int getSourceCount(void) const { return sources.size(); }
+
+    bool addSource(QSharedPointer<DataSource> source);
+    bool addSource(DataSource* source) { return addSource(QSharedPointer<DataSource>(source)); }
+
+    bool removeSource(QSharedPointer<DataSource> source);
+    bool removeSource(DataSource* source) { return removeSource(QSharedPointer<DataSource>(source)); }
+
+protected:
+    QVector<QSharedPointer<DataSource>> sources;
+};
+
+
 #endif // DATA_SOURCE_H

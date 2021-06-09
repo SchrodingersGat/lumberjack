@@ -118,6 +118,39 @@ private slots:
         QCOMPARE(groups.size(), 2);
     }
 
+    // Tests for DataSourceManager class
+    void testDataSourceManager(void)
+    {
+        auto *manager = DataSourceManager::getInstance();
+
+        QCOMPARE(manager->getSourceCount(), 0);
+
+        auto src_1 = QSharedPointer<DataSource>(new DataSource("Source 1"));
+
+        // Test that a given source can only be added once
+        manager->addSource(src_1);
+        manager->addSource(src_1);
+        manager->addSource(src_1);
+
+        QCOMPARE(manager->getSourceCount(), 1);
+
+        auto src_2 = QSharedPointer<DataSource>(new DataSource("Source 2"));
+        auto src_3 = QSharedPointer<DataSource>(new DataSource("Source 3"));
+
+        manager->addSource(src_2);
+        manager->addSource(src_3);
+
+        QCOMPARE(manager->getSourceCount(), 3);
+
+        manager->removeSource(src_3);
+
+        QCOMPARE(manager->getSourceCount(), 2);
+
+        manager->addSource(src_3);
+
+        QCOMPARE(manager->getSourceCount(), 3);
+    }
+
 protected:
     DataSource source;
 };

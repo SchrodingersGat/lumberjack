@@ -194,3 +194,47 @@ QStringList DataSource::getGroupLabels() const
 
     return labels;
 }
+
+
+DataSourceManager *DataSourceManager::instance = 0;
+
+
+DataSourceManager::DataSourceManager()
+{
+    // TODO
+}
+
+
+bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
+{
+    if (source.isNull()) return false;
+
+    for (auto src : sources)
+    {
+        if (src == source)
+        {
+            qInfo() << "Ignoring duplicate source:" << source->getLabel();
+
+            return false;
+        }
+    }
+
+    sources.push_back(source);
+}
+
+
+bool DataSourceManager::removeSource(QSharedPointer<DataSource> source)
+{
+    for (auto idx = 0; idx < sources.size(); idx++)
+    {
+        auto src = sources.at(idx);
+
+        if (src == source)
+        {
+            sources.removeAt(idx);
+            return true;
+        }
+    }
+
+    return false;
+}
