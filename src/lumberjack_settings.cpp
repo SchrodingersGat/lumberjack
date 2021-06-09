@@ -68,6 +68,14 @@ QVariant LumberjackSettings::loadSetting(QString group, QString key, QVariant de
 }
 
 
+bool LumberjackSettings::loadBoolean(QString group, QString key, bool defaultValue)
+{
+    QVariant result = loadSetting(group, key, defaultValue);
+
+    return result.toBool();
+}
+
+
 void LumberjackSettings::saveSetting(QString group, QString key, QVariant value)
 {
     settings.beginGroup(group);
