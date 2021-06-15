@@ -91,13 +91,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
+
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
+
 void MainWindow::initSignalsSlots()
 {
+    connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
+
     connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
 }
 
