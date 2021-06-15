@@ -66,6 +66,8 @@ void DataviewWidget::refresh()
 
     QString filter_text = ui.filterText->text();
 
+    int series_count = 0;
+
     for (QString source_label : manager->getSourceLabels())
     {
         auto source = manager->getSourceByLabel(source_label);
@@ -93,8 +95,12 @@ void DataviewWidget::refresh()
             child->setText(2, QString::number(series->size()));
 
             item->addChild(child);
+
+            series_count++;
         }
     }
 
     tree->expandAll();
+
+    ui.resultsLabel->setText(QString::number(series_count) + tr(" series available"));
 }
