@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    setCentralWidget(0);
+
     setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
 
     initStatusBar();

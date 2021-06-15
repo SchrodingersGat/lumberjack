@@ -265,6 +265,16 @@ DataSourceManager::DataSourceManager()
 }
 
 
+QSharedPointer<DataSeries> DataSourceManager::findSeries(QString source_label, QString series_label)
+{
+    auto source = getSourceByLabel(source_label);
+
+    if (source.isNull()) return QSharedPointer<DataSeries>(nullptr);
+
+    return source->getSeriesByLabel(series_label);
+}
+
+
 QStringList DataSourceManager::getSourceLabels() const
 {
     QStringList labels;

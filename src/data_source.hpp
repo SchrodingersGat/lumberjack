@@ -98,6 +98,8 @@ public:
 
 public slots:
 
+    QSharedPointer<DataSeries> findSeries(QString source_label, QString series_label);
+
     int getSourceCount(void) const { return sources.size(); }
     QStringList getSourceLabels(void) const;
 

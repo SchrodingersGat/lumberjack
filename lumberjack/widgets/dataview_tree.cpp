@@ -1,8 +1,8 @@
 #include <QDrag>
 #include <QMimeData>
 
+#include "series_editor_dialog.hpp"
 #include "data_source.hpp"
-
 #include "dataview_tree.hpp"
 
 
@@ -27,12 +27,45 @@ DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)
 
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+
+    connect(this, &QTreeWidget::itemDoubleClicked, this, &DataViewTree::onItemDoubleClicked);
 }
 
 
 DataViewTree::~DataViewTree()
 {
     // TODO
+}
+
+
+void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
+{
+    if (!item) return;
+
+    auto *parent = item->parent();
+
+    auto *manager = DataSourceManager::getInstance();
+
+    // Double clicked on a DataSeries
+    if (parent)
+    {
+        QString source_label = parent->text(0);
+        QString series_label = item->text(0);
+
+        auto series = manager->findSeries(source_label, series_label);
+
+        if (series.isNull()) return;
+
+        SeriesEditorDialog *dlg = new SeriesEditorDialog(series);
+
+        int result = dlg->exec();
+
+        dlg->deleteLater();
+    }
+    else
+    {
+        // TODO - Double clicked on a DataSource
+    }
 }
 
 

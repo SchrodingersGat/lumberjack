@@ -16,6 +16,8 @@ public:
 public slots:
     int refresh(QString filters=QString());
 
+    void onItemDoubleClicked(QTreeWidgetItem *item, int col);
+
 protected:
     virtual void startDrag(Qt::DropActions supported_actions) override;
 };

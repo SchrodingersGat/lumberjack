@@ -40,10 +40,12 @@ PlotWidget::~PlotWidget()
 }
 
 
+/**
+ * @brief PlotWidget::dragEnterEvent is called when a drag event enters the widget
+ * @param event
+ */
 void PlotWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-    qDebug() << "enter!";
-
     auto *mime = event->mimeData();
 
     // DataSeries is being dragged onto this PlotWidget
@@ -54,12 +56,20 @@ void PlotWidget::dragEnterEvent(QDragEnterEvent *event)
 }
 
 
+/**
+ * @brief PlotWidget::dragMoveEvent is called when an accepted drag event moves across the widget
+ * @param event
+ */
 void PlotWidget::dragMoveEvent(QDragMoveEvent *event)
 {
     // TODO
 }
 
 
+/**
+ * @brief PlotWidget::dropEvent is called when an accepted drag event is dropped on the widget
+ * @param event
+ */
 void PlotWidget::dropEvent(QDropEvent *event)
 {
     auto *mime = event->mimeData();
@@ -72,12 +82,7 @@ void PlotWidget::dropEvent(QDropEvent *event)
         QString source_lbl = mime->data("source");
         QString series_lbl = mime->data("series");
 
-        // Try to match a "source"
-        auto source = manager->getSourceByLabel(source_lbl);
-
-        if (source.isNull()) return;
-
-        auto series = source->getSeriesByLabel(series_lbl);
+        auto series = manager->findSeries(source_lbl, series_lbl);
 
         if (series.isNull()) return;
 
