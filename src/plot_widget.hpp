@@ -74,6 +74,7 @@ public slots:
     bool removeSeries(QString label);
 
     void autoScale(int axis_id = yBoth);
+    void autoScale(QSharedPointer<PlotCurve> curve);
 
     void setBackgroundColor(QColor color);
 

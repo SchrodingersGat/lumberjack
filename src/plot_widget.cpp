@@ -237,8 +237,9 @@ void PlotWidget::resampleCurves(int axis_id)
 
 void PlotWidget::legendClicked(const QVariant &item_info, int index)
 {
+    Q_UNUSED(index);
+
     auto modifiers = QApplication::keyboardModifiers();
-    auto buttons = QApplication::mouseButtons();
 
     QwtPlotItem* item = qvariant_cast<QwtPlotItem*>(item_info);
 
@@ -675,6 +676,32 @@ void PlotWidget::autoScale(int axis_id)
             setAxisScale(QwtPlot::yLeft, interval_right.minValue(), interval_right.maxValue());
         }
     }
+
+    setAutoReplot(true);
+    replot();
+}
+
+
+/**
+ * @brief PlotWidget::autoScale adjusts the plot axes to fully display the DataSeries associated with the provided PlotCurve
+ * @param curve
+ */
+void PlotWidget::autoScale(QSharedPointer<PlotCurve> curve)
+{
+    if (curve.isNull()) return;
+
+    auto series = curve->getDataSeries();
+
+    if (series.isNull() || series->size() == 0) return;
+
+    double t_min = series->getOldestTimestamp();
+    double t_max = series->getNewestTimestamp();
+
+    double y_min = series->getMinimumValue();
+    double y_max = series->getMaximumValue();
+
+    setAxisScale(QwtPlot::xBottom, t_min, t_max);
+    setAxisScale(curve->yAxis(), y_min, y_max);
 
     setAutoReplot(true);
     replot();
