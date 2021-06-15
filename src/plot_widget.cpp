@@ -269,7 +269,7 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
             }
             else
             {
-                // Track?
+                trackCurve(curve);
             }
         }
     }
@@ -454,9 +454,32 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
-    double x = invTransform(QwtPlot::xBottom, canvas_pos.x());
-    double y1 = invTransform(QwtPlot::yLeft, canvas_pos.y());
-    double y2 = invTransform(QwtPlot::yRight, canvas_pos.y());
+    double x = canvas_pos.x();
+    double y = canvas_pos.y();
+
+    x = invTransform(QwtPlot::xBottom, x);
+
+    auto pen = crosshair->linePen();
+
+    // Are we tracking a curve?
+    if (!tracking_curve.isNull())
+    {
+        y = tracking_curve->getDataSeries()->getValueAtTime(x);
+
+        y = transform(tracking_curve->yAxis(), y);
+
+        pen.setColor(tracking_curve->pen().color());
+        crosshair->setLinePen(pen);
+    }
+    else
+    {
+        // TODO: Set crosshair color to "inverse" of the background
+        pen.setColor(QColor(127, 127, 127));
+        crosshair->setLinePen(pen);
+    }
+
+    double y1 = invTransform(QwtPlot::yLeft, y);
+    double y2 = invTransform(QwtPlot::yRight, y);
 
     crosshair->setXValue(x);
     crosshair->setYValue(y1);
