@@ -82,10 +82,16 @@ protected slots:
     void legendClicked(const QVariant &item_info, int index);
 
 protected:
+    // Mouse actions
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+    // Drag-n-drop actions
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
+    virtual void dragMoveEvent(QDragMoveEvent *event) override;
+    virtual void dropEvent(QDropEvent *event) override;
 
     void initZoomer(void);
     void initPanner(void);

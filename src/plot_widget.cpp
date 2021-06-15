@@ -1,5 +1,7 @@
 #include <QApplication>
+#include <QMimeData>
 
+#include "data_source.hpp"
 #include "plot_widget.hpp"
 
 
@@ -23,6 +25,7 @@ PlotWidget::PlotWidget() : QwtPlot()
     initLegend();
     initCrosshairs();
 
+    setAcceptDrops(true);
 }
 
 PlotWidget::~PlotWidget()
@@ -35,6 +38,55 @@ PlotWidget::~PlotWidget()
     curveTracker->detach();
     delete curveTracker;
 }
+
+
+void PlotWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    qDebug() << "enter!";
+
+    auto *mime = event->mimeData();
+
+    // DataSeries is being dragged onto this PlotWidget
+    if (mime->hasFormat("source") && mime->hasFormat("series"))
+    {
+        event->accept();
+    }
+}
+
+
+void PlotWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+    // TODO
+}
+
+
+void PlotWidget::dropEvent(QDropEvent *event)
+{
+    auto *mime = event->mimeData();
+
+    auto *manager = DataSourceManager::getInstance();
+
+    // DataSeries is dropped onto this PlotWidget
+    if (mime->hasFormat("source") && mime->hasFormat("series"))
+    {
+        QString source_lbl = mime->data("source");
+        QString series_lbl = mime->data("series");
+
+        // Try to match a "source"
+        auto source = manager->getSourceByLabel(source_lbl);
+
+        if (source.isNull()) return;
+
+        auto series = source->getSeriesByLabel(series_lbl);
+
+        if (series.isNull()) return;
+
+        addSeries(series);
+        event->accept();
+    }
+}
+
+
 
 /*
  * Initialize QwtPlotZoomer to handle mouse driven zoom events

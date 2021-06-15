@@ -1,3 +1,6 @@
+#include <QDrag>
+#include <QMimeData>
+
 #include "data_source.hpp"
 
 #include "dataview_tree.hpp"
@@ -80,7 +83,49 @@ int DataViewTree::refresh(QString filters)
 }
 
 
+/**
+ * @brief DataViewTree::startDrag is called when a "drag" event is initiated
+ * @param supported_actions
+ */
 void DataViewTree::startDrag(Qt::DropActions supported_actions)
 {
     // TODO
+    auto items = selectedItems();
+
+    // Only allow dragging for single items
+    if (items.count() != 1)
+    {
+        return;
+    }
+
+    auto *item = items.at(0);
+
+    // null check
+    if (!item) return;
+
+    auto *parent = item->parent();
+
+    // Prevent top-level items from being dragged
+    if (!parent)
+    {
+        qDebug() << "parent!";
+        return;
+    }
+
+    // Extract source / series information from the item being dragged
+    // TODO : A better way of implementing this maybe?
+
+    QString series_label = item->text(0);
+    QString source_label = parent->text(0);
+
+    QDrag *dragger = new QDrag(this);
+
+    auto *mime = new QMimeData();
+
+    mime->setData("source", source_label.toLatin1());
+    mime->setData("series", series_label.toLatin1());
+
+    dragger->setMimeData(mime);
+
+    dragger->exec(supported_actions);
 }
