@@ -280,6 +280,16 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
 
 
 /**
+ * @brief PlotWidget::isCurveTracked checks if this PlotWidget is tracking a curve
+ * @return
+ */
+bool PlotWidget::isCurveTracked()
+{
+    return !tracking_curve.isNull();
+}
+
+
+/**
  * @brief PlotWidget::isCurveTracked tests if the provided curve is being tracked
  * @param curve
  * @return
@@ -290,6 +300,10 @@ bool PlotWidget::isCurveTracked(QSharedPointer<PlotCurve> curve)
 }
 
 
+/**
+ * @brief PlotWidget::trackCurve causes the provided curve to be tracked by the cursor
+ * @param curve
+ */
 void PlotWidget::trackCurve(QSharedPointer<PlotCurve> curve)
 {
     untrackCurve();
@@ -301,6 +315,9 @@ void PlotWidget::trackCurve(QSharedPointer<PlotCurve> curve)
 }
 
 
+/**
+ * @brief PlotWidget::untrackCurve removes curve tracking association for this widget
+ */
 void PlotWidget::untrackCurve()
 {
     tracking_curve = QSharedPointer<PlotCurve>(nullptr);

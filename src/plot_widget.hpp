@@ -101,6 +101,7 @@ protected:
     void resampleCurves(int axis_id=yBoth);
 
     // Curve tracking
+    bool isCurveTracked(void);
     bool isCurveTracked(QSharedPointer<PlotCurve> curve);
     void trackCurve(QSharedPointer<PlotCurve> curve);
     void untrackCurve(void);
