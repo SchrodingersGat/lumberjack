@@ -30,6 +30,8 @@ PlotWidget::PlotWidget() : QwtPlot()
 
 PlotWidget::~PlotWidget()
 {
+    untrackCurve();
+
     delete zoomer;
 
     crosshair->detach();
@@ -235,8 +237,9 @@ void PlotWidget::resampleCurves(int axis_id)
 
 void PlotWidget::legendClicked(const QVariant &item_info, int index)
 {
+    Q_UNUSED(index);
+
     auto modifiers = QApplication::keyboardModifiers();
-    auto buttons = QApplication::mouseButtons();
 
     QwtPlotItem* item = qvariant_cast<QwtPlotItem*>(item_info);
 
@@ -267,13 +270,58 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
             }
             else
             {
-                // Track?
+                trackCurve(curve);
             }
         }
     }
 
     setAutoReplot(false);
     replot();
+}
+
+
+/**
+ * @brief PlotWidget::isCurveTracked checks if this PlotWidget is tracking a curve
+ * @return
+ */
+bool PlotWidget::isCurveTracked()
+{
+    return !tracking_curve.isNull();
+}
+
+
+/**
+ * @brief PlotWidget::isCurveTracked tests if the provided curve is being tracked
+ * @param curve
+ * @return
+ */
+bool PlotWidget::isCurveTracked(QSharedPointer<PlotCurve> curve)
+{
+    return !curve.isNull() && curve == tracking_curve;
+}
+
+
+/**
+ * @brief PlotWidget::trackCurve causes the provided curve to be tracked by the cursor
+ * @param curve
+ */
+void PlotWidget::trackCurve(QSharedPointer<PlotCurve> curve)
+{
+    untrackCurve();
+
+    if (!curve.isNull())
+    {
+        tracking_curve = curve;
+    }
+}
+
+
+/**
+ * @brief PlotWidget::untrackCurve removes curve tracking association for this widget
+ */
+void PlotWidget::untrackCurve()
+{
+    tracking_curve = QSharedPointer<PlotCurve>(nullptr);
 }
 
 
@@ -407,9 +455,32 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
-    double x = invTransform(QwtPlot::xBottom, canvas_pos.x());
-    double y1 = invTransform(QwtPlot::yLeft, canvas_pos.y());
-    double y2 = invTransform(QwtPlot::yRight, canvas_pos.y());
+    double x = canvas_pos.x();
+    double y = canvas_pos.y();
+
+    x = invTransform(QwtPlot::xBottom, x);
+
+    auto pen = crosshair->linePen();
+
+    // Are we tracking a curve?
+    if (!tracking_curve.isNull())
+    {
+        y = tracking_curve->getDataSeries()->getValueAtTime(x);
+
+        y = transform(tracking_curve->yAxis(), y);
+
+        pen.setColor(tracking_curve->pen().color());
+        crosshair->setLinePen(pen);
+    }
+    else
+    {
+        // TODO: Set crosshair color to "inverse" of the background
+        pen.setColor(QColor(127, 127, 127));
+        crosshair->setLinePen(pen);
+    }
+
+    double y1 = invTransform(QwtPlot::yLeft, y);
+    double y2 = invTransform(QwtPlot::yRight, y);
 
     crosshair->setXValue(x);
     crosshair->setYValue(y1);
@@ -504,6 +575,11 @@ bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
     for (int idx = 0; idx < curves.size(); idx++)
     {
         auto curve = curves.at(idx);
+
+        if (isCurveTracked(curve))
+        {
+            untrackCurve();
+        }
 
         if (!curve.isNull() && curve->getDataSeries() == series)
         {
@@ -600,6 +676,32 @@ void PlotWidget::autoScale(int axis_id)
             setAxisScale(QwtPlot::yLeft, interval_right.minValue(), interval_right.maxValue());
         }
     }
+
+    setAutoReplot(true);
+    replot();
+}
+
+
+/**
+ * @brief PlotWidget::autoScale adjusts the plot axes to fully display the DataSeries associated with the provided PlotCurve
+ * @param curve
+ */
+void PlotWidget::autoScale(QSharedPointer<PlotCurve> curve)
+{
+    if (curve.isNull()) return;
+
+    auto series = curve->getDataSeries();
+
+    if (series.isNull() || series->size() == 0) return;
+
+    double t_min = series->getOldestTimestamp();
+    double t_max = series->getNewestTimestamp();
+
+    double y_min = series->getMinimumValue();
+    double y_max = series->getMaximumValue();
+
+    setAxisScale(QwtPlot::xBottom, t_min, t_max);
+    setAxisScale(curve->yAxis(), y_min, y_max);
 
     setAutoReplot(true);
     replot();

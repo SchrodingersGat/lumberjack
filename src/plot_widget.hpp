@@ -74,6 +74,7 @@ public slots:
     bool removeSeries(QString label);
 
     void autoScale(int axis_id = yBoth);
+    void autoScale(QSharedPointer<PlotCurve> curve);
 
     void setBackgroundColor(QColor color);
 
@@ -100,6 +101,12 @@ protected:
 
     void resampleCurves(int axis_id=yBoth);
 
+    // Curve tracking
+    bool isCurveTracked(void);
+    bool isCurveTracked(QSharedPointer<PlotCurve> curve);
+    void trackCurve(QSharedPointer<PlotCurve> curve);
+    void untrackCurve(void);
+
     QwtPlotZoomer *zoomer;
     PlotPanner *panner;
     QwtLegend *legend;
@@ -109,6 +116,8 @@ protected:
 
     // List of curves attached to this widget
     QList<QSharedPointer<PlotCurve>> curves;
+
+    QSharedPointer<PlotCurve> tracking_curve;
 
     // Specify "both" y axes
     static const int yBoth = -1;
