@@ -4,6 +4,7 @@
 #include <qwt_plot.h>
 
 #include "lumberjack_version.hpp"
+
 #include "plot_curve.hpp"
 #include "data_series.hpp"
 #include "plot_widget.hpp"
@@ -73,6 +74,14 @@ MainWindow::MainWindow(QWidget *parent)
     manager->addSource(new DataSource("Source B"));
     manager->addSource(new DataSource("Source C"));
     manager->addSource(new DataSource("Source D"));
+
+    auto src = manager->getSourceByLabel("Source B");
+
+    src->addSeries(new DataSeries("Cat"));
+    src->addSeries(new DataSeries("Dog"));
+    src->addSeries(new DataSeries("Cat"));
+    src->addSeries(new DataSeries("Rat"));
+
 }
 
 MainWindow::~MainWindow()

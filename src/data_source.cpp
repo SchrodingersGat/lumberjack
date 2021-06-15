@@ -15,10 +15,15 @@ DataSource::~DataSource()
 
 void DataSource::clear()
 {
-    // TODO
+    removeAllSeries();
 }
 
 
+/**
+ * @brief DataSource::getSeriesLabels returns a list of labels for the DataSeries contained within this source
+ * @param filter_string an (optional) wildcard filter to limit the returned labels
+ * @return a list of zero or more labels
+ */
 QStringList DataSource::getSeriesLabels(QString filter_string) const
 {
     QStringList labels;
@@ -94,6 +99,8 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series)
 
     data_series.push_back(series);
 
+    emit dataChanged();
+
     return true;
 }
 
@@ -125,6 +132,8 @@ bool DataSource::removeSeriesByIndex(unsigned int index)
     if (index < data_series.size())
     {
         data_series.removeAt(index);
+
+        emit dataChanged();
         return true;
     }
 
@@ -160,6 +169,8 @@ bool DataSource::removeSeriesByLabel(QString label)
         if (!series.isNull() && (*series).getLabel() == label)
         {
             data_series.removeAt(idx);
+
+            emit dataChanged();
             return true;
         }
     }
@@ -170,10 +181,9 @@ bool DataSource::removeSeriesByLabel(QString label)
 
 void DataSource::removeAllSeries(void)
 {
-    while (data_series.size() > 0)
-    {
-        removeSeriesByIndex(0);
-    }
+    data_series.clear();
+
+    emit dataChanged();
 }
 
 
@@ -260,12 +270,36 @@ bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
 
     sources.push_back(source);
 
+    connect(source.data(), &DataSource::dataChanged, this, &DataSourceManager::onDataChanged);
+
     emit sourcesChanged();
 
     return true;
 }
 
 
+/**
+ * @brief DataSourceManager::addSource adds a DataSource with the given title
+ * @param label is the label of the DataSource to add
+ * @return true if the source was added, false if a DataSource with the given title already existed
+ */
+bool DataSourceManager::addSource(QString label)
+{
+    if (getSourceByLabel(label).isNull())
+    {
+        return addSource(new DataSource(label));
+    }
+
+    // Source with provided label already exists!
+    return false;
+}
+
+
+/**
+ * @brief DataSourceManager::removeSource removes the DataSource from this DataSourceManager
+ * @param source is a shared pointer to the DataSource
+ * @return true if the source was removed, else false
+ */
 bool DataSourceManager::removeSource(QSharedPointer<DataSource> source)
 {
     for (auto idx = 0; idx < sources.size(); idx++)

@@ -17,8 +17,13 @@ public:
 public slots:
     void refresh();
 
+    void filterTextUpdated(QString text);
+    void clearFilter(void);
+
 protected:
     Ui::dataview ui;
+
+    void initTree(void);
 };
 
 

@@ -345,6 +345,3 @@ void PlotCurve::updateLabel()
 
     setTitle(label);
 }
-
-
-

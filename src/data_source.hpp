@@ -51,6 +51,9 @@ public:
 
     void removeAllSeries(void);
 
+signals:
+    void dataChanged(void);
+
 protected:
 
     QString label;
@@ -93,6 +96,7 @@ public slots:
 
     bool addSource(QSharedPointer<DataSource> source);
     bool addSource(DataSource* source) { return addSource(QSharedPointer<DataSource>(source)); }
+    bool addSource(QString label);
 
     bool removeSource(QSharedPointer<DataSource> source);
     bool removeSource(DataSource* source) { return removeSource(QSharedPointer<DataSource>(source)); }
@@ -102,8 +106,13 @@ public slots:
 
     void removeAllSources(void);
 
+    void update(void) { emit sourcesChanged(); }
+
 signals:
     void sourcesChanged();
+
+protected slots:
+    void onDataChanged() { emit sourcesChanged(); }
 
 protected:
     QVector<QSharedPointer<DataSource>> sources;
