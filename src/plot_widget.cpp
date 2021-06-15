@@ -30,6 +30,8 @@ PlotWidget::PlotWidget() : QwtPlot()
 
 PlotWidget::~PlotWidget()
 {
+    untrackCurve();
+
     delete zoomer;
 
     crosshair->detach();
@@ -277,6 +279,34 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
 }
 
 
+/**
+ * @brief PlotWidget::isCurveTracked tests if the provided curve is being tracked
+ * @param curve
+ * @return
+ */
+bool PlotWidget::isCurveTracked(QSharedPointer<PlotCurve> curve)
+{
+    return !curve.isNull() && curve == tracking_curve;
+}
+
+
+void PlotWidget::trackCurve(QSharedPointer<PlotCurve> curve)
+{
+    untrackCurve();
+
+    if (!curve.isNull())
+    {
+        tracking_curve = curve;
+    }
+}
+
+
+void PlotWidget::untrackCurve()
+{
+    tracking_curve = QSharedPointer<PlotCurve>(nullptr);
+}
+
+
 void PlotWidget::wheelEvent(QWheelEvent *event)
 {
     int delta = event->delta();
@@ -504,6 +534,11 @@ bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
     for (int idx = 0; idx < curves.size(); idx++)
     {
         auto curve = curves.at(idx);
+
+        if (isCurveTracked(curve))
+        {
+            untrackCurve();
+        }
 
         if (!curve.isNull() && curve->getDataSeries() == series)
         {
