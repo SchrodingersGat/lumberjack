@@ -43,29 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     addDockWidget(Qt::LeftDockWidgetArea, dock);
 
-    // Construct a new series
-    series = QSharedPointer<DataSeries>(new DataSeries("My Series"));
-
-    for (int idx = 0; idx < 5000; idx += 50)
-    {
-        for (double t = -10; t <= 10; t += 0.01)
-        {
-            series->addData(t + idx, (double) (rand() % 1000) - 500);
-        }
-    }
-
-    plot->addSeries(series);
-    plot->addSeries(series);
-    plot->addSeries(series);
-
-    auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
-
-    for (double t = 0; t < 100; t += 0.001)
-    {
-        series_2->addData(t, 10 * cos(0.1 * t));
-    }
-
-    plot->addSeries(series_2, QwtPlot::yRight);
+//    plot->addSeries(series_2, QwtPlot::yRight);
 
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
@@ -81,6 +59,29 @@ MainWindow::MainWindow(QWidget *parent)
     src->addSeries(new DataSeries("Dog"));
     src->addSeries(new DataSeries("Cat"));
     src->addSeries(new DataSeries("Rat"));
+
+    auto *series = new DataSeries("My data");
+
+    for (int idx = 0; idx < 5000; idx += 50)
+    {
+        for (double t = -10; t <= 10; t += 0.01)
+        {
+            series->addData(t + idx, (double) (rand() % 1000) - 500);
+        }
+    }
+
+    src->addSeries(series);
+
+    src = manager->getSourceByLabel("Source A");
+
+    auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
+
+    for (double t = 0; t < 100; t += 0.001)
+    {
+        series_2->addData(t, 10 * cos(0.1 * t));
+    }
+
+    src->addSeries(series_2);
 
 }
 

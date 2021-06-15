@@ -36,8 +36,6 @@ private:
     QLabel t_pos;
     QLabel y_pos;
 
-    QSharedPointer<DataSeries> series;
-
     DataviewWidget dataview;
 
 };
