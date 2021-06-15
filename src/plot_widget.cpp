@@ -309,10 +309,13 @@ void PlotWidget::trackCurve(QSharedPointer<PlotCurve> curve)
 {
     untrackCurve();
 
-    if (!curve.isNull())
-    {
-        tracking_curve = curve;
-    }
+    if (curve.isNull()) return;
+
+    auto series = curve->getDataSeries();
+
+    if (series.isNull() || series->size() == 0) return;
+
+    tracking_curve = curve;
 }
 
 
@@ -462,17 +465,27 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     auto pen = crosshair->linePen();
 
+    bool tracking = false;
+
     // Are we tracking a curve?
     if (!tracking_curve.isNull())
     {
-        y = tracking_curve->getDataSeries()->getValueAtTime(x);
+        auto series = tracking_curve->getDataSeries();
 
-        y = transform(tracking_curve->yAxis(), y);
+        if (!series.isNull() && series->size() > 0)
+        {
+            y = tracking_curve->getDataSeries()->getValueAtTime(x);
 
-        pen.setColor(tracking_curve->pen().color());
-        crosshair->setLinePen(pen);
+            y = transform(tracking_curve->yAxis(), y);
+
+            pen.setColor(tracking_curve->pen().color());
+            crosshair->setLinePen(pen);
+
+            tracking = true;
+        }
     }
-    else
+
+    if (!tracking)
     {
         // TODO: Set crosshair color to "inverse" of the background
         pen.setColor(QColor(127, 127, 127));
