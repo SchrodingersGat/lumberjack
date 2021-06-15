@@ -115,9 +115,20 @@ DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, un
     update();
 }
 
+
+void DataSeries::setColor(QColor c)
+{
+    color = c;
+
+    update();
+}
+
+
 void DataSeries::update(void)
 {
     // TODO - What needs to happen here?
+
+    // TODO - Re-sample any attached graph??
 
     emit dataUpdated();
 }

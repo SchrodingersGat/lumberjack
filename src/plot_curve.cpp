@@ -277,7 +277,7 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
         QwtPlotCurve::setTitle((*series).getLabel());
     }
 
-    setPen(QColor(50, 150, 150));
+    setPen(series->getColor());
 
     worker.moveToThread(&workerThread);
 

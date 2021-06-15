@@ -1,6 +1,7 @@
 #ifndef DATA_SOURCE_H
 #define DATA_SOURCE_H
 
+#include <QColor>
 #include <qobject.h>
 #include <qvector.h>
 
@@ -40,8 +41,8 @@ public:
 
     QStringList getGroupLabels(void) const;
 
-    bool addSeries(QSharedPointer<DataSeries> series);
-    bool addSeries(DataSeries* series);
+    bool addSeries(QSharedPointer<DataSeries> series, bool auto_color = true);
+    bool addSeries(DataSeries* series, bool auto_color=true);
 
     QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
     QSharedPointer<DataSeries> getSeriesByLabel(QString label);
@@ -56,7 +57,16 @@ signals:
 
 protected:
 
+    //! Text label associated with this DataSource (e.g. filename)
     QString label;
+
+    //! Circular list of colors to auto-assign to new series
+    virtual QList<QColor> getColorWheel(void);
+
+    QColor getNextColor(void);
+
+    //! Cursor for selecting next color
+    int color_wheel_cursor = 0;
 
     QVector<QSharedPointer<DataSeries>> data_series;
 };

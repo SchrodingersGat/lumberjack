@@ -487,6 +487,9 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     // Perform initial data sampling
     curve->resampleData(interval.minValue(), interval.maxValue(), getHorizontalPixels());
 
+    setAutoReplot(true);
+    replot();
+
     return true;
 }
 

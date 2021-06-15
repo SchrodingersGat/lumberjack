@@ -13,6 +13,51 @@ DataSource::~DataSource()
 }
 
 
+/**
+ * @brief DataSource::getColorWheel creates a list of "distinct" colors
+ * @return a list of colors
+ */
+QList<QColor> DataSource::getColorWheel()
+{
+    QList<QColor> colors;
+
+    colors.append(QColor(0, 0, 250));
+    colors.append(QColor(0, 250, 0));
+    colors.append(QColor(250, 0, 0));
+    colors.append(QColor(0, 250, 250));
+    colors.append(QColor(250, 250, 0));
+    colors.append(QColor(250, 0, 250));
+    colors.append(QColor(0, 0, 0));
+
+    return colors;
+}
+
+
+/**
+ * @brief DataSource::getNextColor get the next available color
+ * @return
+ */
+QColor DataSource::getNextColor()
+{
+    auto colors = getColorWheel();
+
+    if (colors.count() == 0)
+    {
+        return QColor(0, 0, 0);
+    }
+
+    int idx = color_wheel_cursor;
+
+    if (idx >= colors.count()) idx = 0;
+
+    QColor color = colors.at(idx);
+
+    color_wheel_cursor = (idx + 1);
+
+    return color;
+}
+
+
 void DataSource::clear()
 {
     removeAllSeries();
@@ -82,7 +127,7 @@ QStringList DataSource::getSeriesLabels(QString filter_string) const
  *
  * Returns true if the series was added, else false
  */
-bool DataSource::addSeries(QSharedPointer<DataSeries> series)
+bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
 {
     if (series.isNull())
     {
@@ -99,15 +144,20 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series)
 
     data_series.push_back(series);
 
+    if (auto_color)
+    {
+        series->setColor(getNextColor());
+    }
+
     emit dataChanged();
 
     return true;
 }
 
 
-bool DataSource::addSeries(DataSeries *series)
+bool DataSource::addSeries(DataSeries *series, bool auto_color)
 {
-    return addSeries(QSharedPointer<DataSeries>(series));
+    return addSeries(QSharedPointer<DataSeries>(series), auto_color);
 }
 
 

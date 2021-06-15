@@ -68,7 +68,10 @@ int DataViewTree::refresh(QString filters)
 
             QTreeWidgetItem *child = new QTreeWidgetItem(item);
 
+            // Series label
             child->setText(0, series->getLabel());
+
+            // Series data
             child->setText(2, QString::number(series->size()));
 
             item->addChild(child);

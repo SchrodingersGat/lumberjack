@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     src->addSeries(new DataSeries("Cat"));
     src->addSeries(new DataSeries("Dog"));
-    src->addSeries(new DataSeries("Cat"));
+//    src->addSeries(new DataSeries("Cat"));
     src->addSeries(new DataSeries("Rat"));
 
     auto *series = new DataSeries("My data");
@@ -68,6 +68,10 @@ MainWindow::MainWindow(QWidget *parent)
         {
             series->addData(t + idx, (double) (rand() % 1000) - 500);
         }
+
+        src->getSeriesByLabel("Cat")->addData(idx, (double) (rand() % 500) - 250);
+        src->getSeriesByLabel("Rat")->addData(idx, (double) (rand() % 500) - 250);
+        src->getSeriesByLabel("Dog")->addData(idx, (double) (rand() % 500) - 250);
     }
 
     src->addSeries(series);

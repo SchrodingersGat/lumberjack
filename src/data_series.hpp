@@ -5,6 +5,7 @@
 #include <qvector.h>
 #include <qmutex.h>
 #include <QRectF>
+#include <QColor>
 
 #include <qwt_series_data.h>
 
@@ -60,6 +61,9 @@ public slots:
 
     const QString& getUnits(void) const { return units; }
     void setUnits(QString u) { units = u; }
+
+    QColor getColor(void) const { return color; }
+    void setColor(QColor c);
 
     /* Data insertion functions */
     void addData(DataPoint point, bool update=true);
@@ -119,11 +123,17 @@ protected:
     //! mutex for controlling data access
     mutable QMutex data_mutex;
 
+    //! Group string for this DataSeries
     QString group;
 
+    //! Label string for this DataSeries
     QString label;
 
+    //! Units string for this DataSeries
     QString units;
+
+    //! Color for this curve
+    QColor color;
 };
 
 
