@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
 
+    initMenus();
     initStatusBar();
     initSignalsSlots();
 
@@ -37,11 +38,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     dock->setWidget(plot);
 
-    this->addDockWidget(Qt::LeftDockWidgetArea, dock);
+    this->addDockWidget(Qt::RightDockWidgetArea, dock);
 
     dock = new QDockWidget(tr("Data View"), this);
     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    dock->setWidget(&dataview);
+    dock->setWidget(&dataView);
+
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
+
+    dock = new QDockWidget(tr("Stats View"), this);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dock->setWidget(&statsView);
 
     addDockWidget(Qt::LeftDockWidgetArea, dock);
 
@@ -98,6 +105,14 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::initMenus()
+{
+    connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
+    connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
+    connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
+}
+
+
 void MainWindow::initSignalsSlots()
 {
     connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
@@ -123,4 +138,23 @@ void MainWindow::showAboutInfo()
     AboutDialog dlg;
 
     dlg.exec();
+}
+
+
+
+void MainWindow::toggleDataView(void)
+{
+    // TODO
+}
+
+
+void MainWindow::toggleTimelineView(void)
+{
+    // TODO
+}
+
+
+void MainWindow::toggleStatisticsView(void)
+{
+    // TODO
 }

@@ -36,7 +36,8 @@ SOURCES += \
     widgets/about_dialog.cpp \
     widgets/dataview_tree.cpp \
     widgets/dataview_widget.cpp \
-    widgets/series_editor_dialog.cpp
+    widgets/series_editor_dialog.cpp \
+    widgets/stats_widget.cpp
 
 HEADERS += \
     ../src/data_series.hpp \
@@ -49,13 +50,15 @@ HEADERS += \
     widgets/about_dialog.hpp \
     widgets/dataview_tree.hpp \
     widgets/dataview_widget.hpp \
-    widgets/series_editor_dialog.hpp
+    widgets/series_editor_dialog.hpp \
+    widgets/stats_widget.hpp
 
 FORMS += \
     about_dialog.ui \
     curve_editor_dialog.ui \
     dataview_widget.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    stats_view.ui
 
 #Set the location for the generated ui_xxxx.h files
 UI_DIR = ui_tmp/

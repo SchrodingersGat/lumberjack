@@ -7,6 +7,7 @@
 #include "data_series.hpp"
 #include "plot_curve.hpp"
 
+#include "stats_widget.hpp"
 #include "dataview_widget.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -24,11 +25,16 @@ public:
 public slots:
 
 protected:
+    void initMenus(void);
     void initSignalsSlots(void);
     void initStatusBar(void);
 
 protected slots:
-    void showAboutInfo();
+    void showAboutInfo(void);
+
+    void toggleDataView(void);
+    void toggleTimelineView(void);
+    void toggleStatisticsView(void);
 
 private:
     Ui::MainWindow *ui;
@@ -36,7 +42,8 @@ private:
     QLabel t_pos;
     QLabel y_pos;
 
-    DataviewWidget dataview;
+    DataviewWidget dataView;
+    StatsWidget statsView;
 
 };
 #endif // MAINWINDOW_H
