@@ -37,7 +37,8 @@ SOURCES += \
     widgets/dataview_tree.cpp \
     widgets/dataview_widget.cpp \
     widgets/series_editor_dialog.cpp \
-    widgets/stats_widget.cpp
+    widgets/stats_widget.cpp \
+    widgets/timeline_widget.cpp
 
 HEADERS += \
     ../src/data_series.hpp \
@@ -51,7 +52,8 @@ HEADERS += \
     widgets/dataview_tree.hpp \
     widgets/dataview_widget.hpp \
     widgets/series_editor_dialog.hpp \
-    widgets/stats_widget.hpp
+    widgets/stats_widget.hpp \
+    widgets/timeline_widget.hpp
 
 FORMS += \
     about_dialog.ui \
