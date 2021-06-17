@@ -88,8 +88,14 @@ MainWindow::~MainWindow()
  */
 void MainWindow::initMenus()
 {
+    connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
+
+    connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
+
     connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
+
     connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
+
     connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
 }
 
@@ -122,9 +128,7 @@ void MainWindow::initDocks()
 
 void MainWindow::initSignalsSlots()
 {
-    connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
-
-    connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
+    // TODO
 }
 
 
