@@ -1,8 +1,11 @@
 #include <stdlib.h>
-#include <qdockwidget.h>
+
+#include <QDockWidget>
+#include <QFileDialog>
 
 #include <qwt_plot.h>
 
+#include "lumberjack_settings.hpp"
 #include "lumberjack_version.hpp"
 
 #include "plot_curve.hpp"
@@ -88,6 +91,8 @@ MainWindow::~MainWindow()
  */
 void MainWindow::initMenus()
 {
+    connect(ui->action_Import_Data, &QAction::triggered, this, &MainWindow::importData);
+
     connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
 
     connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
@@ -141,6 +146,55 @@ void MainWindow::initStatusBar()
 
     ui->statusbar->addPermanentWidget(&t_pos);
     ui->statusbar->addPermanentWidget(&y_pos);
+}
+
+
+/**
+ * @brief MainWindow::importData loads data in from an external file
+ */
+void MainWindow::importData()
+{
+    // TODO - Extract supported file types from the available plugins.
+
+    QStringList supported_types;
+
+    supported_types.append("csv");
+    supported_types.append("tsv");
+
+    if (supported_types.isEmpty())
+    {
+        // TODO - Show error message
+        return;
+    }
+
+    auto settings = LumberjackSettings::getInstance();
+
+    QString recent_dir = settings->loadString("data", "recent_data_dir");
+
+    // Construct "filter" list
+    QString filters = "Data Files (";
+
+    for (int idx = 0; idx < supported_types.count(); idx++)
+    {
+        filters += "*.";
+        filters += supported_types.at(idx);
+
+        if (idx < (supported_types.count() - 1))
+        {
+            filters += " ";
+        }
+    }
+
+    filters += ")";
+
+    QString filename = QFileDialog::getOpenFileName(
+                this,
+                "Import file",
+                recent_dir,
+                filters
+                );
+
+    qDebug() << filename;
 }
 
 

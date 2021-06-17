@@ -39,6 +39,8 @@ protected slots:
     void toggleTimelineView(void);
     void toggleStatisticsView(void);
 
+    void importData(void);
+
 private:
     Ui::MainWindow *ui;
 

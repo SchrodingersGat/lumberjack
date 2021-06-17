@@ -68,6 +68,21 @@ QVariant LumberjackSettings::loadSetting(QString group, QString key, QVariant de
 }
 
 
+/**
+ * @brief LumberjackSettings::loadString loads a QString from the settings file
+ * @param group
+ * @param key
+ * @param defaultValue
+ * @return
+ */
+QString LumberjackSettings::loadString(QString group, QString key, QString defaultValue)
+{
+    QVariant result = loadSetting(group, key, defaultValue);
+
+    return result.toString();
+}
+
+
 bool LumberjackSettings::loadBoolean(QString group, QString key, bool defaultValue)
 {
     QVariant result = loadSetting(group, key, defaultValue);
