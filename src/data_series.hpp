@@ -6,9 +6,7 @@
 #include <qmutex.h>
 #include <QRectF>
 #include <QColor>
-
-#include <qwt_series_data.h>
-
+#include <QSharedPointer>
 
 class DataPoint
 {

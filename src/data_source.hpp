@@ -30,7 +30,7 @@ public:
 
     void clear(void);
 
-    QString getLabel(void) const { return label; }
+    virtual QString getLabel(void) const { return label; }
 
     // Descriptive text for this data source (override for custom sources)
     virtual QString getDescription(void) const { return "Lumberjack data source"; }
@@ -129,6 +129,33 @@ protected slots:
 protected:
     QVector<QSharedPointer<DataSource>> sources;
 };
+
+
+/**
+ * @brief The DataSourcePlugin class provides an interface for importing data
+ */
+class DataSourcePlugin
+{
+public:
+    virtual ~DataSourcePlugin() = default;
+
+    //! Return the version of the plugin
+    virtual QString getPluginVersion(void) = 0;
+
+    //! Return the description of the plugin
+    virtual QString getPluginDescription(void) = 0;
+
+    virtual QStringList getSupportedFileTypes(void) = 0;
+
+    //! Load data from file
+    virtual bool loadFromFile(const QString filename) = 0;
+};
+
+
+#define DATASOURCE_PLUGIN_IID "org.lumberjack.plugins.datasource"
+
+Q_DECLARE_INTERFACE(DataSourcePlugin, DATASOURCE_PLUGIN_IID)
+
 
 
 #endif // DATA_SOURCE_H

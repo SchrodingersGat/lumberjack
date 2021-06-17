@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "data_source.hpp"
 
 DataSource::DataSource(QString lbl) :

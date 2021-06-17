@@ -1,5 +1,6 @@
 #include <QDrag>
 #include <QMimeData>
+#include <QDebug>
 
 #include "series_editor_dialog.hpp"
 #include "data_source.hpp"
