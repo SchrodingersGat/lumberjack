@@ -42,7 +42,16 @@
     </property>
     <addaction name="action_About"/>
    </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="action_Data_View"/>
+    <addaction name="action_Timeline"/>
+    <addaction name="action_Statistics"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_View"/>
    <addaction name="menu_About"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -59,6 +68,21 @@
   <action name="action_About">
    <property name="text">
     <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Data_View">
+   <property name="text">
+    <string>&amp;Data View</string>
+   </property>
+  </action>
+  <action name="action_Timeline">
+   <property name="text">
+    <string>&amp;Timeline</string>
+   </property>
+  </action>
+  <action name="action_Statistics">
+   <property name="text">
+    <string>&amp;Statistics</string>
    </property>
   </action>
  </widget>

@@ -21,31 +21,17 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setCentralWidget(0);
+    //setCentralWidget(0);
 
     setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
 
+    initMenus();
+    initDocks();
     initStatusBar();
     initSignalsSlots();
 
-
-    // Add a grapho
-    QDockWidget *dock = new QDockWidget("Graph", this);
-    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-
-    PlotWidget *plot = new PlotWidget();
-
-    dock->setWidget(plot);
-
-    this->addDockWidget(Qt::LeftDockWidgetArea, dock);
-
-    dock = new QDockWidget(tr("Data View"), this);
-    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    dock->setWidget(&dataview);
-
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-
-//    plot->addSeries(series_2, QwtPlot::yRight);
+    plotView.setParent(this);
+    setCentralWidget(&plotView);
 
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
@@ -59,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     src->addSeries(new DataSeries("Cat"));
     src->addSeries(new DataSeries("Dog"));
-//    src->addSeries(new DataSeries("Cat"));
     src->addSeries(new DataSeries("Rat"));
 
     auto *series = new DataSeries("My data");
@@ -98,11 +83,52 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::initSignalsSlots()
+/**
+ * @brief MainWindow::initMenus initializes menus and menu actions
+ */
+void MainWindow::initMenus()
 {
     connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
 
     connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
+
+    connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
+
+    connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
+
+    connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
+}
+
+
+/**
+ * @brief MainWindow::initDocks initializes the various dockable widgets
+ */
+void MainWindow::initDocks()
+{
+    this->setDockOptions(AnimatedDocks | AllowNestedDocks);
+
+    QDockWidget *dock = new QDockWidget(tr("Data View"), this);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dock->setWidget(&dataView);
+
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
+
+    dock = new QDockWidget(tr("Stats View"), this);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dock->setWidget(&statsView);
+
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
+
+    dock = new QDockWidget(tr("Timeline"), this);
+    dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+
+    addDockWidget(Qt::BottomDockWidgetArea, dock);
+}
+
+
+void MainWindow::initSignalsSlots()
+{
+    // TODO
 }
 
 
@@ -123,4 +149,23 @@ void MainWindow::showAboutInfo()
     AboutDialog dlg;
 
     dlg.exec();
+}
+
+
+
+void MainWindow::toggleDataView(void)
+{
+    // TODO
+}
+
+
+void MainWindow::toggleTimelineView(void)
+{
+    // TODO
+}
+
+
+void MainWindow::toggleStatisticsView(void)
+{
+    // TODO
 }
