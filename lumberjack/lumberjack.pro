@@ -34,6 +34,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     widgets/about_dialog.cpp \
+    widgets/axis_scale_dialog.cpp \
     widgets/dataview_tree.cpp \
     widgets/dataview_widget.cpp \
     widgets/series_editor_dialog.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     ../src/plot_widget.hpp \
     mainwindow.h \
     widgets/about_dialog.hpp \
+    widgets/axis_scale_dialog.hpp \
     widgets/dataview_tree.hpp \
     widgets/dataview_widget.hpp \
     widgets/series_editor_dialog.hpp \
@@ -57,6 +59,7 @@ HEADERS += \
 
 FORMS += \
     about_dialog.ui \
+    axis_scale_dialog.ui \
     curve_editor_dialog.ui \
     dataview_widget.ui \
     mainwindow.ui \

@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QMimeData>
 
+#include "axis_scale_dialog.hpp"
+
 #include "data_source.hpp"
 #include "plot_widget.hpp"
 
@@ -517,11 +519,17 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
 }
 
 
+/**
+ * @brief PlotWidget::mouseDoubleClickEvent callback function for mouse double click
+ * @param event
+ */
 void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    // Middle button auto-scales graph
     if (event->button() == Qt::MiddleButton)
     {
-        QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
         int axis_id = yBoth;
 
@@ -544,6 +552,26 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
         }
 
         autoScale(axis_id);
+    }
+
+    // Left button double click performs various functions
+    else if (event->button() == Qt::LeftButton)
+    {
+        // Double-click on left axis
+        if (canvas_pos.x() < 0)
+        {
+            editAxisScale(QwtPlot::yLeft);
+        }
+        // Double-click on right axis
+        else if (canvas_pos.x() > canvas()->width())
+        {
+            editAxisScale(QwtPlot::yRight);
+        }
+        // Double-click on x axis
+        else if (canvas_pos.y() > canvas()->height())
+        {
+            editAxisScale(QwtPlot::xBottom);
+        }
     }
 }
 
@@ -718,6 +746,30 @@ void PlotWidget::autoScale(QSharedPointer<PlotCurve> curve)
 
     setAutoReplot(true);
     replot();
+}
+
+
+/**
+ * @brief PlotWidget::editAxisScale manually configure scale for a given axis
+ * @param axisId
+ */
+void PlotWidget::editAxisScale(QwtPlot::Axis axisId)
+{
+    auto interval = axisInterval(axisId);
+
+    auto *dlg = new AxisScaleDialog(interval.minValue(), interval.maxValue());
+
+    int result = dlg->exec();
+
+    if (result == QDialog::Accepted)
+    {
+        setAxisScale(axisId, dlg->getMinValue(), dlg->getMaxValue());
+
+        setAutoReplot(true);
+        replot();
+    }
+
+    dlg->deleteLater();
 }
 
 
