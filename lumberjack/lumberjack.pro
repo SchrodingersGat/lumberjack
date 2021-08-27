@@ -24,7 +24,8 @@ win32 { # windows
 
 INCLUDEPATH += ../src \
                widgets \
-               plugins
+               plugins \
+               plugins/cedat_protocol
 
 SOURCES += \
     ../src/data_series.cpp \
@@ -35,6 +36,12 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     plugins/cedat_importer.cpp \
+    plugins/cedat_protocol/CEDATProtocol.cpp \
+    plugins/cedat_protocol/CEDATPackets.cpp \
+    plugins/cedat_protocol/fielddecode.cpp \
+    plugins/cedat_protocol/fieldencode.cpp \
+    plugins/cedat_protocol/scaleddecode.cpp \
+    plugins/cedat_protocol/scaledencode.cpp \
     plugins/csv_importer.cpp \
     widgets/about_dialog.cpp \
     widgets/axis_scale_dialog.cpp \
@@ -53,6 +60,12 @@ HEADERS += \
     ../src/plot_widget.hpp \
     mainwindow.h \
     plugins/cedat_importer.hpp \
+    plugins/cedat_protocol/CEDATProtocol.hpp \
+    plugins/cedat_protocol/CEDATPackets.hpp \
+    plugins/cedat_protocol/fielddecode.hpp \
+    plugins/cedat_protocol/fieldencode.hpp \
+    plugins/cedat_protocol/scaleddecode.hpp \
+    plugins/cedat_protocol/scaledencode.hpp \
     plugins/csv_importer.hpp \
     widgets/about_dialog.hpp \
     widgets/axis_scale_dialog.hpp \
