@@ -1,26 +1,138 @@
 #include <qfile.h>
 
+#include "cobsr/cobsr.h"
+
 #include "CEDATProtocol.hpp"
+#include "CEDATPackets.hpp"
+
 #include "cedat_importer.hpp"
+
+// Simple fletcher checksum algorithm
+uint16_t  fletcher_encode(QByteArray data, uint32_t len);
+
+uint16_t fletcher_encode(QByteArray data, uint32_t len)
+{
+
+    uint32_t i = 0;
+    unsigned char c0 = 0;
+    unsigned char c1 = 0;
+    uint16_t Checksum;
+
+    if (data.count() < len) len = data.count();
+
+    // Calculate checksum intermediate bytes
+    for( i = 0; i < len; i++)
+    {
+        c0 = (unsigned char)(c0 + (unsigned char) data.at(i));
+        c1 = (unsigned char)(c1 + c0);
+    }// for all the bytes
+
+    // Assemble the 16-bit checksum value
+    Checksum = (unsigned char)(c0 - c1);
+    Checksum = Checksum << 8;		// MS byte
+    Checksum |= (unsigned char)(c1 - 2*c0);	// LS byte
+
+    return Checksum;
+}
 
 
 CEDATPacket::CEDATPacket()
 {
-    memset(pktData, 0, sizeof(pktData));
-    pktLength = 0;
+    reset();
 }
 
 
 CEDATPacket::CEDATPacket(QByteArray payload)
 {
-    memset(pktData, 0, sizeof(pktData));
+    /*
+     * Construct a "CEDATPacket" object from incoming bytes:
+     *
+     * Packet format is as follows:
+     *
+     * - Packet ID          (1 bytes)
+     * - Packet Flags       (1 bytes)
+     * - Timestamp          ({0-8} bytes) - Length denoted in packet flags
+     * - Packet Length      (2 bytes)
+     * - Packet Data        ({0-1024} bytes) - Length denoted by "packet length"
+     * - Packet Checksum    (2 bytes)
+     */
 
-    for (int idx = 0; idx < payload.length(); idx++)
+    reset();
+
+    const int n = payload.count();
+
+    int offset = 0;
+
+    if (n < 6)
     {
-        pktData[idx] = (uint8_t) payload.at(idx);
+        qWarning() << "CEDATPacket constructor called with only " + QString::number(n) + " bytes";
+        return;
     }
 
-    pktLength = payload.length();
+    // Extract packet type and packet flags
+    pktType = payload[0];
+    pktFlags = payload[1];
+
+    // How many timestamp bytes?
+    int nTsBytes = pktFlags & 0x0F;
+
+    if (n < (6 + nTsBytes))
+    {
+        qWarning() << "CEDATPacket called with insufficient bytes after timestamp (" + QString::number(n) + ")";
+        return;
+    }
+
+    for (int ii = 0; ii < nTsBytes; ii++)
+    {
+        uint8_t tsByte = payload[2 + ii];
+
+        // Timestamp is "little endian" encoded
+        pktTimestamp += ((uint64_t) tsByte << (8 * ii));
+    }
+
+    offset = nTsBytes + 2;
+
+    // Packet length is "big endian" encoded
+    pktLength  = (uint16_t) payload[offset++] << 8;
+    pktLength += (uint16_t) payload[offset++];
+
+    if (n < (6 + nTsBytes + pktLength))
+    {
+        qWarning() << "CEDATPacket called with insufficient bytes after length (" + QString::number(n) + ")";
+        return;
+    }
+
+    for (int idx = 0; idx < pktLength; idx++)
+    {
+        pktData[idx] = payload[offset++];
+    }
+
+    // Calculate the checksum across number of bytes received so far
+    uint16_t checksum = fletcher_encode(payload, offset);
+
+    // Calculate checksum - "big endian" encoded
+    pktChecksum  = (uint16_t) (payload[offset++] & 0xFF) << 8;
+    pktChecksum += (uint16_t) (payload[offset++] & 0xFF);
+
+    valid = pktChecksum == checksum;
+
+    if (!valid)
+    {
+        qWarning() << "Checksum mismatch:" << QString::number(pktChecksum, 16) << QString::number(checksum, 16);
+        qWarning() << "Payload:" << payload.toHex(' ');
+    }
+}
+
+
+void CEDATPacket::reset()
+{
+    memset(pktData, 0, sizeof(pktData));
+    pktLength = 0;
+    pktFlags = 0;
+    pktType = 0;
+    pktChecksum = 0;
+    pktTimestamp = 0;
+    valid = false;
 }
 
 
@@ -86,7 +198,14 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
     // Ensure the file object is closed
     f.close();
 
-    qDebug() << "Read" << byte_count << "bytes in" << chunk_count << "chunks";
+    for (int idx = 0; idx < getSeriesCount(); idx++)
+    {
+        auto series = getSeriesByIndex(idx);
+
+        if (series.isNull()) continue;
+
+        qDebug() << series->getLabel() << series->size();
+    }
 
     return false;
 }
@@ -103,11 +222,11 @@ void CEDATImporter::processChunk(const QByteArray& chunk)
         if (byte == 0x00)
         {
             processBlock();
-            block.clear();
+            blockData.clear();
         }
         else
         {
-            block.append(byte);
+            blockData.append(byte);
         }
     }
 }
@@ -120,9 +239,95 @@ void CEDATImporter::processChunk(const QByteArray& chunk)
 void CEDATImporter::processBlock()
 {
     // Ignore empty block
-    if (block.isEmpty()) return;
+    if (blockData.isEmpty()) return;
 
-    qDebug() << "block:" << block;
+    // Construct an empty byte array for cobsr decoded data
+    QByteArray data(blockData.count(), 0x00);
+
+    // Cobbs-decode the data
+    auto result = cobsr_decode(
+                reinterpret_cast<uint8_t*>(data.data()),
+                data.count(),
+                reinterpret_cast<const uint8_t*>(blockData.constData()),
+                blockData.count()
+    );
+
+    data.truncate(result.out_len);
+
+    if (result.status != COBSR_DECODE_OK)
+    {
+        qWarning() << "cobsr_decode returned status " + QString::number(result.status);
+        return;
+    }
+
+    if (result.out_len < 6)
+    {
+        qWarning() << "cobsr_decode returned only " + QString::number(result.out_len) + " bytes";
+        return;
+    }
+
+    processPacket(data);
+}
+
+
+void CEDATImporter::processPacket(const QByteArray &packetData)
+{
+    // Convert the QByteArray data into a structured packet
+    CEDATPacket packet(packetData);
+
+    // Various data structures
+    CEDAT_NewLogVariable_t newVariable;
+    CEDAT_TimestampedData_t newDataFloat;
+    CEDAT_TimestampedBooleanData_t newDataBoolean;
+
+    if (!packet.valid)
+    {
+        qWarning() << "Invalid packet:" << packetData.toHex(' ');
+        return;
+    }
+
+    if (newVariable.decode(&packet))
+    {
+        QString group = QString(newVariable.ownerName) + ":" + QString::number(newVariable.ownerId);
+        QString title = QString(newVariable.title);
+
+        // Add a new variable
+        DataSeries *series = new DataSeries();
+
+        series->setGroup(QString(newVariable.ownerName) + ":" + QString::number(newVariable.ownerId));
+        series->setLabel(newVariable.title);
+        series->setUnits(newVariable.units);
+
+        variableMap[newVariable.variableId] = QSharedPointer<DataSeries>(series);
+
+        addSeries(series);
+    }
+    else if (newDataFloat.decode(&packet))
+    {
+        if (variableMap.contains(newDataFloat.variableId))
+        {
+            variableMap[newDataFloat.variableId]->addData(
+                        packet.pktTimestamp,
+                        newDataFloat.value);
+        }
+        else
+        {
+            qWarning() << "New float data received with unknown id " + QString::number(newDataFloat.variableId);
+        }
+    }
+    else if (newDataBoolean.decode(&packet))
+    {
+        if (variableMap.contains(newDataBoolean.variableId))
+        {
+            variableMap[newDataBoolean.variableId]->addData(
+                        packet.pktTimestamp,
+                        newDataBoolean.value ? 1 : 0);
+        }
+        else
+        {
+            qWarning() << "New bool data received with unknown id " + QString::number(newDataBoolean.variableId);
+        }
+    }
 }
 
 

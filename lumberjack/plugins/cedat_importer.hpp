@@ -1,6 +1,7 @@
 #ifndef CEDAT_IMPORTER_HPP
 #define CEDAT_IMPORTER_HPP
 
+#include <qmap.h>
 
 #include "data_source.hpp"
 
@@ -13,10 +14,17 @@ public:
     CEDATPacket();
     CEDATPacket(QByteArray payload);
 
-    // Maximum packet size of 1024 bytes cannot be exceeded
-    uint8_t pktData[1024];
+    uint8_t pktData[1040];
     uint8_t pktType = 0;
+    uint8_t pktFlags = 0;
     uint16_t pktLength = 0;
+    uint16_t pktChecksum = 0;
+    uint64_t pktTimestamp = 0;
+
+    bool valid = false;
+
+protected:
+    void reset();
 };
 
 
@@ -36,9 +44,13 @@ public:
 protected:
     void processChunk(const QByteArray& chunk);
     void processBlock();
+    void processPacket(const QByteArray& packet);
 
     // A single "block" of data (separated in the file by zero)
-    QByteArray block;
+    QByteArray blockData;
+
+    // Keep an internal map of variable IDs for matching to existing data series
+    QMap<int, QSharedPointer<DataSeries>> variableMap;
 };
 
 
