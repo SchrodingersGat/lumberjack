@@ -32,6 +32,8 @@ protected:
     void initSignalsSlots(void);
     void initStatusBar(void);
 
+    void importData(void);
+
 protected slots:
     void showAboutInfo(void);
 

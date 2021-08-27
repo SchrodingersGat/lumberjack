@@ -50,7 +50,14 @@
     <addaction name="action_Timeline"/>
     <addaction name="action_Statistics"/>
    </widget>
+   <widget class="QMenu" name="menu_Data">
+    <property name="title">
+     <string>&amp;Data</string>
+    </property>
+    <addaction name="action_Import_Data"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Data"/>
    <addaction name="menu_View"/>
    <addaction name="menu_About"/>
   </widget>
@@ -83,6 +90,11 @@
   <action name="action_Statistics">
    <property name="text">
     <string>&amp;Statistics</string>
+   </property>
+  </action>
+  <action name="action_Import_Data">
+   <property name="text">
+    <string>&amp;Import Data</string>
    </property>
   </action>
  </widget>

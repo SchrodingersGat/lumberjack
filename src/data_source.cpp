@@ -1,4 +1,9 @@
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qdir.h>
+
 #include "data_source.hpp"
+
 
 DataSource::DataSource(QString lbl) :
     label(lbl)
@@ -254,6 +259,112 @@ QStringList DataSource::getGroupLabels() const
 
     return labels;
 }
+
+
+FileDataSource::FileDataSource(QString label) : DataSource(label)
+{
+}
+
+
+FileDataSource::~FileDataSource()
+{
+}
+
+
+/**
+ * @brief FileDataSource::getFilePattern constructs a "file pattern" string for this plugin
+ * e.g. "CSV Files (*.csv)"
+ * @return
+ */
+QString FileDataSource::getFilePattern() const
+{
+    QString pattern = getFileDescription();
+
+    pattern += " (";
+
+    QStringList supportedTypes = getSupportedFileTypes();
+
+    for (int idx = 0; idx < supportedTypes.length(); idx++)
+    {
+        pattern += "*.";
+        pattern += supportedTypes.at(idx);
+
+        if (idx < (supportedTypes.length() - 1))
+        {
+            pattern += " ";
+        }
+    }
+
+    pattern += ")";
+
+    return pattern;
+}
+
+
+bool FileDataSource::loadData(QString filename, QStringList &errors)
+{
+    // Run file validation
+    if (!validateFile(filename, errors))
+    {
+        return false;
+    }
+
+    // Store the filename
+    this->filename = filename;
+
+    // Run specific file loading function
+    bool result = loadDataFromFile(errors);
+
+    // TODO: Any steps after loading data?
+
+    return result;
+}
+
+
+/**
+ * @brief FileDataSource::validateFile ensures that the provided file is available
+ * @param filename
+ * @return
+ */
+bool FileDataSource::validateFile(QString filename, QStringList& errorList)
+{
+    QFileInfo info(filename);
+
+    QStringList errors;
+
+    if (!info.exists())
+    {
+        errors.append(tr("File does not exist"));
+    }
+
+    if (!info.isFile())
+    {
+        errors.append(tr("Not a valid file"));
+    }
+
+    if (!info.isReadable())
+    {
+        errors.append(tr("File is not readable"));
+    }
+
+    if (errors.isEmpty())
+    {
+        return true;
+    }
+    else
+    {
+        errorList.append(errors);
+        return false;
+    }
+}
+
+
+bool FileDataSource::loadDataFromFile(QStringList &errors)
+{
+    errors.append(tr("loadDataFromFile function not implemented"));
+    return false;
+}
+
 
 
 DataSourceManager *DataSourceManager::instance = 0;

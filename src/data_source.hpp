@@ -72,6 +72,35 @@ protected:
 };
 
 
+/**
+ * @brief The FileDataSource class defines a DataSource which can be read from file
+ */
+class FileDataSource : public DataSource
+{
+    Q_OBJECT
+
+public:
+    FileDataSource(QString label);
+    virtual ~FileDataSource();
+
+    bool loadData(QString filename, QStringList& errors);
+
+    QString getFilename(void) const { return filename; }
+
+    // These functions should be overridden for inheriting child classes
+    virtual QString getFileDescription(void) const { return "Supported files"; }
+    virtual QStringList getSupportedFileTypes(void) const { return QStringList(); }
+    virtual bool loadDataFromFile(QStringList &errors);
+
+    QString getFilePattern(void) const;
+
+protected:
+    QString filename;
+
+    bool validateFile(QString filename, QStringList& errors);
+};
+
+
 /*
  * Data source manager class:
  * - Manages all data sources

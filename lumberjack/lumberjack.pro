@@ -23,7 +23,8 @@ win32 { # windows
 }
 
 INCLUDEPATH += ../src \
-               widgets
+               widgets \
+               plugins
 
 SOURCES += \
     ../src/data_series.cpp \
@@ -33,6 +34,8 @@ SOURCES += \
     ../src/plot_widget.cpp \
     main.cpp \
     mainwindow.cpp \
+    plugins/cedat_importer.cpp \
+    plugins/csv_importer.cpp \
     widgets/about_dialog.cpp \
     widgets/axis_scale_dialog.cpp \
     widgets/dataview_tree.cpp \
@@ -49,6 +52,8 @@ HEADERS += \
     ../src/plot_curve.hpp \
     ../src/plot_widget.hpp \
     mainwindow.h \
+    plugins/cedat_importer.hpp \
+    plugins/csv_importer.hpp \
     widgets/about_dialog.hpp \
     widgets/axis_scale_dialog.hpp \
     widgets/dataview_tree.hpp \

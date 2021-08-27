@@ -415,14 +415,15 @@ double DataSeries::getValueAtTime(double timestamp, InterpolationMode mode) cons
 
     switch (mode)
     {
-        case INTERPOLATE:
+    case INTERPOLATE:
         {
             double dt = point_b.timestamp - point_a.timestamp;
             double dv = point_b.value - point_a.value;
 
             return point_a.value + dv * (timestamp - point_a.timestamp) / dt;
         }
-        case SAMPLE_HOLD:
+    case SAMPLE_HOLD:
+    default:
         {
             // Simply return the previous "most recent" value
             return point_a.value;

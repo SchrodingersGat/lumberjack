@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <qdockwidget.h>
 
+#include <qfiledialog.h>
+
 #include <qwt_plot.h>
 
 #include "lumberjack_version.hpp"
@@ -14,14 +16,16 @@
 
 #include "about_dialog.hpp"
 
+// TODO: In the future, replace these explicit includes with a "plugin" architecture
+#include "csv_importer.hpp"
+#include "cedat_importer.hpp"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    //setCentralWidget(0);
 
     setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
 
@@ -56,9 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
             series->addData(t + idx, (double) (rand() % 1000) - 500);
         }
 
-        src->getSeriesByLabel("Cat")->addData(idx, (double) (rand() % 500) - 250);
-        src->getSeriesByLabel("Rat")->addData(idx, (double) (rand() % 500) - 250);
-        src->getSeriesByLabel("Dog")->addData(idx, (double) (rand() % 500) - 250);
+        src->getSeriesByLabel("Cat")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
+        src->getSeriesByLabel("Rat")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
+        src->getSeriesByLabel("Dog")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
     }
 
     src->addSeries(series);
@@ -66,13 +70,16 @@ MainWindow::MainWindow(QWidget *parent)
     src = manager->getSourceByLabel("Source A");
 
     auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
+    auto series_3 = QSharedPointer<DataSeries>(new DataSeries("Series 3"));
 
-    for (double t = 0; t < 100; t += 0.001)
+    for (double t = 0; t < 100; t += 0.0001)
     {
-        series_2->addData(t, 10 * cos(0.1 * t));
+        series_2->addData(t, 10 * cos(1 * t));
+        series_3->addData(t, 10 * sin(15 * t));
     }
 
     src->addSeries(series_2);
+    src->addSeries(series_3);
 
 }
 
@@ -97,6 +104,8 @@ void MainWindow::initMenus()
     connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
 
     connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
+
+    connect(ui->action_Import_Data, &QAction::triggered, this, &MainWindow::importData);
 }
 
 
@@ -129,6 +138,8 @@ void MainWindow::initDocks()
 void MainWindow::initSignalsSlots()
 {
     // TODO
+
+
 }
 
 
@@ -152,19 +163,106 @@ void MainWindow::showAboutInfo()
 }
 
 
+void MainWindow::importData()
+{
+    // Get list of available importers
 
+    // TODO: In the future, push this off to a "plugin" module!!
+
+    QList<QSharedPointer<FileDataSource>> sources;
+
+    sources.append(QSharedPointer<FileDataSource>(new CSVImporter()));
+    sources.append(QSharedPointer<FileDataSource>(new CEDATImporter()));
+
+    // Assemble list of available files
+
+    // Assemble set of supported file types
+    QStringList supportedFileTypes;
+
+    QStringList filePatterns;
+
+    for (auto source : sources)
+    {
+        if (source.isNull()) continue;
+
+        for (QString fileType : source->getSupportedFileTypes())
+        {
+            if (!supportedFileTypes.contains(fileType))
+            {
+                supportedFileTypes.append(fileType);
+            }
+        }
+
+        filePatterns.append(source->getFilePattern());
+    }
+
+    // Load a file
+    QFileDialog dialog(this);
+
+    dialog.setWindowTitle(tr("Import Data from File"));
+
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilter(filePatterns.join(";;"));
+    dialog.setViewMode(QFileDialog::Detail);
+
+    int result = dialog.exec();
+
+    if (result != QDialog::Accepted)
+    {
+        // User cancelled the import process
+        return;
+    }
+
+    // Determine which plugin loaded the data
+    QString filter = dialog.selectedNameFilter();
+    QStringList files = dialog.selectedFiles();
+
+    if (filter.isEmpty() || files.length() != 1)
+    {
+        return;
+    }
+
+    QString filename = files.first();
+
+    for (auto source : sources)
+    {
+        if (!source.isNull() && source->getFilePattern() == filter)
+        {
+            // TODO: Support cases where multiple plugins may match the same file extension
+
+            QStringList errors;
+
+            bool result = source->loadData(filename, errors);
+
+            qDebug() << "Loading data:" << filename << source->getLabel() << result;
+
+        }
+    }
+}
+
+
+
+/**
+ * @brief MainWindow::toggleDataView toggles visibility of the "data view" dock
+ */
 void MainWindow::toggleDataView(void)
 {
     // TODO
 }
 
 
+/**
+ * @brief MainWindow::toggleTimelineView toggles visibility of the "timeline" dock
+ */
 void MainWindow::toggleTimelineView(void)
 {
     // TODO
 }
 
 
+/**
+ * @brief MainWindow::toggleStatisticsView toggles visibility of the "statistics" dock
+ */
 void MainWindow::toggleStatisticsView(void)
 {
     // TODO
