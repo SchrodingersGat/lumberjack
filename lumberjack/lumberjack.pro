@@ -25,7 +25,8 @@ win32 { # windows
 INCLUDEPATH += ../src \
                widgets \
                plugins \
-               plugins/cedat_protocol
+               plugins/cedat_protocol \
+               plugins/cobsr
 
 SOURCES += \
     ../src/data_series.cpp \
@@ -42,6 +43,8 @@ SOURCES += \
     plugins/cedat_protocol/fieldencode.cpp \
     plugins/cedat_protocol/scaleddecode.cpp \
     plugins/cedat_protocol/scaledencode.cpp \
+    plugins/cobsr/cobs.c \
+    plugins/cobsr/cobsr.c \
     plugins/csv_importer.cpp \
     widgets/about_dialog.cpp \
     widgets/axis_scale_dialog.cpp \
@@ -66,6 +69,8 @@ HEADERS += \
     plugins/cedat_protocol/fieldencode.hpp \
     plugins/cedat_protocol/scaleddecode.hpp \
     plugins/cedat_protocol/scaledencode.hpp \
+    plugins/cobsr/cobs.h \
+    plugins/cobsr/cobsr.h \
     plugins/csv_importer.hpp \
     widgets/about_dialog.hpp \
     widgets/axis_scale_dialog.hpp \
