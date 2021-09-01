@@ -1,4 +1,7 @@
 #include <qfile.h>
+#include <qfileinfo.h>
+#include <qprogressdialog.h>
+#include <qelapsedtimer.h>
 
 #include "cobsr/cobsr.h"
 
@@ -163,6 +166,10 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
 {
     QFile f(filename);
 
+    QFileInfo fileInfo(filename);
+
+    qint64 fileSize = fileInfo.size();
+
     // Open the file object
     if (!f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable())
     {
@@ -171,18 +178,32 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
         return false;
     }
 
+    QElapsedTimer elapsed;
+    QProgressDialog progress;
+
+    progress.setWindowTitle(tr("Reading File"));
+    progress.setLabelText(tr("Reading data - ") + filename);
+
+    progress.setMinimum(0);
+    progress.setMaximum(fileSize);
+    progress.setValue(0);
+
+    elapsed.restart();
+
+    progress.show();
+
     // Ensure we are at the start of the file!
     f.seek(0);
 
     const int CHUNK_SIZE = 4096;
 
-    int byte_count = 0;
-    int chunk_count = 0;
+    qint64 byte_count = 0;
+    qint64 chunk_count = 0;
 
     QByteArray chunk;
 
     // Read out data a chunk at a time
-    while (!f.atEnd())
+    while (!f.atEnd() && !progress.wasCanceled())
     {
         chunk = f.read(CHUNK_SIZE);
 
@@ -193,10 +214,24 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
         {
             processChunk(chunk);
         }
+
+        // Update progress bar
+        if (elapsed.elapsed() > 250)
+        {
+            progress.setValue(byte_count);
+            elapsed.restart();
+        }
     }
 
     // Ensure the file object is closed
     f.close();
+
+    progress.close();
+
+    if (progress.wasCanceled())
+    {
+        // TODO
+    }
 
     for (int idx = 0; idx < getSeriesCount(); idx++)
     {
