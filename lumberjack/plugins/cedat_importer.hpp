@@ -35,7 +35,7 @@ class CEDATImporter : public FileDataSource
 public:
     CEDATImporter();
 
-    virtual ~CEDATImporter() override;
+    virtual ~CEDATImporter();
 
     virtual QString getFileDescription(void) const override { return "CEDAT files"; }
     virtual QStringList getSupportedFileTypes(void) const override;
@@ -50,7 +50,7 @@ protected:
     QByteArray blockData;
 
     // Keep an internal map of variable IDs for matching to existing data series
-    QMap<int, QSharedPointer<DataSeries>> variableMap;
+    QMap<int, QString> variableMap;
 };
 
 

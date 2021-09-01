@@ -74,8 +74,8 @@ CEDATPacket::CEDATPacket(QByteArray payload)
     }
 
     // Extract packet type and packet flags
-    pktType = payload[0];
-    pktFlags = payload[1];
+    pktType = payload[0] & 0xFF;
+    pktFlags = payload[1] & 0xFF;
 
     // How many timestamp bytes?
     int nTsBytes = pktFlags & 0x0F;
@@ -91,14 +91,14 @@ CEDATPacket::CEDATPacket(QByteArray payload)
         uint8_t tsByte = payload[2 + ii];
 
         // Timestamp is "little endian" encoded
-        pktTimestamp += ((uint64_t) tsByte << (8 * ii));
+        pktTimestamp += ((uint64_t) tsByte & 0xFF) << (8 * ii);
     }
 
     offset = nTsBytes + 2;
 
     // Packet length is "big endian" encoded
-    pktLength  = (uint16_t) payload[offset++] << 8;
-    pktLength += (uint16_t) payload[offset++];
+    pktLength  = (uint16_t) (payload[offset++] & 0xFF) << 8;
+    pktLength += (uint16_t) (payload[offset++] & 0xFF);
 
     if (n < (6 + nTsBytes + pktLength))
     {
@@ -108,7 +108,7 @@ CEDATPacket::CEDATPacket(QByteArray payload)
 
     for (int idx = 0; idx < pktLength; idx++)
     {
-        pktData[idx] = payload[offset++];
+        pktData[idx] = payload[offset++] & 0xFF;
     }
 
     // Calculate the checksum across number of bytes received so far
@@ -235,23 +235,17 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
     // Ensure the file object is closed
     f.close();
 
-    progress.close();
-
     if (progress.wasCanceled())
     {
-        // TODO
+        qDebug() << "file import cancelled";
+        return false;
     }
-
-    for (int idx = 0; idx < getSeriesCount(); idx++)
+    else
     {
-        auto series = getSeriesByIndex(idx);
-
-        if (series.isNull()) continue;
-
-        qDebug() << series->getLabel() << series->size();
+        progress.close();
     }
 
-    return false;
+    return getSeriesCount() > 0;
 }
 
 
@@ -330,7 +324,8 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
         return;
     }
 
-    return;
+    // CEDAT packet timestamps are specified in milliseconds
+    double timestamp = (double) packet.pktTimestamp / 1000;
 
     if (newVariable.decode(&packet))
     {
@@ -340,11 +335,13 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
         // Add a new variable
         DataSeries *series = new DataSeries();
 
-        series->setGroup(QString(newVariable.ownerName) + ":" + QString::number(newVariable.ownerId));
-        series->setLabel(newVariable.title);
+        QString label = QString(newVariable.ownerName) + ":" + QString::number(newVariable.ownerId);
+
+        series->setGroup(group);
+        series->setLabel(title);
         series->setUnits(newVariable.units);
 
-        variableMap[newVariable.variableId] = QSharedPointer<DataSeries>(series);
+        variableMap[newVariable.variableId] = title;
 
         addSeries(series);
     }
@@ -352,9 +349,15 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
     {
         if (variableMap.contains(newDataFloat.variableId))
         {
-            variableMap[newDataFloat.variableId]->addData(
-                        packet.pktTimestamp,
-                        newDataFloat.value);
+            QString label = variableMap[newDataFloat.variableId];
+
+            auto series = getSeriesByLabel(label);
+
+            if (!series.isNull())
+            {
+                series->addData(timestamp, newDataFloat.value, false);
+            }
+
         }
         else
         {
@@ -365,9 +368,14 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
     {
         if (variableMap.contains(newDataBoolean.variableId))
         {
-            variableMap[newDataBoolean.variableId]->addData(
-                        packet.pktTimestamp,
-                        newDataBoolean.value ? 1 : 0);
+            QString label = variableMap[newDataBoolean.variableId];
+
+            auto series = getSeriesByLabel(label);
+
+            if (!series.isNull())
+            {
+                series->addData(timestamp, newDataBoolean.value ? 1 : 0, false);
+            }
         }
         else
         {
