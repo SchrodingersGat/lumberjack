@@ -26,6 +26,8 @@ public:
 
 public slots:
 
+    void updateCursorPos(double t, double y1, double y2);
+
 protected:
     void initMenus(void);
     void initDocks(void);
@@ -47,7 +49,8 @@ private:
     Ui::MainWindow *ui;
 
     QLabel t_pos;
-    QLabel y_pos;
+    QLabel y1_pos;
+    QLabel y2_pos;
 
     PlotWidget plotView;
     DataviewWidget dataView;

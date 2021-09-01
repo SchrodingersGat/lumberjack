@@ -7,6 +7,8 @@
 
 #include "lumberjack_version.hpp"
 
+#include "helpers.hpp"
+
 #include "plot_curve.hpp"
 #include "data_series.hpp"
 #include "plot_widget.hpp"
@@ -129,19 +131,34 @@ void MainWindow::initSignalsSlots()
 {
     // TODO
 
+    connect(&plotView, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
 
 }
 
 
 void MainWindow::initStatusBar()
 {
-    t_pos.setText("t");
-    y_pos.setText("y");
-
     ui->statusbar->showMessage("lumberjack");
 
     ui->statusbar->addPermanentWidget(&t_pos);
-    ui->statusbar->addPermanentWidget(&y_pos);
+    ui->statusbar->addPermanentWidget(&y1_pos);
+    ui->statusbar->addPermanentWidget(&y2_pos);
+
+    updateCursorPos(0, 0, 0);
+}
+
+
+/**
+ * @brief MainWindow::updateCursorPos - callback function when the cursor position changes
+ * @param t
+ * @param y1
+ * @param y2
+ */
+void MainWindow::updateCursorPos(double t, double y1, double y2)
+{
+    t_pos.setText("t: " + fixedWidthNumber(t));
+    y1_pos.setText("y1: " + fixedWidthNumber(y1));
+    y2_pos.setText("y2: " + fixedWidthNumber(y2));
 }
 
 

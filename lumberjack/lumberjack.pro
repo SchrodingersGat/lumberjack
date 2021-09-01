@@ -29,6 +29,7 @@ INCLUDEPATH += ../src \
                plugins/cobsr
 
 SOURCES += \
+    ../src/helpers.cpp \
     ../src/data_series.cpp \
     ../src/data_source.cpp \
     ../src/lumberjack_settings.cpp \
@@ -56,6 +57,7 @@ SOURCES += \
     widgets/timeline_widget.cpp
 
 HEADERS += \
+    ../src/helpers.hpp \
     ../src/data_series.hpp \
     ../src/data_source.hpp \
     ../src/lumberjack_settings.hpp \
