@@ -30,6 +30,7 @@ class DataSeriesTableView : public QTableView
 
 public:
     DataSeriesTableView(QSharedPointer<DataSeries> series, QWidget *parent = nullptr);
+    virtual ~DataSeriesTableView();
 
 protected:
     DataSeriesTableModel model;

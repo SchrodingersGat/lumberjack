@@ -66,5 +66,22 @@ DataSeriesTableView::DataSeriesTableView(QSharedPointer<DataSeries> series, QWid
     QTableView(parent),
     model(series)
 {
+    model.setHeaderData(0, Qt::Vertical, tr("Timestamp"));
+    model.setHeaderData(1, Qt::Horizontal, tr("Value"));
+
     setModel(&model);
+
+    setAlternatingRowColors(true);
+
+    if (!series.isNull())
+    {
+        QString title = series->getLabel();
+
+        setWindowTitle(title);
+    }
+}
+
+
+DataSeriesTableView::~DataSeriesTableView()
+{
 }

@@ -19,6 +19,8 @@ public:
 public slots:
     void save();
 
+    void inspectData();
+
 protected:
     Ui::series_editor_form ui;
 
