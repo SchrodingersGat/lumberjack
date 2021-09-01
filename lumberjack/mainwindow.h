@@ -41,6 +41,8 @@ protected slots:
     void toggleTimelineView(void);
     void toggleStatisticsView(void);
 
+    void hideDockedWidget(QWidget *widget);
+
 private:
     Ui::MainWindow *ui;
 

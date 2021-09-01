@@ -120,22 +120,8 @@ void MainWindow::initDocks()
 {
     this->setDockOptions(AnimatedDocks | AllowNestedDocks);
 
-    QDockWidget *dock = new QDockWidget(tr("Data View"), this);
-    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    dock->setWidget(&dataView);
-
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-
-    dock = new QDockWidget(tr("Stats View"), this);
-    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    dock->setWidget(&statsView);
-
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-
-    dock = new QDockWidget(tr("Timeline"), this);
-    dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
-
-    addDockWidget(Qt::BottomDockWidgetArea, dock);
+    toggleDataView();
+    toggleStatisticsView();
 }
 
 
@@ -248,13 +234,39 @@ void MainWindow::importData()
 }
 
 
+void MainWindow::hideDockedWidget(QWidget *widget)
+{
+    for (auto *dock : findChildren<QDockWidget*>())
+    {
+        if (dock->widget() == widget)
+        {
+            dock->close();
+            return;
+        }
+    }
+}
+
 
 /**
  * @brief MainWindow::toggleDataView toggles visibility of the "data view" dock
  */
 void MainWindow::toggleDataView(void)
 {
-    // TODO
+    if (dataView.isVisible())
+    {
+        hideDockedWidget(&dataView);
+    }
+    else
+    {
+        QDockWidget* dock = new QDockWidget(tr("Data View"), this);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setWidget(&dataView);
+
+        addDockWidget(Qt::LeftDockWidgetArea, dock);
+    }
+
+    ui->action_Data_View->setCheckable(true);
+    ui->action_Data_View->setChecked(dataView.isVisible());
 }
 
 
@@ -263,7 +275,20 @@ void MainWindow::toggleDataView(void)
  */
 void MainWindow::toggleTimelineView(void)
 {
-    // TODO
+    if (timelineView.isVisible())
+    {
+        hideDockedWidget(&timelineView);
+    }
+    else
+    {
+        QDockWidget* dock = new QDockWidget(tr("Timeline"), this);
+        dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+
+        addDockWidget(Qt::BottomDockWidgetArea, dock);
+    }
+
+    ui->action_Timeline->setCheckable(true);
+    ui->action_Timeline->setChecked(timelineView.isVisible());
 }
 
 
@@ -272,5 +297,19 @@ void MainWindow::toggleTimelineView(void)
  */
 void MainWindow::toggleStatisticsView(void)
 {
-    // TODO
+    if (statsView.isVisible())
+    {
+        hideDockedWidget(&statsView);
+    }
+    else
+    {
+        QDockWidget *dock = new QDockWidget(tr("Stats View"), this);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setWidget(&statsView);
+
+        addDockWidget(Qt::LeftDockWidgetArea, dock);
+    }
+
+    ui->action_Statistics->setCheckable(true);
+    ui->action_Statistics->setCheckable(statsView.isVisible());
 }
