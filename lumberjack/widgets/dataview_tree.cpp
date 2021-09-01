@@ -91,9 +91,16 @@ int DataViewTree::refresh(QString filters)
 
         int idx = topLevelItemCount();
 
+        QStringList labels = source->getSeriesLabels(filters);
+
+        if (labels.isEmpty() && !filters.isEmpty())
+        {
+            continue;
+        }
+
         insertTopLevelItem(idx, item);
 
-        for (QString series_label : source->getSeriesLabels(filters))
+        for (QString series_label : labels)
         {
             auto series = source->getSeriesByLabel(series_label);
 
