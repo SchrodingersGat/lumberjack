@@ -48,6 +48,7 @@ SOURCES += \
     plugins/csv_importer.cpp \
     widgets/about_dialog.cpp \
     widgets/axis_scale_dialog.cpp \
+    widgets/datatable_widget.cpp \
     widgets/dataview_tree.cpp \
     widgets/dataview_widget.cpp \
     widgets/series_editor_dialog.cpp \
@@ -74,6 +75,7 @@ HEADERS += \
     plugins/csv_importer.hpp \
     widgets/about_dialog.hpp \
     widgets/axis_scale_dialog.hpp \
+    widgets/datatable_widget.hpp \
     widgets/dataview_tree.hpp \
     widgets/dataview_widget.hpp \
     widgets/series_editor_dialog.hpp \
