@@ -14,7 +14,9 @@ DataSource::DataSource(QString lbl) :
 
 DataSource::~DataSource()
 {
-    clear();
+    qDebug() << "~DataSource:" << getLabel() << "- Deleting" << getSeriesCount() << "series";
+
+    removeAllSeries(false);
 }
 
 
@@ -60,12 +62,6 @@ QColor DataSource::getNextColor()
     color_wheel_cursor = (idx + 1);
 
     return color;
-}
-
-
-void DataSource::clear()
-{
-    removeAllSeries();
 }
 
 
@@ -147,6 +143,8 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
         }
     }
 
+    qDebug() << "Source" << getLabel() << "- Adding series" << series->getLabel();
+
     data_series.push_back(series);
 
     if (auto_color)
@@ -182,13 +180,17 @@ QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
 }
 
 
-bool DataSource::removeSeriesByIndex(unsigned int index)
+bool DataSource::removeSeriesByIndex(unsigned int index, bool update)
 {
     if (index < data_series.size())
     {
         data_series.removeAt(index);
 
-        emit dataChanged();
+        if (update)
+        {
+            emit dataChanged();
+        }
+
         return true;
     }
 
@@ -215,7 +217,7 @@ QSharedPointer<DataSeries> DataSource::getSeriesByLabel(QString label)
 }
 
 
-bool DataSource::removeSeriesByLabel(QString label)
+bool DataSource::removeSeriesByLabel(QString label, bool update)
 {
     for (int idx = 0; idx < data_series.size(); idx++)
     {
@@ -225,7 +227,11 @@ bool DataSource::removeSeriesByLabel(QString label)
         {
             data_series.removeAt(idx);
 
-            emit dataChanged();
+            if (update)
+            {
+                emit dataChanged();
+            }
+
             return true;
         }
     }
@@ -234,11 +240,17 @@ bool DataSource::removeSeriesByLabel(QString label)
 }
 
 
-void DataSource::removeAllSeries(void)
+void DataSource::removeAllSeries(bool update)
 {
-    data_series.clear();
+    while (data_series.count() > 0)
+    {
+        removeSeriesByIndex(0, false);
+    }
 
-    emit dataChanged();
+    if (update)
+    {
+        emit dataChanged();
+    }
 }
 
 
@@ -376,6 +388,13 @@ DataSourceManager::DataSourceManager()
 }
 
 
+DataSourceManager::~DataSourceManager()
+{
+    qDebug() << "~DataSourceManager: deleting" << getSourceCount() << "sources";
+    removeAllSources(false);
+}
+
+
 QSharedPointer<DataSeries> DataSourceManager::findSeries(QString source_label, QString series_label)
 {
     auto source = getSourceByLabel(source_label);
@@ -401,7 +420,7 @@ QStringList DataSourceManager::getSourceLabels() const
 }
 
 
-QSharedPointer<DataSource> DataSourceManager::getSourceByIndex(int idx)
+QSharedPointer<DataSource> DataSourceManager::getSourceByIndex(unsigned int idx)
 {
     if (idx < sources.size()) return sources.at(idx);
 
@@ -489,12 +508,23 @@ bool DataSourceManager::removeSource(QSharedPointer<DataSource> source)
 }
 
 
-bool DataSourceManager::removeSourceByIndex(int idx)
+/**
+ * @brief DataSourceManager::removeSourceByIndex removes the DataSource at the specified index
+ * @param idx - Index of the DataSource to remove
+ * @param update - If true, emit a "sourcesChanged" event
+ * @return true if the source was removed, else false (in the case of an invalid index)
+ */
+bool DataSourceManager::removeSourceByIndex(unsigned int idx, bool update)
 {
     if (idx < sources.size())
     {
         sources.removeAt(idx);
-        emit sourcesChanged();
+
+        if (update)
+        {
+            emit sourcesChanged();
+        }
+
         return true;
     }
 
@@ -502,7 +532,13 @@ bool DataSourceManager::removeSourceByIndex(int idx)
 }
 
 
-bool DataSourceManager::removeSourceByLabel(QString label)
+/**
+ * @brief DataSourceManager::removeSourceByLabel - Remove the first DataSource which matches the specified label
+ * @param label - QString label
+ * @param update - If true, emit a "sourcesChanged" event
+ * @return true if a source matching the provided label was found (and subsequentyly deleted)
+ */
+bool DataSourceManager::removeSourceByLabel(QString label, bool update)
 {
     for (int idx = 0; idx < sources.size(); idx++)
     {
@@ -510,7 +546,7 @@ bool DataSourceManager::removeSourceByLabel(QString label)
 
         if (!src.isNull() && src->getLabel() == label)
         {
-            return removeSourceByIndex(idx);
+            return removeSourceByIndex(idx, update);
         }
     }
 
@@ -518,9 +554,19 @@ bool DataSourceManager::removeSourceByLabel(QString label)
 }
 
 
-void DataSourceManager::removeAllSources()
+/**
+ * @brief DataSourceManager::removeAllSources removes all DataSource objects from this DataSourceManager
+ * @param update - if true, emit a "sourcesChanged" event
+ */
+void DataSourceManager::removeAllSources(bool update)
 {
-    sources.clear();
+    while (sources.count() > 0)
+    {
+        removeSourceByIndex(0, update);
+    }
 
-    emit sourcesChanged();
+    if (update)
+    {
+        emit sourcesChanged();
+    }
 }

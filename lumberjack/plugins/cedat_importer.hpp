@@ -35,7 +35,7 @@ class CEDATImporter : public FileDataSource
 public:
     CEDATImporter();
 
-    virtual ~CEDATImporter();
+    virtual ~CEDATImporter() override;
 
     virtual QString getFileDescription(void) const override { return "CEDAT files"; }
     virtual QStringList getSupportedFileTypes(void) const override;

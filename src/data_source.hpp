@@ -28,8 +28,6 @@ public:
     DataSource(QString label);
     virtual ~DataSource();
 
-    void clear(void);
-
     QString getLabel(void) const { return label; }
 
     // Descriptive text for this data source (override for custom sources)
@@ -47,10 +45,10 @@ public:
     QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
     QSharedPointer<DataSeries> getSeriesByLabel(QString label);
 
-    bool removeSeriesByIndex(unsigned int index);
-    bool removeSeriesByLabel(QString label);
+    bool removeSeriesByIndex(unsigned int index, bool update = true);
+    bool removeSeriesByLabel(QString label, bool update = true);
 
-    void removeAllSeries(void);
+    void removeAllSeries(bool update = true);
 
 signals:
     void dataChanged(void);
@@ -81,7 +79,7 @@ class FileDataSource : public DataSource
 
 public:
     FileDataSource(QString label);
-    virtual ~FileDataSource();
+    virtual ~FileDataSource() override;
 
     bool loadData(QString filename, QStringList& errors);
 
@@ -114,6 +112,7 @@ class DataSourceManager : public QObject
 
 public:
     DataSourceManager();
+    ~DataSourceManager();
 
     static DataSourceManager *getInstance()
     {
@@ -125,6 +124,15 @@ public:
         return instance;
     }
 
+    static void cleanup()
+    {
+        if (instance)
+        {
+            delete instance;
+            instance = nullptr;
+        }
+    }
+
 public slots:
 
     QSharedPointer<DataSeries> findSeries(QString source_label, QString series_label);
@@ -132,7 +140,7 @@ public slots:
     int getSourceCount(void) const { return sources.size(); }
     QStringList getSourceLabels(void) const;
 
-    QSharedPointer<DataSource> getSourceByIndex(int idx);
+    QSharedPointer<DataSource> getSourceByIndex(unsigned int idx);
     QSharedPointer<DataSource> getSourceByLabel(QString label);
 
     bool addSource(QSharedPointer<DataSource> source);
@@ -142,10 +150,10 @@ public slots:
     bool removeSource(QSharedPointer<DataSource> source);
     bool removeSource(DataSource* source) { return removeSource(QSharedPointer<DataSource>(source)); }
 
-    bool removeSourceByIndex(int idx);
-    bool removeSourceByLabel(QString label);
+    bool removeSourceByIndex(unsigned int idx, bool update = true);
+    bool removeSourceByLabel(QString label, bool update = true);
 
-    void removeAllSources(void);
+    void removeAllSources(bool update = true);
 
     void update(void) { emit sourcesChanged(); }
 

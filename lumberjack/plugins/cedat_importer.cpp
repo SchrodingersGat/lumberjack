@@ -2,6 +2,7 @@
 #include <qfileinfo.h>
 #include <qprogressdialog.h>
 #include <qelapsedtimer.h>
+#include <qapplication.h>
 
 #include "cobsr/cobsr.h"
 
@@ -148,6 +149,11 @@ CEDATImporter::CEDATImporter() : FileDataSource("CEDAT Importer")
 
 CEDATImporter::~CEDATImporter()
 {
+    qDebug() << "~CEDatImporter";
+
+    blockData.clear();
+    variableMap.clear();
+
     // TODO - Any custom cleanup?
 }
 
@@ -219,6 +225,9 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
         if (elapsed.elapsed() > 250)
         {
             progress.setValue(byte_count);
+
+            QApplication::processEvents();
+
             elapsed.restart();
         }
     }
@@ -320,6 +329,8 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
         qWarning() << "Invalid packet:" << packetData.toHex(' ');
         return;
     }
+
+    return;
 
     if (newVariable.decode(&packet))
     {

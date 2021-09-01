@@ -86,6 +86,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    qDebug() << "~MainWindow()";
+
+    DataSourceManager::cleanup();
+
     delete ui;
 }
 
