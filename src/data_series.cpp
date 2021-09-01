@@ -136,8 +136,6 @@ void DataSeries::update(void)
 
 DataSeries::~DataSeries()
 {
-//    qDebug() << "~DataSeries:" << getLabel() << "deleting" << size() << "points";
-
     clearData(false);
 }
 

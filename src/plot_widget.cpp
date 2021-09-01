@@ -693,33 +693,54 @@ void PlotWidget::autoScale(int axis_id)
 
     if (axis_id == QwtPlot::xBottom || axis_id == yBoth)
     {
-        setAxisScale(QwtPlot::xBottom, interval_bottom.minValue(), interval_bottom.maxValue());
+        autoScale(QwtPlot::xBottom, interval_bottom);
     }
 
     if (update_left && (axis_id == QwtPlot::yLeft || axis_id == yBoth))
     {
-        setAxisScale(QwtPlot::yLeft, interval_left.minValue(), interval_left.maxValue());
+        autoScale(QwtPlot::yLeft, interval_left);
 
         // No curves available on the right axis, so update to match
         if (!update_right && axis_id == yBoth)
         {
-            setAxisScale(QwtPlot::yRight, interval_left.minValue(), interval_left.maxValue());
+            autoScale(QwtPlot::yRight, interval_left);
         }
     }
 
     if (update_right && (axis_id == QwtPlot::yRight || axis_id == yBoth))
     {
-        setAxisScale(QwtPlot::yRight, interval_right.minValue(), interval_right.maxValue());
+        autoScale(QwtPlot::yRight, interval_right);
 
         // No curves available on the left axis, so update to match
         if (!update_left && axis_id == yBoth)
         {
-            setAxisScale(QwtPlot::yLeft, interval_right.minValue(), interval_right.maxValue());
+            autoScale(QwtPlot::yLeft, interval_right);
         }
     }
 
     setAutoReplot(true);
     replot();
+}
+
+
+/**
+ * @brief PlotWidget::autoScale autoscales the specified axis to the provided interval
+ * @param axisId
+ * @param interval
+ */
+void PlotWidget::autoScale(int axisId, QwtInterval interval)
+{
+    double min = interval.minValue();
+    double max = interval.maxValue();
+
+    // Account for the values being "the same"
+    if (min == max)
+    {
+        min -= 0.5f;
+        max += 0.5f;
+    }
+
+    setAxisScale(axisId, min, max);
 }
 
 

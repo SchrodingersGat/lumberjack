@@ -14,8 +14,6 @@ DataSource::DataSource(QString lbl) :
 
 DataSource::~DataSource()
 {
-    qDebug() << "~DataSource:" << getLabel() << "- Deleting" << getSeriesCount() << "series";
-
     removeAllSeries(false);
 }
 
@@ -142,8 +140,6 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
             return false;
         }
     }
-
-    qDebug() << "Source" << getLabel() << "- Adding series" << series->getLabel();
 
     data_series.push_back(series);
 
@@ -390,7 +386,6 @@ DataSourceManager::DataSourceManager()
 
 DataSourceManager::~DataSourceManager()
 {
-    qDebug() << "~DataSourceManager: deleting" << getSourceCount() << "sources";
     removeAllSources(false);
 }
 

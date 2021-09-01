@@ -238,13 +238,11 @@ void MainWindow::importData()
 
             bool result = source->loadData(filename, errors);
 
+            // Add the loaded data to the DataSourceManager
             if (result)
             {
                 DataSourceManager::getInstance()->addSource(source);
             }
-
-            qDebug() << "Loading data:" << filename << source->getLabel() << result;
-
         }
     }
 }

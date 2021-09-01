@@ -49,7 +49,7 @@ void LumberjackSettings::createDirectories()
 
         if (!d.exists())
         {
-            qDebug() << "Creating directory" << dir;
+            qInfo() << "Creating directory" << dir;
             d.mkpath(dir);
         }
     }
