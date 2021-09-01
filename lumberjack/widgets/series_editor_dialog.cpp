@@ -16,12 +16,28 @@ SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *pa
 
     connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &SeriesEditorDialog::save);
     connect(ui.buttonBox, &QDialogButtonBox::rejected, this, &SeriesEditorDialog::reject);
+
+    updateSeriesStats();
 }
 
 
 SeriesEditorDialog::~SeriesEditorDialog()
 {
     // TODO
+}
+
+
+void SeriesEditorDialog::updateSeriesStats()
+{
+    auto n = series->size();
+
+    ui.nPoints->setText(QString::number(n));
+
+    ui.minValue->setText(n > 0 ? QString::number(series->getMinimumValue()) : "---");
+    ui.maxValue->setText(n > 0 ? QString::number(series->getMaximumValue()) : "---");
+
+    ui.minTime->setText(n > 0 ? QString::number(series->getOldestTimestamp()) : "---");
+    ui.maxTime->setText(n > 0 ? QString::number(series->getNewestTimestamp()) : "---");
 }
 
 

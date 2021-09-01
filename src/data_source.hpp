@@ -79,7 +79,7 @@ class FileDataSource : public DataSource
 
 public:
     FileDataSource(QString label);
-    virtual ~FileDataSource() override;
+    virtual ~FileDataSource();
 
     bool loadData(QString filename, QStringList& errors);
 

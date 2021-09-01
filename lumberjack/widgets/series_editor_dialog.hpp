@@ -23,6 +23,8 @@ protected:
     Ui::series_editor_form ui;
 
     QSharedPointer<DataSeries> series;
+
+    void updateSeriesStats();
 };
 
 #endif // SERIES_EDITOR_DIALOG_HPP
