@@ -41,6 +41,7 @@ public:
 
     bool addSeries(QSharedPointer<DataSeries> series, bool auto_color = true);
     bool addSeries(DataSeries* series, bool auto_color=true);
+    bool addSeries(QString label, bool auto_color=true);
 
     QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
     QSharedPointer<DataSeries> getSeriesByLabel(QString label);
@@ -88,6 +89,10 @@ public:
     // These functions should be overridden for inheriting child classes
     virtual QString getFileDescription(void) const { return "Supported files"; }
     virtual QStringList getSupportedFileTypes(void) const { return QStringList(); }
+
+    // Function to set import options (called before loadDataFromFile)
+    virtual bool setImportOptions(void) { return true; }
+
     virtual bool loadDataFromFile(QStringList &errors);
 
     QString getFilePattern(void) const;
@@ -96,6 +101,8 @@ protected:
     QString filename;
 
     bool validateFile(QString filename, QStringList& errors);
+
+    qint64 getFileSize();
 };
 
 

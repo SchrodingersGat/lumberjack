@@ -130,6 +130,7 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
 {
     if (series.isNull())
     {
+        qWarning() << "Attempting to add null DataSeries";
         return false;
     }
 
@@ -137,6 +138,7 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
     {
         if (s == series)
         {
+            qWarning() << "Attempting to add duplicate DataSeries";
             return false;
         }
     }
@@ -157,6 +159,20 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
 bool DataSource::addSeries(DataSeries *series, bool auto_color)
 {
     return addSeries(QSharedPointer<DataSeries>(series), auto_color);
+}
+
+
+bool DataSource::addSeries(QString label, bool auto_color)
+{
+    if (!getSeriesByLabel(label).isNull())
+    {
+        qWarning() << "Attempted to add duplicate series with label" << label;
+        return false;
+    }
+
+    DataSeries* series = new DataSeries(label);
+
+    return addSeries(series, auto_color);
 }
 
 
@@ -320,6 +336,13 @@ bool FileDataSource::loadData(QString filename, QStringList &errors)
     // Store the filename
     this->filename = filename;
 
+    // Configure import options
+    if (!setImportOptions())
+    {
+        errors.append(tr("setImportOptions returned false"));
+        return false;
+    }
+
     // Run specific file loading function
     bool result = loadDataFromFile(errors);
 
@@ -363,6 +386,21 @@ bool FileDataSource::validateFile(QString filename, QStringList& errorList)
     {
         errorList.append(errors);
         return false;
+    }
+}
+
+
+qint64 FileDataSource::getFileSize()
+{
+    QFileInfo f(filename);
+
+    if (f.exists() && f.isFile())
+    {
+        return f.size();
+    }
+    else
+    {
+        return 0;
     }
 }
 
