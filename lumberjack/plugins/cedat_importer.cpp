@@ -172,12 +172,10 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
 {
     QFile f(filename);
 
-    QFileInfo fileInfo(filename);
-
-    qint64 fileSize = fileInfo.size();
+    qint64 fileSize = getFileSize();
 
     // Open the file object
-    if (!f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable())
+    if (!f.exists() || !f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable())
     {
         errors.append(tr("Could not open file for reading"));
         f.close();
@@ -237,7 +235,7 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
 
     if (progress.wasCanceled())
     {
-        qDebug() << "file import cancelled";
+        errors.append(tr("File import was cancelled"));
         return false;
     }
     else
