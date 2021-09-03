@@ -20,6 +20,8 @@ void DataViewTree::setupTree()
 
     QStringList labels;
 
+    setColumnCount(2);
+
     labels.append(tr("Label"));
     labels.append(tr("Data"));
 
@@ -33,8 +35,6 @@ void DataViewTree::setupTree()
 
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
-
-    setColumnCount(2);
 }
 
 
@@ -46,6 +46,8 @@ DataViewTree::~DataViewTree()
 
 void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 {
+    Q_UNUSED(col);
+
     if (!item) return;
 
     auto *parent = item->parent();

@@ -20,11 +20,15 @@ public slots:
     void save();
 
     void inspectData();
+    void setColor();
+    void updateColorButton();
 
 protected:
     Ui::series_editor_form ui;
 
     QSharedPointer<DataSeries> series;
+
+    QColor color;
 
     void updateSeriesStats();
 };

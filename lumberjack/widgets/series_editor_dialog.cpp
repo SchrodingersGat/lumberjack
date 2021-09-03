@@ -1,5 +1,6 @@
-#include "series_editor_dialog.hpp"
+#include <qcolordialog.h>
 
+#include "series_editor_dialog.hpp"
 #include "datatable_widget.hpp"
 
 
@@ -20,14 +21,47 @@ SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *pa
     connect(ui.buttonBox, &QDialogButtonBox::rejected, this, &SeriesEditorDialog::reject);
 
     connect(ui.inspectData, &QPushButton::released, this, &SeriesEditorDialog::inspectData);
+    connect(ui.line_color, &QPushButton::released, this, &SeriesEditorDialog::setColor);
+
+    color = series->getColor();
 
     updateSeriesStats();
+    updateColorButton();
 }
 
 
 SeriesEditorDialog::~SeriesEditorDialog()
 {
     // TODO
+}
+
+
+void SeriesEditorDialog::setColor()
+{
+    auto *dlg = new QColorDialog(color);
+
+    int result = dlg->exec();
+
+    if (result == QDialog::Accepted)
+    {
+        color = dlg->selectedColor();
+    }
+
+    dlg->deleteLater();
+
+    updateColorButton();
+}
+
+
+void SeriesEditorDialog::updateColorButton()
+{
+    // Sets the background color of the "set color" button
+
+    QString ss = "background-color: " + color.name();
+
+    ui.line_color->setStyleSheet(ss);
+
+    ui.line_color->update();
 }
 
 
@@ -60,6 +94,8 @@ void SeriesEditorDialog::save()
 
     series->setLabel(ui.label_text->text());
     series->setUnits(ui.units_text->text());
+
+    series->setColor(color);
 
     series->update();
 
