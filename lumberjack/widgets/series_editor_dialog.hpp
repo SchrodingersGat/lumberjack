@@ -19,7 +19,6 @@ public:
 public slots:
     void save();
 
-    void inspectData();
     void setColor();
     void updateColorButton();
 

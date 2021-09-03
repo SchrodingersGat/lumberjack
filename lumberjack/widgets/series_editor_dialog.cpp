@@ -23,7 +23,6 @@ SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *pa
     connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &SeriesEditorDialog::save);
     connect(ui.buttonBox, &QDialogButtonBox::rejected, this, &SeriesEditorDialog::reject);
 
-    connect(ui.inspectData, &QPushButton::released, this, &SeriesEditorDialog::inspectData);
     connect(ui.line_color, &QPushButton::released, this, &SeriesEditorDialog::setColor);
 
     color = series->getColor();
@@ -121,14 +120,6 @@ void SeriesEditorDialog::updateSeriesStats()
 
     ui.minTime->setText(n > 0 ? QString::number(series->getOldestTimestamp()) : "---");
     ui.maxTime->setText(n > 0 ? QString::number(series->getNewestTimestamp()) : "---");
-}
-
-
-void SeriesEditorDialog::inspectData()
-{
-    DataSeriesTableView* table = new DataSeriesTableView(series);
-
-    table->show();
 }
 
 

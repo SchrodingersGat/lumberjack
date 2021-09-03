@@ -1,5 +1,7 @@
 #include <QApplication>
 #include <QMimeData>
+#include <qmenu.h>
+#include <qaction.h>
 
 #include "axis_scale_dialog.hpp"
 
@@ -26,8 +28,13 @@ PlotWidget::PlotWidget() : QwtPlot()
     initPanner();
     initLegend();
     initCrosshairs();
+    initGrid();
 
     setAcceptDrops(true);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this, &PlotWidget::customContextMenuRequested, this, &PlotWidget::onContextMenu);
 }
 
 PlotWidget::~PlotWidget()
@@ -41,6 +48,94 @@ PlotWidget::~PlotWidget()
 
     curveTracker->detach();
     delete curveTracker;
+
+    grid->detach();
+    delete grid;
+}
+
+
+void PlotWidget::onContextMenu(const QPoint &pos)
+{
+    QMenu menu(this);
+
+    // Fit / zoom submenu
+    QMenu *fitMenu = new QMenu(tr("Fit"), &menu);
+
+    QAction *fitToScreen = new QAction(tr("Fit all data"), fitMenu);
+    QAction *fitX = new QAction(tr("Fit X Axis"), fitMenu);
+    QAction *fitLeft = new QAction(tr("Fit Left Axis"), fitMenu);
+    QAction *fitRight = new QAction(tr("Fit Right Axis"), fitMenu);
+
+    fitMenu->addAction(fitToScreen);
+    fitMenu->addAction(fitX);
+    fitMenu->addAction(fitLeft);
+    fitMenu->addAction(fitRight);
+
+    menu.addMenu(fitMenu);
+
+    // Grid submenu
+    QMenu *gridMenu = new QMenu(tr("Grid"), &menu);
+
+    QAction *toggleGridX = new QAction(tr("X Axis"), gridMenu);
+    QAction *toggleGridY = new QAction(tr("Y Axis"), gridMenu);
+
+    toggleGridX->setCheckable(true);
+    toggleGridY->setCheckable(true);
+
+    toggleGridX->setChecked(isXGridEnabled());
+    toggleGridY->setChecked(isYGridEnabled());
+
+    gridMenu->addAction(toggleGridX);
+    gridMenu->addAction(toggleGridY);
+
+    menu.addMenu(gridMenu);
+
+    // Data menu
+    QMenu *dataMenu = new QMenu(tr("Data"), &menu);
+
+    QAction *clearAll = new QAction(tr("Clear All"), dataMenu);
+
+    dataMenu->addAction(clearAll);
+
+    menu.addMenu(dataMenu);
+
+    // Plot submenu
+    QMenu *plotMenu = new QMenu(tr("Plot"), &menu);
+
+    // TODO
+
+    menu.addMenu(plotMenu);
+
+    QAction *action = menu.exec(mapToGlobal(pos));
+
+    if (action == fitToScreen)
+    {
+        autoScale(yBoth);
+    }
+    else if (action == fitX)
+    {
+        autoScale(QwtPlot::xBottom);
+    }
+    else if (action == fitLeft)
+    {
+        autoScale(QwtPlot::yLeft);
+    }
+    else if (action == fitRight)
+    {
+        autoScale(QwtPlot::yRight);
+    }
+    else if (action == toggleGridX)
+    {
+        xGridEnable(!isXGridEnabled());
+    }
+    else if (action == toggleGridY)
+    {
+        yGridEnable(!isYGridEnabled());
+    }
+    else if (action == clearAll)
+    {
+        removeAllSeries();
+    }
 }
 
 
@@ -138,6 +233,17 @@ void PlotWidget::initLegend()
     insertLegend(legend, QwtPlot::TopLegend);
 
     connect(legend, SIGNAL(clicked(const QVariant, int)), this, SLOT(legendClicked(const QVariant, int)));
+}
+
+
+void PlotWidget::initGrid()
+{
+    grid = new QwtPlotGrid();
+
+    grid->attach(this);
+
+    grid->enableX(false);
+    grid->enableY(false);
 }
 
 
@@ -648,6 +754,24 @@ bool PlotWidget::removeSeries(QString label)
     }
 
     return false;
+}
+
+
+void PlotWidget::removeAllSeries()
+{
+    while (curves.size() > 0)
+    {
+        auto curve = curves.at(0);
+
+        if (isCurveTracked(curve))
+        {
+            untrackCurve();
+        }
+
+        curves.removeAt(0);
+    }
+
+    replot();
 }
 
 

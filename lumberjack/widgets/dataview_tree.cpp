@@ -3,6 +3,7 @@
 #include <qmenu.h>
 #include <qaction.h>
 
+#include "datatable_widget.hpp"
 #include "series_editor_dialog.hpp"
 #include "data_source.hpp"
 #include "dataview_tree.hpp"
@@ -110,10 +111,15 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         // Edit series
         QAction *editSeries = new QAction(tr("Edit Series"), &menu);
 
+        // View data
+        QAction *viewSeriesData = new QAction(tr("View Data"), &menu);
+
         // Delete series
         QAction *deleteSeries = new QAction(tr("Delete Series"), &menu);
 
         menu.addAction(editSeries);
+        menu.addAction(viewSeriesData);
+        menu.addSeparator();
         menu.addAction(deleteSeries);
 
         QAction *action = menu.exec(mapToGlobal(pos));
@@ -121,6 +127,11 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         if (action == editSeries)
         {
             editDataSeries(series);
+        }
+        else if (action == viewSeriesData)
+        {
+            DataSeriesTableView *table = new DataSeriesTableView(series);
+            table->show();
         }
         else if (action == deleteSeries)
         {

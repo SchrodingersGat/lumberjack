@@ -9,6 +9,8 @@
 #include <qwt_plot_panner.h>
 #include <qwt_legend.h>
 #include <qwt_plot_marker.h>
+#include <qwt_plot_grid.h>
+
 
 #include "plot_curve.hpp"
 
@@ -72,12 +74,21 @@ public slots:
     bool removeSeries(QSharedPointer<DataSeries> series);
     bool removeSeries(DataSeries *series) { return removeSeries(QSharedPointer<DataSeries>(series)); }
     bool removeSeries(QString label);
+    void removeAllSeries();
 
     void autoScale(int axis_id = yBoth);
     void autoScale(int axis_id, QwtInterval interval);
     void autoScale(QSharedPointer<PlotCurve> curve);
 
     void setBackgroundColor(QColor color);
+
+    void onContextMenu(const QPoint &pos);
+
+    bool isXGridEnabled() { return grid->xEnabled(); }
+    bool isYGridEnabled() { return grid->yEnabled(); }
+
+    void xGridEnable(bool en) { grid->enableX(en); }
+    void yGridEnable(bool en) { grid->enableY(en); }
 
 protected slots:
 
@@ -100,6 +111,7 @@ protected:
     void initPanner(void);
     void initLegend(void);
     void initCrosshairs(void);
+    void initGrid(void);
 
     void resampleCurves(int axis_id=yBoth);
 
@@ -112,6 +124,7 @@ protected:
     QwtPlotZoomer *zoomer;
     PlotPanner *panner;
     QwtLegend *legend;
+    QwtPlotGrid *grid;
 
     QwtPlotMarker *crosshair;
     QwtPlotMarker *curveTracker;
