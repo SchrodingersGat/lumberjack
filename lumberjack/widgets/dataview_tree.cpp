@@ -130,6 +130,26 @@ void DataViewTree::onContextMenu(const QPoint &pos)
     else
     {
         // Right-clicked on a "DataSource" object
+        QString label = item->text(0);
+
+        auto source = manager->getSourceByLabel(label);
+
+        if (source.isNull())
+        {
+            return;
+        }
+
+        // Delete source
+        QAction *deleteSource = new QAction(tr("Delete Source"), &menu);
+
+        menu.addAction(deleteSource);
+
+        QAction *action = menu.exec(mapToGlobal(pos));
+
+        if (action == deleteSource)
+        {
+            manager->removeSource(source);
+        }
     }
 }
 
