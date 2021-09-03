@@ -192,6 +192,27 @@ QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
 }
 
 
+bool DataSource::removeSeries(QSharedPointer<DataSeries> series, bool update)
+{
+    for (int idx = 0; idx < data_series.size(); idx++)
+    {
+        if (series == data_series.at(idx))
+        {
+            removeSeriesByIndex(idx);
+
+            if (update)
+            {
+                emit dataChanged();
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 bool DataSource::removeSeriesByIndex(unsigned int index, bool update)
 {
     if (index < data_series.size())

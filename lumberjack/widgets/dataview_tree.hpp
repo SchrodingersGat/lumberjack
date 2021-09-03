@@ -1,9 +1,9 @@
 #ifndef DATAVIEW_TREE_HPP
 #define DATAVIEW_TREE_HPP
 
-
 #include <QTreeWidget>
 
+#include "data_series.hpp"
 
 class DataViewTree : public QTreeWidget
 {
@@ -17,11 +17,13 @@ public slots:
     int refresh(QString filters=QString());
 
     void onItemDoubleClicked(QTreeWidgetItem *item, int col);
+    void onContextMenu(const QPoint &pos);
 
 protected:
     virtual void startDrag(Qt::DropActions supported_actions) override;
 
     void setupTree();
+    void editDataSeries(QSharedPointer<DataSeries> series);
 
     QString filterString;
 };

@@ -1,5 +1,7 @@
 #include <QDrag>
 #include <QMimeData>
+#include <qmenu.h>
+#include <qaction.h>
 
 #include "series_editor_dialog.hpp"
 #include "data_source.hpp"
@@ -11,6 +13,16 @@ DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)
     setupTree();
 
     connect(this, &QTreeWidget::itemDoubleClicked, this, &DataViewTree::onItemDoubleClicked);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this, &QTreeWidget::customContextMenuRequested, this, &DataViewTree::onContextMenu);
+
+}
+
+DataViewTree::~DataViewTree()
+{
+    // TODO
 }
 
 
@@ -38,9 +50,87 @@ void DataViewTree::setupTree()
 }
 
 
-DataViewTree::~DataViewTree()
+void DataViewTree::editDataSeries(QSharedPointer<DataSeries> series)
 {
-    // TODO
+    if (series.isNull())
+    {
+        return;
+    }
+
+    SeriesEditorDialog *dlg = new SeriesEditorDialog(series);
+
+    int result = dlg->exec();
+
+    if (result)
+    {
+        refresh(filterString);
+    }
+
+    dlg->deleteLater();
+
+}
+
+
+
+void DataViewTree::onContextMenu(const QPoint &pos)
+{
+    QTreeWidgetItem *item = itemAt(pos);
+
+    if (!item)
+    {
+        return;
+    }
+
+    auto *parent = item->parent();
+    auto *manager = DataSourceManager::getInstance();
+
+    QMenu menu(this);
+
+    if (parent)
+    {
+        // Right-clicked on a "DataSeries" object
+
+        QString source_label = parent->text(0);
+        QString series_label = item->text(0);
+
+        auto source = manager->getSourceByLabel(source_label);
+
+        if (source.isNull())
+        {
+            return;
+        }
+
+        auto series = source->getSeriesByLabel(series_label);
+
+        if (series.isNull())
+        {
+            return;
+        }
+
+        // Edit series
+        QAction *editSeries = new QAction(tr("Edit Series"), &menu);
+
+        // Delete series
+        QAction *deleteSeries = new QAction(tr("Delete Series"), &menu);
+
+        menu.addAction(editSeries);
+        menu.addAction(deleteSeries);
+
+        QAction *action = menu.exec(mapToGlobal(pos));
+
+        if (action == editSeries)
+        {
+            editDataSeries(series);
+        }
+        else if (action == deleteSeries)
+        {
+            source->removeSeries(series);
+        }
+    }
+    else
+    {
+        // Right-clicked on a "DataSource" object
+    }
 }
 
 
@@ -62,18 +152,8 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 
         auto series = manager->findSeries(source_label, series_label);
 
-        if (series.isNull()) return;
+        editDataSeries(series);
 
-        SeriesEditorDialog *dlg = new SeriesEditorDialog(series);
-
-        int result = dlg->exec();
-
-        if (result)
-        {
-            refresh(filterString);
-        }
-
-        dlg->deleteLater();
     }
     else
     {

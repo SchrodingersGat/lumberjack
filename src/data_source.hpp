@@ -47,6 +47,7 @@ public:
     QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
     QSharedPointer<DataSeries> getSeriesByLabel(QString label);
 
+    bool removeSeries(QSharedPointer<DataSeries> series, bool update = true);
     bool removeSeriesByIndex(unsigned int index, bool update = true);
     bool removeSeriesByLabel(QString label, bool update = true);
 

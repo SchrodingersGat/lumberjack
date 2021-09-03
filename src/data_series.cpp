@@ -130,6 +130,7 @@ void DataSeries::setColor(QColor c)
 
 DataSeries::~DataSeries()
 {
+    qDebug() << "~DataSeries" << label;
     clearData(false);
 }
 
