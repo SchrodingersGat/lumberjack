@@ -27,14 +27,16 @@ protected:
     // Import configuration options
     int timestampColumn = 0;
     int headerRow = 0;
+    double timestampScaler = 0.001;     // Convert from ms to s
 
     QString delimiter = ",";
 
     QStringList headers;
 
-    bool processRow(int rowIndex, QStringList row, QStringList &errors);
-    bool extractHeaders(int rowIndex, QStringList row, QStringList &errors);
-    bool extractData(int rowIndex, QStringList row, QStringList &errors);
+    bool processRow(int rowIndex, const QStringList &row, QStringList &errors);
+    bool extractHeaders(int rowIndex, const QStringList &row, QStringList &errors);
+    bool extractData(int rowIndex, const QStringList &row, QStringList &errors);
+    bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
 };
 
 

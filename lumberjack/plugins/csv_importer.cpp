@@ -118,11 +118,11 @@ bool CSVImporter::loadDataFromFile(QStringList &errors)
 
     qDebug() << "read" << lineCount << "lines";
 
-    return false;
+    return true;
 }
 
 
-bool CSVImporter::processRow(int rowIndex, QStringList row, QStringList& errors)
+bool CSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& errors)
 {
     if (rowIndex == headerRow)
     {
@@ -135,7 +135,7 @@ bool CSVImporter::processRow(int rowIndex, QStringList row, QStringList& errors)
 }
 
 
-bool CSVImporter::extractHeaders(int rowIndex, QStringList row, QStringList &errors)
+bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringList &errors)
 {
     Q_UNUSED(rowIndex);
 
@@ -177,7 +177,86 @@ bool CSVImporter::extractHeaders(int rowIndex, QStringList row, QStringList &err
 }
 
 
-bool CSVImporter::extractData(int rowIndex, QStringList row, QStringList &errors)
+bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList &errors)
 {
+    double timestamp = 0;
 
+    QString text;
+    double value = 0;
+    bool result = false;
+
+    if (!extractTimestamp(rowIndex, row, timestamp))
+    {
+        qWarning() << "Line" << rowIndex << "does not contain valid timestamp";
+        return false;
+    }
+
+    for (int ii = 0; ii < row.length(); ii++)
+    {
+        // Ignore the timestamp column
+        if (ii == timestampColumn)
+        {
+            continue;
+        }
+
+        if (ii >= headers.length())
+        {
+            qWarning() << "Line" << rowIndex << "exceeded header count";
+            continue;
+        }
+
+        QString header = headers.at(ii);
+
+        auto series = getSeriesByLabel(header);
+
+        if (series.isNull())
+        {
+            qWarning() << "Could not find series matching label" << header;
+            continue;
+        }
+
+        QString text = row.at(ii).trimmed();
+
+        // Ignore empty cell values
+        if (text.isEmpty())
+        {
+            continue;
+        }
+
+        value = text.toDouble(&result);
+
+        if (result)
+        {
+            series->addData(timestamp, value, false);
+        }
+        else
+        {
+            // qDebug() << "Line" << rowIndex << "column" << ii << "skipped value" << text;
+        }
+    }
+
+    return true;
+}
+
+
+bool CSVImporter::extractTimestamp(int rowIndex, const QStringList &row, double &timestamp)
+{
+    if (row.length() <= timestampColumn)
+    {
+        qWarning() << "Line" << rowIndex << "missing timestamp column";
+        return false;
+    }
+
+    QString ts = row.at(timestampColumn);
+
+    bool result = false;
+
+    timestamp = ts.toDouble(&result);
+
+    if (result)
+    {
+        timestamp *= timestampScaler;
+    }
+
+    return result;
 }
