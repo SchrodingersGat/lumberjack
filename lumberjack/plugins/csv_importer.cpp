@@ -174,6 +174,8 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
 
         addSeries(header);
     }
+
+    return true;
 }
 
 

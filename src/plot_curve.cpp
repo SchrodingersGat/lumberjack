@@ -275,9 +275,11 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
     if (!series.isNull())
     {
         QwtPlotCurve::setTitle((*series).getLabel());
-    }
 
-    setPen(series->getColor());
+        connect(&(*series), &DataSeries::styleUpdated, this, &PlotCurve::updateLineStyle);
+
+        updateLineStyle();
+    }
 
     worker.moveToThread(&workerThread);
 
@@ -344,4 +346,15 @@ void PlotCurve::updateLabel()
     label.setText(series->getLabel());
 
     setTitle(label);
+}
+
+
+void PlotCurve::updateLineStyle()
+{
+    QPen pen(series->getColor());
+
+//    pen.setStyle(series.getLineStyle());
+//    pen.setWidth(series.getLineWidth());
+
+    setPen(pen);
 }

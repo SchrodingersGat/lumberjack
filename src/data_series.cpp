@@ -124,16 +124,6 @@ void DataSeries::setColor(QColor c)
 }
 
 
-void DataSeries::update(void)
-{
-    // TODO - What needs to happen here?
-
-    // TODO - Re-sample any attached graph??
-
-    emit dataUpdated();
-}
-
-
 DataSeries::~DataSeries()
 {
     clearData(false);

@@ -98,6 +98,7 @@ void SeriesEditorDialog::save()
     series->setColor(color);
 
     series->update();
+    series->updateStyle();
 
     accept();
 }

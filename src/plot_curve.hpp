@@ -62,6 +62,7 @@ public:
 public slots:
     void resampleData(double t_min, double t_max, unsigned int n_pixels);
     void updateLabel(void);
+    void updateLineStyle(void);
 
     virtual void setVisible(bool on) override;
 

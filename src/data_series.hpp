@@ -110,11 +110,13 @@ public slots:
     /* Status Functions */
     bool hasData() const { return size() > 0; }
 
-    void update(void);
+    void update(void) { emit dataUpdated(); }
+    void updateStyle(void) { emit styleUpdated(); }
 
 signals:
     // Emitted when data are updated
     void dataUpdated();
+    void styleUpdated();
 
 protected:
 
