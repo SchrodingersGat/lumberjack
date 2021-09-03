@@ -20,6 +20,8 @@ public slots:
 
 protected:
     virtual void startDrag(Qt::DropActions supported_actions) override;
+
+    void setupTree();
 };
 
 

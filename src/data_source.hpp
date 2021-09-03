@@ -4,6 +4,7 @@
 #include <QColor>
 #include <qobject.h>
 #include <qvector.h>
+#include <QFileInfo>
 
 #include "data_series.hpp"
 
@@ -28,7 +29,7 @@ public:
     DataSource(QString label);
     virtual ~DataSource();
 
-    QString getLabel(void) const { return label; }
+    virtual QString getLabel(void) const { return label; }
 
     // Descriptive text for this data source (override for custom sources)
     virtual QString getDescription(void) const { return "Lumberjack data source"; }
@@ -85,6 +86,11 @@ public:
     bool loadData(QString filename, QStringList& errors);
 
     QString getFilename(void) const { return filename; }
+
+    virtual QString getLabel(void) const override
+    {
+        return DataSource::getLabel() + ":" + QFileInfo(filename).fileName();
+    }
 
     // These functions should be overridden for inheriting child classes
     virtual QString getFileDescription(void) const { return "Supported files"; }

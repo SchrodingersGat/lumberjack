@@ -8,18 +8,20 @@
 
 DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)
 {
-    setColumnCount(3);
+    setupTree();
+}
 
+
+void DataViewTree::setupTree()
+{
     QStringList labels;
 
-    labels.append(tr("Source"));
-    labels.append(" ");
+    labels.append(tr("Label"));
     labels.append(tr("Data"));
 
     setHeaderLabels(labels);
 
     setUniformRowHeights(true);
-    setColumnWidth(1, 25);
 
     // Enable drag and drop
     setDragEnabled(true);
@@ -29,6 +31,8 @@ DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)
     setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 
     connect(this, &QTreeWidget::itemDoubleClicked, this, &DataViewTree::onItemDoubleClicked);
+
+    setColumnCount(2);
 }
 
 
@@ -71,8 +75,7 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 
 int DataViewTree::refresh(QString filters)
 {
-
-    clear();
+    setupTree();
 
     auto *manager = DataSourceManager::getInstance();
 
@@ -111,8 +114,18 @@ int DataViewTree::refresh(QString filters)
             // Series label
             child->setText(0, series->getLabel());
 
+            // Series color
+            QString color = series->getColor().name();
+
+            QString colorString = "<span style='background-color: " + color + "; color: " + color + ";'>---</span>";
+
             // Series data
-            child->setText(2, QString::number(series->size()));
+            QLabel* colorLabel = new QLabel(QString::number(series->size()) + " " + colorString);
+
+            // Right-align
+            colorLabel->setAlignment(Qt::AlignRight);
+
+            setItemWidget(child, 1, colorLabel);
 
             item->addChild(child);
 
