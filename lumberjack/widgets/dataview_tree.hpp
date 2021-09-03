@@ -22,6 +22,8 @@ protected:
     virtual void startDrag(Qt::DropActions supported_actions) override;
 
     void setupTree();
+
+    QString filterString;
 };
 
 

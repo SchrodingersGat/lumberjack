@@ -65,6 +65,28 @@ public slots:
     const QString& getUnits(void) const { return units; }
     void setUnits(QString u) { units = u; }
 
+    double getScaler(void) const { return scalerValue; }
+    void setScaler(double s, bool update = true)
+    {
+        scalerValue = s;
+
+        if (update)
+        {
+            emit dataUpdated();
+        }
+    }
+
+    double getOffset(void) const { return offsetValue; }
+    void setOffset(double o, bool update = true)
+    {
+        offsetValue = o;
+
+        if (update)
+        {
+            emit dataUpdated();
+        }
+    }
+
     QColor getColor(void) const { return color; }
     void setColor(QColor c);
 
@@ -102,15 +124,15 @@ public slots:
     QVector<DataPoint> getData() const;
     QVector<DataPoint> getData(double t_min, double t_max) const;
 
-    const DataPoint& getDataPoint(uint64_t idx) const;
+    const DataPoint getDataPoint(uint64_t idx) const;
     double getTimestamp(uint64_t idx) const;
     double getValue(uint64_t idx) const;
 
-    const DataPoint& getOldestDataPoint(void) const;
+    const DataPoint getOldestDataPoint(void) const;
     double getOldestTimestamp(void) const;
     double getOldestValue(void) const;
 
-    const DataPoint& getNewestDataPoint(void) const;
+    const DataPoint getNewestDataPoint(void) const;
     double getNewestTimestamp(void) const;
     double getNewestValue(void) const;
 
@@ -159,6 +181,12 @@ protected:
 
     //! Width for this curve
     float lineWidth = 1.0f;
+
+    //! Scaler value for this DataSeries
+    double scalerValue = 1.0f;
+
+    //! Offset value for this DataSeries
+    double offsetValue = 0.0f;
 
 };
 

@@ -181,14 +181,19 @@ QVector<DataPoint> DataSeries::getData(double t_min, double t_max) const
 }
 
 
-const DataPoint& DataSeries::getDataPoint(uint64_t idx) const
+const DataPoint DataSeries::getDataPoint(uint64_t idx) const
 {
     if (idx >= size())
     {
         throw std::out_of_range("data index out of range");
     }
 
-    return data[idx];
+    DataPoint dp = data[idx];
+
+    dp.value *= scalerValue;
+    dp.value += offsetValue;
+
+    return dp;
 }
 
 
@@ -274,11 +279,11 @@ void DataSeries::clearData(bool do_update)
 }
 
 
-const DataPoint& DataSeries::getOldestDataPoint() const
+const DataPoint DataSeries::getOldestDataPoint() const
 {
     if (size() > 0)
     {
-        return data.front();
+        return getDataPoint(0);
     }
     else
     {
@@ -299,11 +304,11 @@ double DataSeries::getOldestValue() const
 }
 
 
-const DataPoint& DataSeries::getNewestDataPoint() const
+const DataPoint DataSeries::getNewestDataPoint() const
 {
     if (size() > 0)
     {
-        return data.back();
+        return getDataPoint(size() - 1);
     }
     else
     {

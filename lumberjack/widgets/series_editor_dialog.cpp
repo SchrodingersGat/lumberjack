@@ -17,6 +17,9 @@ SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *pa
     ui.units_text->setText(series->getUnits());
     ui.units_text->setPlaceholderText(tr("Set series units"));
 
+    ui.scaling->setValue(series->getScaler());
+    ui.offset->setValue(series->getOffset());
+
     connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &SeriesEditorDialog::save);
     connect(ui.buttonBox, &QDialogButtonBox::rejected, this, &SeriesEditorDialog::reject);
 
@@ -99,6 +102,9 @@ void SeriesEditorDialog::save()
 
     series->setLabel(ui.label_text->text());
     series->setUnits(ui.units_text->text());
+
+    series->setScaler(ui.scaling->value(), false);
+    series->setOffset(ui.offset->value(), false);
 
     series->setColor(color);
 

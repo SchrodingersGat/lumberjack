@@ -70,7 +70,7 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 
         if (result)
         {
-            refresh();
+            refresh(filterString);
         }
 
         dlg->deleteLater();
@@ -85,6 +85,9 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 int DataViewTree::refresh(QString filters)
 {
     setupTree();
+
+    // Save the filter text
+    filterString = filters;
 
     auto *manager = DataSourceManager::getInstance();
 

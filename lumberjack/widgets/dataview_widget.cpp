@@ -31,7 +31,12 @@ void DataviewWidget::clearFilter()
 void DataviewWidget::filterTextUpdated(QString text)
 {
     Q_UNUSED(text);
+
+    blockSignals(true);
+
     refresh();
+
+    blockSignals(false);
 }
 
 
