@@ -25,6 +25,11 @@ SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *pa
 
     color = series->getColor();
 
+    ui.line_width->setMinimum(DataSeries::LINE_WIDTH_MIN * 2);
+    ui.line_width->setMaximum(DataSeries::LINE_WIDTH_MAX * 2);
+
+    ui.line_width->setValue(series->getLineWidth() * 2);
+
     updateSeriesStats();
     updateColorButton();
 }
@@ -96,6 +101,8 @@ void SeriesEditorDialog::save()
     series->setUnits(ui.units_text->text());
 
     series->setColor(color);
+
+    series->setLineWidth((float) ui.line_width->value() / 2);
 
     series->update();
     series->updateStyle();

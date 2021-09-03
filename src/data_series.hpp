@@ -51,6 +51,9 @@ public:
         SAMPLE_HOLD,
     };
 
+    static const float LINE_WIDTH_MIN;
+    static const float LINE_WIDTH_MAX;
+
 public slots:
 
     const QString& getGroup(void) const { return group; }
@@ -64,6 +67,23 @@ public slots:
 
     QColor getColor(void) const { return color; }
     void setColor(QColor c);
+
+    float getLineWidth(void) const { return lineWidth; }
+    void setLineWidth(float w)
+    {
+        if (w < LINE_WIDTH_MIN)
+        {
+            qWarning() << "Line width cannot be less than" << LINE_WIDTH_MIN;
+        }
+        else if (w > 5.0f)
+        {
+            qWarning() << "Line width cannot be more than" << LINE_WIDTH_MAX;
+        }
+        else
+        {
+            lineWidth = w;
+        }
+    }
 
     /* Data insertion functions */
     void addData(DataPoint point, bool update=true);
@@ -136,6 +156,10 @@ protected:
 
     //! Color for this curve
     QColor color;
+
+    //! Width for this curve
+    float lineWidth = 1.0f;
+
 };
 
 

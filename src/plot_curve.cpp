@@ -351,10 +351,15 @@ void PlotCurve::updateLabel()
 
 void PlotCurve::updateLineStyle()
 {
+    if (series.isNull())
+    {
+        return;
+    }
+
     QPen pen(series->getColor());
 
 //    pen.setStyle(series.getLineStyle());
-//    pen.setWidth(series.getLineWidth());
+    pen.setWidthF(series->getLineWidth());
 
     setPen(pen);
 }

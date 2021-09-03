@@ -4,6 +4,10 @@
 #include "data_source.hpp"
 
 
+const float DataSeries::LINE_WIDTH_MIN = 1.0f;
+const float DataSeries::LINE_WIDTH_MAX = 5.0f;
+
+
 // Comparison operators for DataPoint and timestamps
 bool operator== (const DataPoint point, const double timestamp)
 {
