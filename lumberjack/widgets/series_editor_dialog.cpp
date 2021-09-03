@@ -34,6 +34,7 @@ SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *pa
     ui.line_width->setValue(series->getLineWidth() * 2);
 
     // Line style options
+    ui.line_style->addItem(tr("No Line"), (int) Qt::NoPen);
     ui.line_style->addItem(tr("Solid"), (int) Qt::SolidLine);
     ui.line_style->addItem(tr("Dashed"), (int) Qt::DashLine);
     ui.line_style->addItem(tr("Dotted"), (int) Qt::DotLine);
