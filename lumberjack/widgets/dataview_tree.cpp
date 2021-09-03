@@ -9,11 +9,15 @@
 DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)
 {
     setupTree();
+
+    connect(this, &QTreeWidget::itemDoubleClicked, this, &DataViewTree::onItemDoubleClicked);
 }
 
 
 void DataViewTree::setupTree()
 {
+    clear();
+
     QStringList labels;
 
     labels.append(tr("Label"));
@@ -29,8 +33,6 @@ void DataViewTree::setupTree()
 
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
-
-    connect(this, &QTreeWidget::itemDoubleClicked, this, &DataViewTree::onItemDoubleClicked);
 
     setColumnCount(2);
 }
@@ -63,6 +65,11 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
         SeriesEditorDialog *dlg = new SeriesEditorDialog(series);
 
         int result = dlg->exec();
+
+        if (result)
+        {
+            refresh();
+        }
 
         dlg->deleteLater();
     }
