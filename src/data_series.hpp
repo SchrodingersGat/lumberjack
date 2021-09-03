@@ -6,6 +6,7 @@
 #include <qmutex.h>
 #include <QRectF>
 #include <QColor>
+#include <qwt_symbol.h>
 
 #include <qwt_series_data.h>
 
@@ -53,6 +54,9 @@ public:
 
     static const float LINE_WIDTH_MIN;
     static const float LINE_WIDTH_MAX;
+
+    static const unsigned int SYMBOL_SIZE_MIN;
+    static const unsigned int SYMBOL_SIZE_MAX;
 
 public slots:
 
@@ -105,6 +109,33 @@ public slots:
         {
             lineWidth = w;
         }
+    }
+
+    int getLineStyle(void) const { return lineStyle; }
+    void setLineStyle(int style)
+    {
+        lineStyle = style;
+    }
+
+    int getSymbolStyle(void) const { return symbolStyle; }
+    void setSymbolStyle(int style)
+    {
+        symbolStyle = style;
+    }
+
+    int getSymbolSize(void) const { return symbolSize; }
+    void setSymbolSize(int s)
+    {
+        if (s < SYMBOL_SIZE_MIN)
+        {
+            qWarning() << "Symbol size" << s << "cannot be less than" << SYMBOL_SIZE_MIN;
+        }
+        else if (s > SYMBOL_SIZE_MAX)
+        {
+            qWarning() << "Symbol size" << s << "cannot be greater than" << SYMBOL_SIZE_MAX;
+        }
+
+        symbolSize = s;
     }
 
     /* Data insertion functions */
@@ -181,6 +212,12 @@ protected:
 
     //! Width for this curve
     float lineWidth = 1.0f;
+
+    int lineStyle = Qt::SolidLine;
+
+    int symbolStyle = QwtSymbol::NoSymbol;
+
+    unsigned int symbolSize = 5;
 
     //! Scaler value for this DataSeries
     double scalerValue = 1.0f;

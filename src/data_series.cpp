@@ -7,6 +7,9 @@
 const float DataSeries::LINE_WIDTH_MIN = 1.0f;
 const float DataSeries::LINE_WIDTH_MAX = 5.0f;
 
+const unsigned int DataSeries::SYMBOL_SIZE_MIN = 3;
+const unsigned int DataSeries::SYMBOL_SIZE_MAX = 10;
+
 
 // Comparison operators for DataPoint and timestamps
 bool operator== (const DataPoint point, const double timestamp)

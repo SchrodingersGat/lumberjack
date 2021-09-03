@@ -33,6 +33,42 @@ SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *pa
 
     ui.line_width->setValue(series->getLineWidth() * 2);
 
+    // Line style options
+    ui.line_style->addItem(tr("Solid"), (int) Qt::SolidLine);
+    ui.line_style->addItem(tr("Dashed"), (int) Qt::DashLine);
+    ui.line_style->addItem(tr("Dotted"), (int) Qt::DotLine);
+
+    for (int idx = 0; idx < ui.line_style->count(); idx++)
+    {
+        if (series->getLineStyle() == ui.line_style->itemData(idx))
+        {
+            ui.line_style->setCurrentIndex(idx);
+            break;
+        }
+    }
+
+    // Symbol style options
+    ui.symbol_style->addItem(tr("No Symbol"), (int) QwtSymbol::NoSymbol);
+    ui.symbol_style->addItem(tr("Circle"), (int) QwtSymbol::Ellipse);
+    ui.symbol_style->addItem(tr("Square"), (int) QwtSymbol::Rect);
+    ui.symbol_style->addItem(tr("Triangle"), (int) QwtSymbol::Triangle);
+    ui.symbol_style->addItem(tr("Diamond"), (int) QwtSymbol::Diamond);
+    ui.symbol_style->addItem(tr("Cross"), (int) QwtSymbol::Cross);
+    ui.symbol_style->addItem(tr("Star"), (int) QwtSymbol::Star2);
+
+    for (int idx = 0; idx < ui.symbol_style->count(); idx++)
+    {
+        if (series->getSymbolStyle() == ui.symbol_style->itemData(idx))
+        {
+            ui.symbol_style->setCurrentIndex(idx);
+            break;
+        }
+    }
+
+    ui.symbol_size->setMinimum(DataSeries::SYMBOL_SIZE_MIN);
+    ui.symbol_size->setMaximum(DataSeries::SYMBOL_SIZE_MAX);
+    ui.symbol_size->setValue(series->getSymbolSize());
+
     updateSeriesStats();
     updateColorButton();
 }
@@ -109,6 +145,10 @@ void SeriesEditorDialog::save()
     series->setColor(color);
 
     series->setLineWidth((float) ui.line_width->value() / 2);
+
+    series->setLineStyle(ui.line_style->currentData().toInt());
+    series->setSymbolStyle(ui.symbol_style->currentData().toInt());
+    series->setSymbolSize(ui.symbol_size->value());
 
     series->update();
     series->updateStyle();

@@ -1,4 +1,6 @@
 #include <qelapsedtimer.h>
+#include <qwt_symbol.h>
+#include <qwt_plot_curve.h>
 
 #include "plot_curve.hpp"
 
@@ -358,8 +360,23 @@ void PlotCurve::updateLineStyle()
 
     QPen pen(series->getColor());
 
-//    pen.setStyle(series.getLineStyle());
+    pen.setStyle((Qt::PenStyle) series->getLineStyle());
+
     pen.setWidthF(series->getLineWidth());
 
     setPen(pen);
+
+    QwtSymbol* symbol = new QwtSymbol();
+
+    symbol->setColor(series->getColor());
+    symbol->setPen(pen);
+
+    int s = series->getSymbolSize();
+    symbol->setSize(QSize(s, s));
+
+    symbol->setStyle((QwtSymbol::Style) series->getSymbolStyle());
+
+    setSymbol(symbol);
+
+
 }
