@@ -18,7 +18,8 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v2
-      submodules: recursive
+      with:
+        submodules: recursive
     - name: Install Qt 
       uses: jurplel/install-qt-action@v2
     - name: Build qwt
