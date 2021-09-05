@@ -25,6 +25,15 @@ public:
         return instance;
     }
 
+    static void cleanup()
+    {
+        if (instance)
+        {
+            delete instance;
+            instance = nullptr;
+        }
+    }
+
     QVariant loadSetting(QString group, QString key, QVariant defaultValue);
     bool loadBoolean(QString group, QString key, bool defaultValue = false);
 

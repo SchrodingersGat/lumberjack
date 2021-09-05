@@ -8,6 +8,7 @@
 #include "lumberjack_version.hpp"
 
 #include "helpers.hpp"
+#include "lumberjack_settings.hpp"
 
 #include "plot_curve.hpp"
 #include "data_series.hpp"
@@ -93,6 +94,7 @@ MainWindow::~MainWindow()
     qDebug() << "~MainWindow()";
 
     DataSourceManager::cleanup();
+    LumberjackSettings::cleanup();
 
     delete ui;
 }
