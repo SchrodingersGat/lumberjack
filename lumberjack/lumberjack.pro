@@ -13,12 +13,12 @@ QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wn
 QMAKE_LFLAGS += --verbose
 
 # Static linking to qwt libraries
-INCLUDEPATH += ../qwt-6.1.4/src
+INCLUDEPATH += ../qwt/src
 win32 { # windows
     CONFIG(debug, debug|release) {
-        LIBS += -L../qwt-6.1.4/lib -lqwtd
+        LIBS += -L../qwt/lib -lqwtd
     } else {
-        LIBS += -L../qwt-6.1.4/lib -lqwt
+        LIBS += -L../qwt/lib -lqwt
     }
 }
 

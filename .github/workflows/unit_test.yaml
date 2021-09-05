@@ -20,8 +20,15 @@ jobs:
       uses: actions/checkout@v2
     - name: Install Qt 
       uses: jurplel/install-qt-action@v2
+    - name: Build qwt
+      run: |
+        cd unit_test
+        qmake
+        make
+        make install
     - name: Run Unit Tests
       run: |
         cd unit_test
         qmake
         make
+        

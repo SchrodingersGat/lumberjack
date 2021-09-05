@@ -1,6 +1,7 @@
 #ifndef DATA_SERIES_H
 #define DATA_SERIES_H
 
+#include <qdebug.h>
 #include <qobject.h>
 #include <qvector.h>
 #include <qmutex.h>

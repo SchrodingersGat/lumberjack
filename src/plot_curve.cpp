@@ -1,6 +1,9 @@
 #include <qelapsedtimer.h>
 #include <qwt_symbol.h>
 #include <qwt_plot_curve.h>
+#include <qwt_text_label.h>
+#include <qfont.h>
+
 
 #include "plot_curve.hpp"
 
