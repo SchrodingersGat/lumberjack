@@ -16,12 +16,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      name: Checkout Code
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Install Qt 
+      uses: actions/install-qt-action@v2
+
     - name: Run Unit Tests
       run: |
-        cd test
-        cmake -S . -B build
-        cmake --build build
-        cd build
-        ctest
+        cd unit_test
+        qmake
