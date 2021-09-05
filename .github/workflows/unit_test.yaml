@@ -19,8 +19,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v2
     - name: Install Qt 
-      uses: actions/install-qt-action@v2
-
+      uses: jurplel/install-qt-action@v2
     - name: Run Unit Tests
       run: |
         cd unit_test
