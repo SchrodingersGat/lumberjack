@@ -1,0 +1,35 @@
+# Run unit tests
+
+name: Windows
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Install Qt 
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: 5.13.2
+        arch: win64_mingw73
+    - name: Run Unit Tests
+      run: |
+        cd unit_test
+        qmake CONFIG+=debug
+        make
+        cd debug
+        unit_test.exe
+  
