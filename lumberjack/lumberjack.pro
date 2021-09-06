@@ -12,15 +12,19 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -
 QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
 QMAKE_LFLAGS += --verbose
 
+# Dynamic linking for qwt libraries
+include(../qwt/qwt.prf)
+
 # Static linking to qwt libraries
-INCLUDEPATH += ../qwt/src
-win32 { # windows
-    CONFIG(debug, debug|release) {
-        LIBS += -L../qwt/lib -lqwtd
-    } else {
-        LIBS += -L../qwt/lib -lqwt
-    }
-}
+# INCLUDEPATH += ../qwt/src
+
+#win32 { # windows
+#    CONFIG(debug, debug|release) {
+#        LIBS += -L../qwt/lib -lqwtd
+#    } else {
+#        LIBS += -L../qwt/lib -lqwt
+#    }
+#}
 
 INCLUDEPATH += ../src \
                widgets \
