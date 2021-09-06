@@ -29,7 +29,6 @@ jobs:
         cd qwt
         qmake qwt.pro
         make
-        make install
     - name: Run Unit Tests
       run: |
         cd unit_test
