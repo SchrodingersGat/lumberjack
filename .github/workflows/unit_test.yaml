@@ -11,9 +11,9 @@ on:
       - master
 
 jobs:
-  ci:
+  test:
 
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
     - name: Checkout Code
@@ -22,15 +22,9 @@ jobs:
         submodules: recursive
     - name: Install Qt 
       uses: jurplel/install-qt-action@v2
-    - name: Build qwt
-      run: |
-        cd qwt
-        qmake
-        make
-        make install
     - name: Run Unit Tests
       run: |
         cd unit_test
         qmake
         make
-        
+  
