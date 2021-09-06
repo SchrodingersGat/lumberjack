@@ -25,6 +25,11 @@ jobs:
       with:
         version: 5.13.2
         arch: win64_mingw73
+    - name: Build qwt
+      run: |
+        cd qwt
+        make
+        make install
     - name: Run Unit Tests
       run: |
         cd unit_test

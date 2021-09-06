@@ -24,6 +24,11 @@ jobs:
       uses: jurplel/install-qt-action@v2
       with:
         version: 5.13.2
+    - name: Build qwt
+      run: |
+        cd qwt
+        make
+        make install
     - name: Run Unit Tests
       run: |
         cd unit_test
