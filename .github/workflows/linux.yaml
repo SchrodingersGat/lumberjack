@@ -27,6 +27,7 @@ jobs:
     - name: Build qwt
       run: |
         cd qwt
+        qmake qwt.pro
         make
         make install
     - name: Run Unit Tests
