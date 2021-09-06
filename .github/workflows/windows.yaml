@@ -25,17 +25,11 @@ jobs:
       with:
         version: 5.13.2
         arch: win64_mingw73
-    - name: Build qwt
-      run: |
-        cd qwt
-        qmake qwt.pro
-        make
-        make install
     - name: Run Unit Tests
       run: |
         cp qwt/lib/qwtd.dll unit_test/debug
         cd unit_test
         qmake CONFIG+=debug
         make
-        debug/unit_test.exe
+        ./debug/unit_test.exe
   

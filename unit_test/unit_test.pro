@@ -16,6 +16,13 @@ DEFINES += CI_UNIT_TEST
 # Dynamic linking for qwt libraries
 include(../qwt/qwt.prf)
 
+CONFIG (debug, debug|release) {
+    LIBS += -L../qwt/lib -lqwtd
+} else {
+    LIBS += -L../qwt/lib -lqwt
+}
+
+
 Release:DESTDIR = release
 Debug:DESTDIR = debug
 
