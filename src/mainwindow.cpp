@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(&plotView);
 
     // Construct some sources
-    /*
     auto *manager = DataSourceManager::getInstance();
 
     manager->addSource(new DataSource("Source A"));
@@ -85,8 +84,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     src->addSeries(series_2);
     src->addSeries(series_3);
-
-    */
 }
 
 
@@ -128,7 +125,7 @@ void MainWindow::initDocks()
     this->setDockOptions(AnimatedDocks | AllowNestedDocks);
 
     toggleDataView();
-    toggleStatisticsView();
+//    toggleStatisticsView();
 }
 
 
