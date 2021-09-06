@@ -36,6 +36,5 @@ jobs:
         cd unit_test
         qmake CONFIG+=debug
         make
-        cd debug
-        unit_test.exe
+        debug/unit_test.exe
   
