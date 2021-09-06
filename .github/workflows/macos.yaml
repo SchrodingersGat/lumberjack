@@ -31,7 +31,7 @@ jobs:
         make
     - name: Run Unit Tests
       run: |
-        cp qwt/lib/qwtd.a unit_test/debug
+        cp qwt/lib/libqwtd* unit_test/debug
         cd unit_test
         qmake CONFIG+=debug
         make
