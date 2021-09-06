@@ -11,6 +11,8 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -
 QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
 QMAKE_LFLAGS += --verbose
 
+DEFINES += CI_UNIT_TEST
+
 # Dynamic linking for qwt libraries
 include(../qwt/qwt.prf)
 

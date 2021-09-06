@@ -2,6 +2,7 @@
 #include <QMimeData>
 #include <qmenu.h>
 #include <qaction.h>
+#include <qwt_scale_map.h>
 
 #include "axis_scale_dialog.hpp"
 

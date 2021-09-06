@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <qdockwidget.h>
+#include <math.h>
 
 #include <qfiledialog.h>
 
