@@ -27,6 +27,7 @@ jobs:
     - name: Build qwt
       run: |
         cd qwt
+        sed -i 's/+= release/+= debug/g' qwtbuild.pri
         qmake qwt.pro
         make
     - name: Run Unit Tests
@@ -36,5 +37,4 @@ jobs:
         cd unit_test
         qmake CONFIG+=debug
         make
-        cd debug
-  
+        ls debug
