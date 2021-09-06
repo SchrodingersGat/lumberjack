@@ -15,16 +15,8 @@ QMAKE_LFLAGS += --verbose
 # Dynamic linking for qwt libraries
 include(../qwt/qwt.prf)
 
-# Static linking to qwt libraries
-# INCLUDEPATH += ../qwt/src
-
-#win32 { # windows
-#    CONFIG(debug, debug|release) {
-#        LIBS += -L../qwt/lib -lqwtd
-#    } else {
-#        LIBS += -L../qwt/lib -lqwt
-#    }
-#}
+Release:DESTDIR = release
+Debug:DESTDIR = debug
 
 INCLUDEPATH += ../src \
                widgets \
