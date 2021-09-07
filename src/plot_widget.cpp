@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QMimeData>
+#include <qcolordialog.h>
 #include <qmenu.h>
 #include <qaction.h>
 #include <qwt_scale_map.h>
@@ -104,7 +105,9 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     // Plot submenu
     QMenu *plotMenu = new QMenu(tr("Plot"), &menu);
 
-    // TODO
+    QAction *bgColor = new QAction(tr("Set Color"), plotMenu);
+
+    plotMenu->addAction(bgColor);
 
     menu.addMenu(plotMenu);
 
@@ -138,6 +141,50 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     {
         removeAllSeries();
     }
+    else if (action == bgColor)
+    {
+        selectBackgroundColor();
+    }
+}
+
+
+/**
+ * @brief PlotWidget::setBackgroundColor launches a dialog to select the background color
+ */
+void PlotWidget::selectBackgroundColor()
+{
+    bool ok = false;
+
+    QColor c = QColorDialog::getRgba(this->canvasBackground().color().rgb(), &ok);
+
+    c.setAlpha(255);
+
+    if (ok)
+    {
+        setBackgroundColor(c);
+    }
+}
+
+
+void PlotWidget::setBackgroundColor(QColor color)
+{
+    QBrush b = canvasBackground();
+
+    b.setColor(color);
+
+    setCanvasBackground(b);
+
+    // Ensure that the crosshair color is the inverse of the background
+
+    QColor inverse = color.black() > 125 ? QColor(0xFF, 0xFF, 0xFF) : QColor(0x00, 0x00, 0x00);
+
+    auto pen = crosshair->linePen();
+
+    pen.setColor(inverse);
+
+    crosshair->setLinePen(pen);
+
+    replot();
 }
 
 
@@ -319,24 +366,6 @@ void PlotWidget::updateLayout()
 
     // Force re-sampling of attached curve data when canvas dimensions are changed
     resampleCurves();
-}
-
-
-/*
- * Set the background color for the plot.
- *
- * Also updates the color of the crosshair,
- * ensuring it always stands out against the background.
- */
-void PlotWidget::setBackgroundColor(QColor color)
-{
-    QBrush b = canvasBackground();
-
-    b.setColor(color);
-
-    setCanvasBackground(b);
-
-    // TODO - Update the color of the crosshair
 }
 
 

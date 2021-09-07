@@ -92,6 +92,8 @@ public slots:
     void xGridEnable(bool en) { grid->enableX(en); }
     void yGridEnable(bool en) { grid->enableY(en); }
 
+    void selectBackgroundColor();
+
 protected slots:
 
     void editAxisScale(QwtPlot::Axis axisId);
