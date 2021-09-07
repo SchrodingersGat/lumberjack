@@ -3,6 +3,7 @@
 #include <qmenu.h>
 #include <qaction.h>
 #include <qwt_scale_map.h>
+#include <qfileinfo.h>
 
 #include "axis_scale_dialog.hpp"
 
@@ -151,7 +152,23 @@ void PlotWidget::dragEnterEvent(QDragEnterEvent *event)
     // DataSeries is being dragged onto this PlotWidget
     if (mime->hasFormat("source") && mime->hasFormat("series"))
     {
-        event->accept();
+        event->acceptProposedAction();
+    }
+
+    // Drag and drop local files
+    if (event->mimeData()->hasUrls())
+    {
+        for (const QUrl& url : event->mimeData()->urls())
+        {
+            const QString& filename = url.toLocalFile();
+
+            QFileInfo info(filename);
+
+            if (info.exists() && info.isFile())
+            {
+                event->acceptProposedAction();
+            }
+        }
     }
 }
 
@@ -188,6 +205,20 @@ void PlotWidget::dropEvent(QDropEvent *event)
 
         addSeries(series);
         event->accept();
+    }
+    else
+    {
+        for (const QUrl &url : event->mimeData()->urls())
+        {
+            const QString& filename = url.toLocalFile();
+
+            QFileInfo info(filename);
+
+            if (info.exists() && info.isFile())
+            {
+                emit fileDropped(filename);
+            }
+        }
     }
 }
 

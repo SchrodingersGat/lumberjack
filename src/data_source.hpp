@@ -97,6 +97,11 @@ public:
     virtual QString getFileDescription(void) const { return "Supported files"; }
     virtual QStringList getSupportedFileTypes(void) const { return QStringList(); }
 
+    bool supportsFileType(QString suffix) const
+    {
+        return getSupportedFileTypes().contains(suffix);
+    }
+
     // Function to set import options (called before loadDataFromFile)
     virtual bool setImportOptions(void) { return true; }
 

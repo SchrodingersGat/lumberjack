@@ -63,6 +63,8 @@ signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QRectF &viewrect);
 
+    void fileDropped(QString filename);
+
     void cursorPositionChanged(double &t, double &y1, double &y2);
 
 public slots:

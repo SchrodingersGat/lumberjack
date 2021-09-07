@@ -41,9 +41,12 @@ MainWindow::MainWindow(QWidget *parent)
     plotView.setParent(this);
     setCentralWidget(&plotView);
 
+    setAcceptDrops(true);
+
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
 
+    /*
     manager->addSource(new DataSource("Source A"));
     manager->addSource(new DataSource("Source B"));
     manager->addSource(new DataSource("Source C"));
@@ -84,6 +87,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     src->addSeries(series_2);
     src->addSeries(series_3);
+
+    */
 }
 
 
@@ -135,6 +140,9 @@ void MainWindow::initSignalsSlots()
 
     connect(&plotView, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
 
+    // File drops
+    connect(&plotView, &PlotWidget::fileDropped, this, &MainWindow::loadDroppedFile);
+    connect(&dataView, &DataviewWidget::fileDropped, this, &MainWindow::loadDroppedFile);
 }
 
 
@@ -169,6 +177,44 @@ void MainWindow::showAboutInfo()
     AboutDialog dlg;
 
     dlg.exec();
+}
+
+
+void MainWindow::loadDroppedFile(QString filename)
+{
+    // Determine which loader plugin to use
+
+    // Get list of available importers
+
+    // TODO: In the future, push this off to a "plugin" module!!
+
+    QList<QSharedPointer<FileDataSource>> sources;
+
+    sources.append(QSharedPointer<FileDataSource>(new CSVImporter()));
+    sources.append(QSharedPointer<FileDataSource>(new CEDATImporter()));
+
+    // For now, use the first available plugin
+    // TODO: In the future, handle multiple plugin matches
+
+    QFileInfo info(filename);
+
+    QString extension = info.suffix();
+
+    // TODO: Display errors
+    QStringList errors;
+
+    for (auto source : sources)
+    {
+        if (source->supportsFileType(extension))
+        {
+            bool result = source->loadData(filename, errors);
+
+            if (result)
+            {
+                DataSourceManager::getInstance()->addSource(source);
+            }
+        }
+    }
 }
 
 
