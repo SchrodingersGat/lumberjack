@@ -34,8 +34,12 @@ jobs:
     - name: Run Unit Tests
       run: |
         ls qwt/lib
-        cp qwt/lib/libqwtd* unit_test/debug
+        cp qwt/lib/libqwt* unit_test/debug
         cd unit_test
-        qmake CONFIG+=debug
+        qmake CONFIG+=release
         make
         ls debug
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
