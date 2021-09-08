@@ -35,6 +35,7 @@ jobs:
         cd unit_test
         qmake CONFIG+=release
         make
+        ls
         cp ../qwt/lib/libqwt* ./release
         ls release
         cd release

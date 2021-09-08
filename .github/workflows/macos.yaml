@@ -32,9 +32,9 @@ jobs:
     - name: Run Unit Tests
       run: |
         ls qwt/lib
-        cp qwt/lib/libqwt* unit_test/debug
         cd unit_test
         qmake CONFIG+=debug
         make
+        ls
         cd debug
   
