@@ -83,6 +83,7 @@ protected:
     virtual void dropEvent(QDropEvent *event) override;
 
     bool handleMiddleMouseDrag(QMouseEvent *event);
+    void handlePlotDoubleClick(QPoint pos);
 
     void initZoomer(void);
     void initPanner(void);

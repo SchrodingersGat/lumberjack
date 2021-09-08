@@ -831,22 +831,42 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
     // Left button double click performs various functions
     else if (event->button() == Qt::LeftButton)
     {
-        // Double-click on left axis
         if (canvas_pos.x() < 0)
         {
+            // Double-click on left axis
             editAxisScale(QwtPlot::yLeft);
         }
-        // Double-click on right axis
         else if (canvas_pos.x() > canvas()->width())
         {
+            // Double-click on right axis
             editAxisScale(QwtPlot::yRight);
         }
-        // Double-click on x axis
         else if (canvas_pos.y() > canvas()->height())
         {
+            // Double-click on x axis
             editAxisScale(QwtPlot::xBottom);
         }
+        else if (canvas_pos.y() > 0)
+        {
+            // Double-click on the "plot" area
+            handlePlotDoubleClick(canvas_pos);
+        }
     }
+}
+
+
+/**
+ * @brief PlotWidget::handlePlotDoubleClick - called when the user double-clicks on the plot area
+ * @param pos
+ */
+void PlotWidget::handlePlotDoubleClick(QPoint pos)
+{
+    // Map the screen position to axis coordinates
+    double x = invTransform(QwtPlot::xBottom, pos.x());
+    double y_left = invTransform(QwtPlot::yLeft, pos.y());
+    double y_right = invTransform(QwtPlot::yRight, pos.y());
+
+    // Work out which data series is "closest" to the point we clicked
 }
 
 
