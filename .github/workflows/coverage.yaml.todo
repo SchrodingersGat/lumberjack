@@ -1,6 +1,6 @@
 # Run unit tests
 
-name: Windows
+name: Coverage
 
 on:
   push:
