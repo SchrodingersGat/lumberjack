@@ -94,6 +94,9 @@ public slots:
 
     void selectBackgroundColor();
 
+    void saveImageToClipboard();
+    void saveImageToFile();
+
 protected slots:
 
     void editAxisScale(QwtPlot::Axis axisId);

@@ -5,6 +5,10 @@
 #include <qaction.h>
 #include <qwt_scale_map.h>
 #include <qfileinfo.h>
+#include <qpixmap.h>
+#include <qclipboard.h>
+#include <qguiapplication.h>
+#include <qfiledialog.h>
 
 #include "axis_scale_dialog.hpp"
 
@@ -96,8 +100,14 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     // Data menu
     QMenu *dataMenu = new QMenu(tr("Data"), &menu);
 
+    QAction *imageToClipboard = new QAction(tr("Image to Clipboard"), dataMenu);
+    QAction *imageToFile = new QAction(tr("Image to File"), dataMenu);
+
     QAction *clearAll = new QAction(tr("Clear All"), dataMenu);
 
+    dataMenu->addAction(imageToClipboard);
+    dataMenu->addAction(imageToFile);
+    dataMenu->addSeparator();
     dataMenu->addAction(clearAll);
 
     menu.addMenu(dataMenu);
@@ -137,6 +147,14 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     {
         yGridEnable(!isYGridEnabled());
     }
+    else if (action == imageToClipboard)
+    {
+        saveImageToClipboard();
+    }
+    else if (action == imageToFile)
+    {
+        saveImageToFile();
+    }
     else if (action == clearAll)
     {
         removeAllSeries();
@@ -162,6 +180,30 @@ void PlotWidget::selectBackgroundColor()
     if (ok)
     {
         setBackgroundColor(c);
+    }
+}
+
+
+void PlotWidget::saveImageToClipboard()
+{
+    auto *cliboard = QGuiApplication::clipboard();
+
+    cliboard->setPixmap(grab());
+}
+
+
+void PlotWidget::saveImageToFile()
+{
+    auto image = grab().toImage();
+
+    QString filename = QFileDialog::getSaveFileName(
+                this,
+                tr("Save Screenshot"),
+                "screenshot.png");
+
+    if (!filename.isEmpty())
+    {
+        image.save(filename);
     }
 }
 
