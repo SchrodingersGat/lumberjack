@@ -33,12 +33,10 @@ jobs:
       run: |
         ls qwt/lib
         cd unit_test
-        qmake CONFIG+=release
+        qmake unit_test.pro CONFIG+=release
         make
         ls
-        cp ../qwt/lib/libqwt* ./release
         ls release
-        cd release
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:

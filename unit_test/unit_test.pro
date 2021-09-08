@@ -27,9 +27,6 @@ CONFIG (debug, debug|release) {
 
 INCLUDEPATH += ../qwt/src
 
-Release:DESTDIR = release
-Debug:DESTDIR = debug
-
 INCLUDEPATH += ../src
 
 SOURCES += \

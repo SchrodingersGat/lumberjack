@@ -29,13 +29,12 @@ jobs:
       run: |
         cd qwt
         qmake qwt.pro
-        make
+        mingw32-make
     - name: Run Unit Tests
       run: |
         cd unit_test
-        qmake CONFIG+=debug
-        make
+        qmake unit_test.pro CONFIG+=debug
+        mingw32-make
         ls
-        cp qwt/lib/qwtd.dll unit_test/debug
         ./debug/unit_test.exe
   

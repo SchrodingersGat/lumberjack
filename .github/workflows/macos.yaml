@@ -33,7 +33,7 @@ jobs:
       run: |
         ls qwt/lib
         cd unit_test
-        qmake CONFIG+=debug
+        qmake unit_test.pro CONFIG+=debug
         make
         ls
         cd debug
