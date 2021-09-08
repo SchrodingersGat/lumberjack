@@ -32,11 +32,12 @@ jobs:
     - name: Run Unit Tests
       run: |
         ls qwt/lib
-        cp qwt/lib/libqwt* unit_test/debug
         cd unit_test
         qmake CONFIG+=release
         make
-        ls debug
+        cp ../qwt/lib/libqwt* ./release
+        ls release
+        cd release
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
