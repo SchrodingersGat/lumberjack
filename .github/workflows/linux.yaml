@@ -27,10 +27,8 @@ jobs:
     - name: Build qwt
       run: |
         cd qwt
-        sed -i 's/+= release/+= debug/g' qwtbuild.pri
         qmake qwt.pro
         make
-        cat qwtbuild.pri
     - name: Run Unit Tests
       run: |
         ls qwt/lib
