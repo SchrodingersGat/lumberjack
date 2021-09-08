@@ -1,6 +1,9 @@
 #include <qelapsedtimer.h>
 #include <qwt_symbol.h>
 #include <qwt_plot_curve.h>
+#include <qwt_text_label.h>
+#include <qfont.h>
+
 
 #include "plot_curve.hpp"
 
@@ -280,7 +283,11 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
 
         connect(&(*series), &DataSeries::styleUpdated, this, &PlotCurve::updateLineStyle);
 
+#ifdef CI_UNIT_TEST
+        qDebug() << "Skipping GUI steps for unit testing";
+#else
         updateLineStyle();
+#endif
     }
 
     worker.moveToThread(&workerThread);

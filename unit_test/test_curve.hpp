@@ -12,10 +12,13 @@ class PlotCurveTests : public QObject
     Q_OBJECT
 
 public:
-    PlotCurveTests() : series("series")
+    PlotCurveTests()
     {
+        // Create a new DataSeries
+        series = QSharedPointer<DataSeries>(new DataSeries("curve series"));
+
         // Create and store a new PlotCurve
-        PlotCurve *plot_curve = new PlotCurve(&series);
+        PlotCurve *plot_curve = new PlotCurve(series);
         curve = QSharedPointer<PlotCurve>(plot_curve);
     }
 
@@ -33,10 +36,10 @@ private slots:
         // Generate a very large data set
         for (double t = 0; t <= 100; t += 0.0001)
         {
-            series.addData(t, t * 100, false);
+            series->addData(t, t * 100, false);
         }
 
-        QCOMPARE(series.size(), 1000000);
+        QCOMPARE(series->size(), 1000000);
 
         // Down-sample the data
         curve->resampleData(5, 15, 100);
@@ -60,7 +63,7 @@ protected:
         }
     }
 
-    DataSeries series;
+    QSharedPointer<DataSeries> series;
     QSharedPointer<PlotCurve> curve;
 };
 

@@ -12,41 +12,8 @@
 #include <qwt_plot_grid.h>
 
 
+#include "plot_panner.hpp"
 #include "plot_curve.hpp"
-
-
-/*
- * Custom subclass of QwtPlotPanner,
- * which supports "continuous replot" action when panning.
- * Ref: https://stackoverflow.com/questions/14747959/qwt-zoomer-plus-panner-with-continuous-replot
- */
-class PlotPanner : public QwtPlotPanner
-{
-public:
-    explicit PlotPanner(QWidget *parent) : QwtPlotPanner(parent) {}
-
-    virtual bool eventFilter(QObject *object, QEvent *event) override
-    {
-        if (!object || object != parentWidget()) return false;
-
-        if (event->type() == QEvent::MouseMove)
-        {
-            QMouseEvent *me = static_cast<QMouseEvent*>(event);
-
-            if (me->buttons() & Qt::MiddleButton)
-            {
-                widgetMouseMoveEvent(me);
-                widgetMouseReleaseEvent(me);
-                setMouseButton(me->button(), me->modifiers());
-                widgetMousePressEvent(me);
-
-                return false;
-            }
-        }
-
-        return QwtPlotPanner::eventFilter(object, event);
-    }
-};
 
 
 class PlotWidget : public QwtPlot
@@ -62,6 +29,8 @@ public:
 signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QRectF &viewrect);
+
+    void fileDropped(QString filename);
 
     void cursorPositionChanged(double &t, double &y1, double &y2);
 
@@ -90,6 +59,11 @@ public slots:
     void xGridEnable(bool en) { grid->enableX(en); }
     void yGridEnable(bool en) { grid->enableY(en); }
 
+    void selectBackgroundColor();
+
+    void saveImageToClipboard();
+    void saveImageToFile();
+
 protected slots:
 
     void editAxisScale(QwtPlot::Axis axisId);
@@ -100,12 +74,15 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
     // Drag-n-drop actions
     virtual void dragEnterEvent(QDragEnterEvent *event) override;
     virtual void dragMoveEvent(QDragMoveEvent *event) override;
     virtual void dropEvent(QDropEvent *event) override;
+
+    bool handleMiddleMouseDrag(QMouseEvent *event);
 
     void initZoomer(void);
     void initPanner(void);
@@ -136,6 +113,12 @@ protected:
 
     // Specify "both" y axes
     static const int yBoth = -1;
+
+    // Starting point of middle-mouse drag, in canvas coordinates
+    QPoint middleMouseStartPoint;
+
+    // Most recent mouse position, in canvas coordinates
+    QPoint lastMousePosition;
 };
 
 #endif // PLOT_WIDGET_HPP

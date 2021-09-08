@@ -1,0 +1,50 @@
+# Run unit tests
+
+name: Linux
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Install Qt 
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: 5.13.2
+    - name: Build qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        make
+    - name: Run Unit Tests
+      run: |
+        ls qwt/lib
+        cd unit_test
+        qmake unit_test.pro CONFIG+=release
+        make
+        cp ../qwt/src/lib/* .
+        ls
+        ./unit_test
+    - name: Generate Code Coverage Data
+      run: |
+        sudo apt-get install lcov
+        lcov --coverage --directory unit_test --output-file coverage.info
+        lcov -r coverage.info "moc_*"
+    - name: Upload Code Coverage Data
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: "coverage.info"

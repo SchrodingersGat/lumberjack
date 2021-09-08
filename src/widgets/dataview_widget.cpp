@@ -1,3 +1,7 @@
+#include <qurl.h>
+#include <QDropEvent>
+#include <qmimedata.h>
+
 #include "dataview_widget.hpp"
 
 
@@ -16,6 +20,43 @@ DataviewWidget::DataviewWidget(QWidget *parent) : QWidget(parent)
     connect(ui.clearButton, &QPushButton::released, this, &DataviewWidget::clearFilter);
 
     refresh();
+
+    setAcceptDrops(true);
+}
+
+
+void DataviewWidget::dropEvent(QDropEvent *event)
+{
+    for (const QUrl &url : event->mimeData()->urls())
+    {
+        const QString& filename = url.toLocalFile();
+
+        QFileInfo info(filename);
+
+        if (info.exists() && info.isFile())
+        {
+            emit fileDropped(filename);
+        }
+    }
+}
+
+
+void DataviewWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+    {
+        for (const QUrl& url : event->mimeData()->urls())
+        {
+            const QString& filename = url.toLocalFile();
+
+            QFileInfo info(filename);
+
+            if (info.exists() && info.isFile())
+            {
+                event->acceptProposedAction();
+            }
+        }
+    }
 }
 
 

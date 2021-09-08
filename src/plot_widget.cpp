@@ -1,7 +1,14 @@
 #include <QApplication>
 #include <QMimeData>
+#include <qcolordialog.h>
 #include <qmenu.h>
 #include <qaction.h>
+#include <qwt_scale_map.h>
+#include <qfileinfo.h>
+#include <qpixmap.h>
+#include <qclipboard.h>
+#include <qguiapplication.h>
+#include <qfiledialog.h>
 
 #include "axis_scale_dialog.hpp"
 
@@ -93,8 +100,14 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     // Data menu
     QMenu *dataMenu = new QMenu(tr("Data"), &menu);
 
+    QAction *imageToClipboard = new QAction(tr("Image to Clipboard"), dataMenu);
+    QAction *imageToFile = new QAction(tr("Image to File"), dataMenu);
+
     QAction *clearAll = new QAction(tr("Clear All"), dataMenu);
 
+    dataMenu->addAction(imageToClipboard);
+    dataMenu->addAction(imageToFile);
+    dataMenu->addSeparator();
     dataMenu->addAction(clearAll);
 
     menu.addMenu(dataMenu);
@@ -102,7 +115,9 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     // Plot submenu
     QMenu *plotMenu = new QMenu(tr("Plot"), &menu);
 
-    // TODO
+    QAction *bgColor = new QAction(tr("Set Color"), plotMenu);
+
+    plotMenu->addAction(bgColor);
 
     menu.addMenu(plotMenu);
 
@@ -132,10 +147,86 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     {
         yGridEnable(!isYGridEnabled());
     }
+    else if (action == imageToClipboard)
+    {
+        saveImageToClipboard();
+    }
+    else if (action == imageToFile)
+    {
+        saveImageToFile();
+    }
     else if (action == clearAll)
     {
         removeAllSeries();
     }
+    else if (action == bgColor)
+    {
+        selectBackgroundColor();
+    }
+}
+
+
+/**
+ * @brief PlotWidget::setBackgroundColor launches a dialog to select the background color
+ */
+void PlotWidget::selectBackgroundColor()
+{
+    bool ok = false;
+
+    QColor c = QColorDialog::getRgba(this->canvasBackground().color().rgb(), &ok);
+
+    c.setAlpha(255);
+
+    if (ok)
+    {
+        setBackgroundColor(c);
+    }
+}
+
+
+void PlotWidget::saveImageToClipboard()
+{
+    auto *cliboard = QGuiApplication::clipboard();
+
+    cliboard->setPixmap(grab());
+}
+
+
+void PlotWidget::saveImageToFile()
+{
+    auto image = grab().toImage();
+
+    QString filename = QFileDialog::getSaveFileName(
+                this,
+                tr("Save Screenshot"),
+                "screenshot.png");
+
+    if (!filename.isEmpty())
+    {
+        image.save(filename);
+    }
+}
+
+
+void PlotWidget::setBackgroundColor(QColor color)
+{
+    QBrush b = canvasBackground();
+
+    b.setColor(color);
+
+    setCanvasBackground(b);
+
+    // Ensure that the crosshair color is the inverse of the background
+
+    QColor inverse = color.black() > 125 ? QColor(0xFF, 0xFF, 0xFF) : QColor(0x00, 0x00, 0x00);
+
+    auto pen = crosshair->linePen();
+
+    pen.setColor(inverse);
+
+    crosshair->setLinePen(pen);
+
+    replot();
 }
 
 
@@ -150,7 +241,23 @@ void PlotWidget::dragEnterEvent(QDragEnterEvent *event)
     // DataSeries is being dragged onto this PlotWidget
     if (mime->hasFormat("source") && mime->hasFormat("series"))
     {
-        event->accept();
+        event->acceptProposedAction();
+    }
+
+    // Drag and drop local files
+    if (event->mimeData()->hasUrls())
+    {
+        for (const QUrl& url : event->mimeData()->urls())
+        {
+            const QString& filename = url.toLocalFile();
+
+            QFileInfo info(filename);
+
+            if (info.exists() && info.isFile())
+            {
+                event->acceptProposedAction();
+            }
+        }
     }
 }
 
@@ -188,6 +295,20 @@ void PlotWidget::dropEvent(QDropEvent *event)
         addSeries(series);
         event->accept();
     }
+    else
+    {
+        for (const QUrl &url : event->mimeData()->urls())
+        {
+            const QString& filename = url.toLocalFile();
+
+            QFileInfo info(filename);
+
+            if (info.exists() && info.isFile())
+            {
+                emit fileDropped(filename);
+            }
+        }
+    }
 }
 
 
@@ -199,7 +320,7 @@ void PlotWidget::initZoomer()
 {
     zoomer = new QwtPlotZoomer(canvas(), true);
 
-    zoomer->setMaxStackDepth(20);
+    zoomer->setMaxStackDepth(-1);
     zoomer->setTrackerMode(QwtPicker::AlwaysOff);
     zoomer->setZoomBase();
 
@@ -287,24 +408,6 @@ void PlotWidget::updateLayout()
 
     // Force re-sampling of attached curve data when canvas dimensions are changed
     resampleCurves();
-}
-
-
-/*
- * Set the background color for the plot.
- *
- * Also updates the color of the crosshair,
- * ensuring it always stands out against the background.
- */
-void PlotWidget::setBackgroundColor(QColor color)
-{
-    QBrush b = canvasBackground();
-
-    b.setColor(color);
-
-    setCanvasBackground(b);
-
-    // TODO - Update the color of the crosshair
 }
 
 
@@ -560,11 +663,54 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 }
 
 
+bool PlotWidget::handleMiddleMouseDrag(QMouseEvent *event)
+{
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    if (!lastMousePosition.isNull())
+    {
+        QPoint delta = canvas_pos - lastMousePosition;
+
+        int x_start = middleMouseStartPoint.x();
+        int y_start = middleMouseStartPoint.y();
+
+        if (x_start < 0)
+        {
+            // We are dragging the "left" axis
+            panner->setAxisEnabled(QwtPlot::yRight, false);
+            panner->moveCanvas(0, delta.y());
+            panner->setAxisEnabled(QwtPlot::yRight, true);
+        }
+        else if (x_start > canvas()->width())
+        {
+            // We are dragging the "right" axis
+            panner->setAxisEnabled(QwtPlot::yLeft, false);
+            panner->moveCanvas(0, delta.y());
+            panner->setAxisEnabled(QwtPlot::yLeft, true);
+        }
+        else if (y_start > canvas()->height())
+        {
+            // We are dragging the "bottom" axis
+            panner->moveCanvas(delta.x(), 0);
+        }
+    }
+
+    return true;
+}
+
+
 void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    // Update crosshair
-
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    /* Middle-mouse + drag is (normally) handled by the PlotPanner class.
+     * However this does *not* work for dragging individual axes.
+     */
+
+    if (event->buttons() & Qt::MiddleButton)
+    {
+        handleMiddleMouseDrag(event);
+    }
 
     double x = canvas_pos.x();
     double y = canvas_pos.y();
@@ -595,7 +741,6 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     if (!tracking)
     {
-        // TODO: Set crosshair color to "inverse" of the background
         pen.setColor(QColor(127, 127, 127));
         crosshair->setLinePen(pen);
     }
@@ -608,19 +753,41 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     emit cursorPositionChanged(x, y1, y2);
 
+    lastMousePosition = canvas_pos;
+
     replot();
 }
 
 
 void PlotWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::BackButton)
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    lastMousePosition = canvas_pos;
+
+    if (event->buttons() & Qt::BackButton)
     {
         zoomer->zoom(-1);
     }
-    else if (event->button() == Qt::ForwardButton)
+    else if (event->buttons() & Qt::ForwardButton)
     {
         zoomer->zoom(+1);
+    }
+    else if (event->buttons() & Qt::MiddleButton)
+    {
+        middleMouseStartPoint = canvas_pos;
+
+        canvas()->setCursor(Qt::SizeAllCursor);
+    }
+}
+
+
+void PlotWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    // Return to normal cursor
+    if (canvas()->cursor() != Qt::CrossCursor)
+    {
+        canvas()->setCursor(Qt::CrossCursor);
     }
 }
 
@@ -636,6 +803,7 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
     // Middle button auto-scales graph
     if (event->button() == Qt::MiddleButton)
     {
+        canvas()->setCursor(Qt::SizeAllCursor);
 
         int axis_id = yBoth;
 

@@ -1,0 +1,42 @@
+# Run unit tests
+
+name: Coverage
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Install Qt 
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: 5.13.2
+        arch: win64_mingw73
+    - name: Build qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        mingw32-make
+        cp ../qwt/src/lib/* .
+        ls
+    - name: Run Unit Tests
+      run: |
+        cd unit_test
+        qmake unit_test.pro CONFIG+=debug
+        mingw32-make
+        ls
+        ./debug/unit_test.exe
+  

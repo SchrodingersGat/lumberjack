@@ -4,5 +4,20 @@ build-*
 qwt-6.1.4/
 *.pro.user
 
-# Unit testing
-test/build
+Makefile
+Makefile.debug
+Makefile.release
+
+*.Debug
+*.Release
+
+*.stash
+*.patch
+
+ui_tmp
+
+# Build directories
+debug
+release
+unit_test/debug
+unit_test/release

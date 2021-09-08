@@ -28,6 +28,8 @@ public slots:
 
     void updateCursorPos(double t, double y1, double y2);
 
+    void loadDroppedFile(QString filename);
+
 protected:
     void initMenus(void);
     void initDocks(void);

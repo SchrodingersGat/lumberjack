@@ -1,6 +1,7 @@
 #ifndef DATA_SERIES_H
 #define DATA_SERIES_H
 
+#include <qdebug.h>
 #include <qobject.h>
 #include <qvector.h>
 #include <qmutex.h>
@@ -57,8 +58,6 @@ public:
 
     static const unsigned int SYMBOL_SIZE_MIN;
     static const unsigned int SYMBOL_SIZE_MAX;
-
-public slots:
 
     const QString& getGroup(void) const { return group; }
     void setGroup(QString g) { group = g; }
@@ -183,6 +182,7 @@ public slots:
     /* Status Functions */
     bool hasData() const { return size() > 0; }
 
+public slots:
     void update(void) { emit dataUpdated(); }
     void updateStyle(void) { emit styleUpdated(); }
 

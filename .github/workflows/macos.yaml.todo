@@ -1,0 +1,40 @@
+# Run unit tests
+
+name: MacOS
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Install Qt 
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: 5.13.2
+    - name: Build qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        make
+    - name: Run Unit Tests
+      run: |
+        ls qwt/lib
+        cd unit_test
+        qmake unit_test.pro CONFIG+=debug
+        make
+        ls
+        cd debug
+  
