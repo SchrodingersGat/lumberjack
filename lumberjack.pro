@@ -17,6 +17,8 @@ CONFIG (debug, debug|release) {
     LIBS += -L./qwt/lib -lqwt
 }
 
+INCLUDEPATH += ./qwt/src
+
 Release:DESTDIR = release
 Debug:DESTDIR = debug
 

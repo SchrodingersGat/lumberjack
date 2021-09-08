@@ -320,7 +320,7 @@ void PlotWidget::initZoomer()
 {
     zoomer = new QwtPlotZoomer(canvas(), true);
 
-    zoomer->setMaxStackDepth(50);
+    zoomer->setMaxStackDepth(-1);
     zoomer->setTrackerMode(QwtPicker::AlwaysOff);
     zoomer->setZoomBase();
 
