@@ -107,6 +107,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 win32 {
     CONFIG(release, debug|release) {
 
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --force --verbose 2 -gui -core -opengl
+#        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --force --verbose 2 -gui -core -opengl
     }
 }

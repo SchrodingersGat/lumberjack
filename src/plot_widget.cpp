@@ -621,11 +621,54 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 }
 
 
+bool PlotWidget::handleMiddleMouseDrag(QMouseEvent *event)
+{
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    if (!lastMousePosition.isNull())
+    {
+        QPoint delta = canvas_pos - lastMousePosition;
+
+        int x_start = middleMouseStartPoint.x();
+        int y_start = middleMouseStartPoint.y();
+
+        if (x_start < 0)
+        {
+            // We are dragging the "left" axis
+            panner->setAxisEnabled(QwtPlot::yRight, false);
+            panner->moveCanvas(0, delta.y());
+            panner->setAxisEnabled(QwtPlot::yRight, true);
+        }
+        else if (x_start > canvas()->width())
+        {
+            // We are dragging the "right" axis
+            panner->setAxisEnabled(QwtPlot::yLeft, false);
+            panner->moveCanvas(0, delta.y());
+            panner->setAxisEnabled(QwtPlot::yLeft, true);
+        }
+        else if (y_start > canvas()->height())
+        {
+            // We are dragging the "bottom" axis
+            panner->moveCanvas(delta.x(), 0);
+        }
+    }
+
+    return true;
+}
+
+
 void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    // Update crosshair
-
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    /* Middle-mouse + drag is (normally) handled by the PlotPanner class.
+     * However this does *not* work for dragging individual axes.
+     */
+
+    if (event->buttons() & Qt::MiddleButton)
+    {
+        handleMiddleMouseDrag(event);
+    }
 
     double x = canvas_pos.x();
     double y = canvas_pos.y();
@@ -656,7 +699,6 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     if (!tracking)
     {
-        // TODO: Set crosshair color to "inverse" of the background
         pen.setColor(QColor(127, 127, 127));
         crosshair->setLinePen(pen);
     }
@@ -669,19 +711,29 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     emit cursorPositionChanged(x, y1, y2);
 
+    lastMousePosition = canvas_pos;
+
     replot();
 }
 
 
 void PlotWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::BackButton)
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+
+    lastMousePosition = canvas_pos;
+
+    if (event->buttons() & Qt::BackButton)
     {
         zoomer->zoom(-1);
     }
-    else if (event->button() == Qt::ForwardButton)
+    else if (event->buttons() & Qt::ForwardButton)
     {
         zoomer->zoom(+1);
+    }
+    else if (event->buttons() & Qt::MiddleButton)
+    {
+        middleMouseStartPoint = canvas_pos;
     }
 }
 

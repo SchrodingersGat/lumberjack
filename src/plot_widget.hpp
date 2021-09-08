@@ -111,6 +111,8 @@ protected:
     virtual void dragMoveEvent(QDragMoveEvent *event) override;
     virtual void dropEvent(QDropEvent *event) override;
 
+    bool handleMiddleMouseDrag(QMouseEvent *event);
+
     void initZoomer(void);
     void initPanner(void);
     void initLegend(void);
@@ -140,6 +142,12 @@ protected:
 
     // Specify "both" y axes
     static const int yBoth = -1;
+
+    // Starting point of middle-mouse drag, in canvas coordinates
+    QPoint middleMouseStartPoint;
+
+    // Most recent mouse position, in canvas coordinates
+    QPoint lastMousePosition;
 };
 
 #endif // PLOT_WIDGET_HPP
