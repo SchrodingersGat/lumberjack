@@ -320,7 +320,7 @@ void PlotWidget::initZoomer()
 {
     zoomer = new QwtPlotZoomer(canvas(), true);
 
-    zoomer->setMaxStackDepth(20);
+    zoomer->setMaxStackDepth(50);
     zoomer->setTrackerMode(QwtPicker::AlwaysOff);
     zoomer->setZoomBase();
 
@@ -776,6 +776,18 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
     else if (event->buttons() & Qt::MiddleButton)
     {
         middleMouseStartPoint = canvas_pos;
+
+        canvas()->setCursor(Qt::SizeAllCursor);
+    }
+}
+
+
+void PlotWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    // Return to normal cursor
+    if (canvas()->cursor() != Qt::CrossCursor)
+    {
+        canvas()->setCursor(Qt::CrossCursor);
     }
 }
 
@@ -791,6 +803,7 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
     // Middle button auto-scales graph
     if (event->button() == Qt::MiddleButton)
     {
+        canvas()->setCursor(Qt::SizeAllCursor);
 
         int axis_id = yBoth;
 

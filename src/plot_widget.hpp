@@ -12,41 +12,8 @@
 #include <qwt_plot_grid.h>
 
 
+#include "plot_panner.hpp"
 #include "plot_curve.hpp"
-
-
-/*
- * Custom subclass of QwtPlotPanner,
- * which supports "continuous replot" action when panning.
- * Ref: https://stackoverflow.com/questions/14747959/qwt-zoomer-plus-panner-with-continuous-replot
- */
-class PlotPanner : public QwtPlotPanner
-{
-public:
-    explicit PlotPanner(QWidget *parent) : QwtPlotPanner(parent) {}
-
-    virtual bool eventFilter(QObject *object, QEvent *event) override
-    {
-        if (!object || object != parentWidget()) return false;
-
-        if (event->type() == QEvent::MouseMove)
-        {
-            QMouseEvent *me = static_cast<QMouseEvent*>(event);
-
-            if (me->buttons() & Qt::MiddleButton)
-            {
-                widgetMouseMoveEvent(me);
-                widgetMouseReleaseEvent(me);
-                setMouseButton(me->button(), me->modifiers());
-                widgetMousePressEvent(me);
-
-                return false;
-            }
-        }
-
-        return QwtPlotPanner::eventFilter(object, event);
-    }
-};
 
 
 class PlotWidget : public QwtPlot
@@ -107,6 +74,7 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
     // Drag-n-drop actions

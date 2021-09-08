@@ -61,6 +61,7 @@ HEADERS += \
     src/lumberjack_settings.hpp \
     src/lumberjack_version.hpp \
     src/plot_curve.hpp \
+    src/plot_panner.hpp \
     src/plot_widget.hpp \
     src/mainwindow.h \
     plugins/cedat_importer.hpp \
