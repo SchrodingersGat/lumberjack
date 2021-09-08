@@ -1,6 +1,7 @@
 #ifndef TEST_SERIES_H
 #define TEST_SERIES_H
 
+#include <math.h>
 #include <stdlib.h>
 
 #include <qobject.h>
@@ -270,6 +271,57 @@ private slots:
 
             // Test sample and hold
             QCOMPARE(series.getValueAtTime(t, DataSeries::SAMPLE_HOLD), (int) t);
+        }
+    }
+
+    void testClosestPoint(void)
+    {
+        series.clearData();
+
+        for (int idx = 0; idx < 100; idx++)
+        {
+            series.addData(idx, idx);
+        }
+
+        bool result;
+        double distance;
+        uint64_t index;
+        DataPoint dp;
+
+        for (uint64_t idx = 0; idx < 100; idx += 10)
+        {
+            // Check exact matches
+            result = series.getIndexForClosestPoint(idx, idx, index);
+
+            QTEST_ASSERT(result);
+            QCOMPARE(index, idx);
+
+            // Test vertical offset
+            if (idx < series.size() - 10)
+            {
+                result = series.getIndexForClosestPoint(idx, idx + 10, index);
+                QTEST_ASSERT(result);
+                QCOMPARE(index, idx + 5);
+
+                dp = series.getDataPoint(index);
+
+                // TODO: Calculate distance to the point
+            }
+
+            if (idx > 10)
+            {
+                result = series.getIndexForClosestPoint(idx, idx - 10, index);
+                QTEST_ASSERT(result);
+                QCOMPARE(index, idx - 5);
+            }
+
+            // Specify maximum search distance
+            result = series.getIndexForClosestPoint(idx, idx + 10, index, 1);
+
+            QTEST_ASSERT(result);
+            QCOMPARE(index, idx + 2);
+
+            // TODO: Add some tests where a corresponding index is *not* found
         }
     }
 

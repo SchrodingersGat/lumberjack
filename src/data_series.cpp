@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <math.h>
 
 #include "data_series.hpp"
 #include "data_source.hpp"
@@ -486,4 +487,65 @@ uint64_t DataSeries::getIndexForTimestamp(double t, SearchDirection direction) c
         auto lower = std::lower_bound(data.begin(), data.end(), t);
         return std::distance(data.begin(), lower);
     }
+}
+
+
+/**
+ * @brief DataSeries::getIndexForClosestPoint - Find the index of the point on the curve closest to the specified point
+ * @param point - Point to compare to the curve
+ * @param index - Reference to variable where index will be stored
+ * @param max_distance - Maximum search distance (based on timestamp value) to employ
+ * @return true if an index was found, else false
+ */
+bool DataSeries::getIndexForClosestPoint(const DataPoint point, uint64_t &index, double max_distance) const
+{
+    // Bounds checking
+    if (size() == 0)
+    {
+        return false;
+    }
+
+    uint64_t idx_min, idx_max;
+
+    // Maximum search distance was specified
+    if (max_distance > 0)
+    {
+        idx_min = getIndexForTimestamp(point.timestamp - max_distance);
+        idx_max = getIndexForTimestamp(point.timestamp + max_distance);
+    }
+    else
+    {
+        idx_min = 0;
+        idx_max = size() - 1;
+    }
+
+    uint64_t best_index = idx_min;
+
+    bool index_found = false;
+
+    double d_squared_min = -1;
+
+    for (auto idx = idx_min; (idx <= idx_max) && (idx < size()); idx++)
+    {
+        const auto pt = getDataPoint(idx);
+
+        double dx = point.timestamp - pt.timestamp;
+        double dy = point.value - pt.value;
+
+        double d_squared = (dx * dx) + (dy * dy);
+
+        if ((d_squared_min < 0) || (d_squared < d_squared_min))
+        {
+            d_squared_min = d_squared;
+            best_index = idx;
+            index_found = true;
+        }
+    }
+
+    if (index_found)
+    {
+        index = best_index;
+    }
+
+    return index_found;
 }

@@ -179,6 +179,13 @@ public:
 
     uint64_t getIndexForTimestamp(double t, SearchDirection direction=SEARCH_LEFT_TO_RIGHT) const;
 
+    bool getIndexForClosestPoint(const DataPoint point, uint64_t &index, double max_distance = 0) const;
+
+    bool getIndexForClosestPoint(double t, double v, uint64_t &index, double max_distance = 0) const
+    {
+        return getIndexForClosestPoint(DataPoint(t, v), index, max_distance);
+    }
+
     /* Status Functions */
     bool hasData() const { return size() > 0; }
 
