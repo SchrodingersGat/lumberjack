@@ -35,9 +35,13 @@ jobs:
         cd unit_test
         qmake unit_test.pro CONFIG+=release
         make
-        ls
-        ls release
-    - name: Coveralls
+        ./unit_test
+    - name: Generate Code Coverage Data
+      run: |
+        sudo apt-get install lcov
+        lcov --coverage --directory unit_test --output-file coverage.info
+    - name: Upload Code Coverage Data
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: "coverage.info"

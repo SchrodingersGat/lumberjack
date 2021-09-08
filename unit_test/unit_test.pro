@@ -1,6 +1,8 @@
 QT += core gui testlib
 
 CONFIG += c++11 console
+CONFIG += testcase
+
 CONFIG -= app_bundle
 
 # Code coverage support
@@ -43,6 +45,10 @@ HEADERS += \
     test_curve.hpp \
     test_series.hpp \
     test_source.hpp
+
+# Generate coverage data
+QMAKE_CXXFLAGS += --coverage
+QMAKE_LFLAGS += --coverage
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
