@@ -30,6 +30,8 @@ jobs:
         cd qwt
         qmake qwt.pro
         mingw32-make
+        cp ../qwt/src/lib/* .
+        ls
     - name: Run Unit Tests
       run: |
         cd unit_test

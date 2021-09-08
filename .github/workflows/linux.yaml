@@ -35,11 +35,14 @@ jobs:
         cd unit_test
         qmake unit_test.pro CONFIG+=release
         make
+        cp ../qwt/src/lib/* .
+        ls
         ./unit_test
     - name: Generate Code Coverage Data
       run: |
         sudo apt-get install lcov
         lcov --coverage --directory unit_test --output-file coverage.info
+        lcov -r coverage.info "moc_*"
     - name: Upload Code Coverage Data
       uses: coverallsapp/github-action@master
       with:
