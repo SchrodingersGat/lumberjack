@@ -186,6 +186,13 @@ public:
         return getIndexForClosestPoint(DataPoint(t, v), index, max_distance);
     }
 
+    bool getDistanceToCurve(const DataPoint point, double &distance, double max_distance = 0) const;
+
+    bool getDistanceToCurve(double t, double v, double &distance, double max_distance = 0) const
+    {
+        return getDistanceToCurve(DataPoint(t, v), distance, max_distance);
+    }
+
     /* Status Functions */
     bool hasData() const { return size() > 0; }
 

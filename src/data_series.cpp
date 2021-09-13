@@ -549,3 +549,18 @@ bool DataSeries::getIndexForClosestPoint(const DataPoint point, uint64_t &index,
 
     return index_found;
 }
+
+
+/**
+ * @brief DataSeries::getDistanceToCurve returns the minimum distance between the specified point and this dataseries
+ * @param point
+ * @param distance
+ * @param max_distance
+ * @return
+ */
+bool DataSeries::getDistanceToCurve(const DataPoint point, double &distance, double max_distance) const
+{
+    // TODO
+
+    return false;
+}
