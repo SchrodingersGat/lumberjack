@@ -99,6 +99,7 @@ protected:
     bool isCurveTracked(void);
     bool isCurveTracked(QSharedPointer<PlotCurve> curve);
     void trackCurve(QSharedPointer<PlotCurve> curve);
+    void trackCurve(int index);
     void untrackCurve(void);
 
     QwtPlotZoomer *zoomer;

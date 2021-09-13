@@ -107,6 +107,37 @@ void PlotWidget::onContextMenu(const QPoint &pos)
 
     menu.addMenu(dataMenu);
 
+    // Curve menu
+    QMenu *curveMenu = menu.addMenu(tr("Tracking"));
+
+    for (int idx = 0; idx < curves.count(); idx++)
+    {
+        auto curve = curves.at(idx);
+
+        if (curve.isNull()) continue;
+
+        auto series = curve->getDataSeries();
+
+        if (series.isNull()) continue;
+
+        QAction *action = new QAction(series->getLabel(), curveMenu);
+
+        action->setCheckable(true);
+        action->setChecked(isCurveTracked(curve));
+        action->setData(idx);
+
+        curveMenu->addAction(action);
+    }
+
+    QAction *untrack = new QAction(tr("Untrack"), curveMenu);
+
+    if (curveMenu->children().count() > 0)
+    {
+        curveMenu->addSeparator();
+        curveMenu->addAction(untrack);
+        menu.addMenu(curveMenu);
+    }
+
     // Marker submenu
     QMenu *markerMenu = new QMenu(tr("Markers"), &menu);
 
@@ -160,6 +191,17 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     else if (action == clearAll)
     {
         removeAllSeries();
+    }
+    else if (action->parent() == curveMenu)
+    {
+        if (action == untrack)
+        {
+            untrackCurve();
+        }
+        else
+        {
+            trackCurve(action->data().toInt());
+        }
     }
     else if (action == addMarker)
     {
@@ -584,6 +626,18 @@ void PlotWidget::trackCurve(QSharedPointer<PlotCurve> curve)
     if (series.isNull() || series->size() == 0) return;
 
     tracking_curve = curve;
+}
+
+
+/**
+ * @brief PlotWidget::trackCurve - tracks the curve at the specified index
+ * @param index
+ */
+void PlotWidget::trackCurve(int index)
+{
+    if (index < 0 || index >= curves.count()) return;
+
+    trackCurve(curves.at(index));
 }
 
 
