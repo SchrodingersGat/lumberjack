@@ -59,6 +59,9 @@ PlotWidget::~PlotWidget()
 
     grid->detach();
     delete grid;
+
+    removeAllSeries();
+    removeAllMarkers();
 }
 
 
@@ -66,26 +69,25 @@ void PlotWidget::onContextMenu(const QPoint &pos)
 {
     QMenu menu(this);
 
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(pos));
+
+    double timestamp = canvasMap(QwtPlot::xBottom).invTransform(canvas_pos.x());
+
     // Fit / zoom submenu
     QMenu *fitMenu = new QMenu(tr("Fit"), &menu);
 
-    QAction *fitToScreen = new QAction(tr("Fit all data"), fitMenu);
-    QAction *fitX = new QAction(tr("Fit X Axis"), fitMenu);
-    QAction *fitLeft = new QAction(tr("Fit Left Axis"), fitMenu);
-    QAction *fitRight = new QAction(tr("Fit Right Axis"), fitMenu);
-
-    fitMenu->addAction(fitToScreen);
-    fitMenu->addAction(fitX);
-    fitMenu->addAction(fitLeft);
-    fitMenu->addAction(fitRight);
+    QAction *fitToScreen = fitMenu->addAction(tr("Fit all data"));
+    QAction *fitX = fitMenu->addAction(tr("Fit X Axis"));
+    QAction *fitLeft = fitMenu->addAction(tr("Fit Left Axis"));
+    QAction *fitRight = fitMenu->addAction(tr("Fit Right Axis"));
 
     menu.addMenu(fitMenu);
 
     // Grid submenu
     QMenu *gridMenu = new QMenu(tr("Grid"), &menu);
 
-    QAction *toggleGridX = new QAction(tr("X Axis"), gridMenu);
-    QAction *toggleGridY = new QAction(tr("Y Axis"), gridMenu);
+    QAction *toggleGridX = gridMenu->addAction(tr("X Axis"));
+    QAction *toggleGridY = gridMenu->addAction(tr("Y Axis"));
 
     toggleGridX->setCheckable(true);
     toggleGridY->setCheckable(true);
@@ -93,32 +95,31 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     toggleGridX->setChecked(isXGridEnabled());
     toggleGridY->setChecked(isYGridEnabled());
 
-    gridMenu->addAction(toggleGridX);
-    gridMenu->addAction(toggleGridY);
-
     menu.addMenu(gridMenu);
 
     // Data menu
     QMenu *dataMenu = new QMenu(tr("Data"), &menu);
 
-    QAction *imageToClipboard = new QAction(tr("Image to Clipboard"), dataMenu);
-    QAction *imageToFile = new QAction(tr("Image to File"), dataMenu);
-
-    QAction *clearAll = new QAction(tr("Clear All"), dataMenu);
-
-    dataMenu->addAction(imageToClipboard);
-    dataMenu->addAction(imageToFile);
+    QAction *imageToClipboard = dataMenu->addAction(tr("Image to Clipboard"));
+    QAction *imageToFile = dataMenu->addAction(tr("Image to File"));
     dataMenu->addSeparator();
-    dataMenu->addAction(clearAll);
+    QAction *clearAll = dataMenu->addAction(tr("Clear All"));
 
     menu.addMenu(dataMenu);
+
+    // Marker submenu
+    QMenu *markerMenu = new QMenu(tr("Markers"), &menu);
+
+    QAction *addMarker = markerMenu->addAction(tr("Add Marker"));
+    markerMenu->addSeparator();
+    QAction *clearMarkers = markerMenu->addAction(tr("Clear Markers"));
+
+    menu.addMenu(markerMenu);
 
     // Plot submenu
     QMenu *plotMenu = new QMenu(tr("Plot"), &menu);
 
-    QAction *bgColor = new QAction(tr("Set Color"), plotMenu);
-
-    plotMenu->addAction(bgColor);
+    QAction *bgColor = plotMenu->addAction(tr("Set Color"));
 
     menu.addMenu(plotMenu);
 
@@ -160,10 +161,65 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     {
         removeAllSeries();
     }
+    else if (action == addMarker)
+    {
+        this->addMarker(timestamp);
+    }
+    else if (action == clearMarkers)
+    {
+        removeAllMarkers();
+    }
     else if (action == bgColor)
     {
         selectBackgroundColor();
     }
+}
+
+
+/**
+ * @brief PlotWidget::addMarker adds a new marker at the specified timestamp
+ * @param timestamp
+ */
+void PlotWidget::addMarker(double timestamp)
+{
+    QwtPlotMarker *marker = new QwtPlotMarker();
+
+    // TODO: Custom text
+    marker->setLabel(QString("---"));
+
+    // TODO: Custom line color, style, etc
+
+    marker->setValue(timestamp, 0);
+    marker->setLineStyle(QwtPlotMarker::VLine);
+    marker->setLabelOrientation(Qt::Vertical);
+    marker->setLabelAlignment(Qt::AlignBottom | Qt::AlignRight);
+
+    marker->attach(this);
+
+    markers.append(marker);
+
+    replot();
+}
+
+
+/**
+ * @brief PlotWidget::removeAllMarkers removes all displayed markers
+ */
+void PlotWidget::removeAllMarkers()
+{
+    for (int idx = 0; idx < markers.count(); idx++)
+    {
+        QwtPlotMarker* marker = markers.at(idx);
+
+        if (!marker) continue;
+
+        marker->detach();
+        delete marker;
+    }
+
+    markers.clear();
+
+    replot();
 }
 
 

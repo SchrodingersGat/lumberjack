@@ -10,7 +10,7 @@
 #include <qwt_legend.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_grid.h>
-
+#include <qwt_plot_marker.h>
 
 #include "plot_panner.hpp"
 #include "plot_curve.hpp"
@@ -44,6 +44,9 @@ public slots:
     bool removeSeries(DataSeries *series) { return removeSeries(QSharedPointer<DataSeries>(series)); }
     bool removeSeries(QString label);
     void removeAllSeries();
+
+    void addMarker(double timestamp);
+    void removeAllMarkers();
 
     void autoScale(int axis_id = yBoth);
     void autoScale(int axis_id, QwtInterval interval);
@@ -108,6 +111,9 @@ protected:
 
     // List of curves attached to this widget
     QList<QSharedPointer<PlotCurve>> curves;
+
+    // List of markers attached to this widget
+    QList<QwtPlotMarker*> markers;
 
     QSharedPointer<PlotCurve> tracking_curve;
 
