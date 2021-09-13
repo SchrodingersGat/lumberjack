@@ -1,8 +1,10 @@
-#include "axis_scale_dialog.hpp"
+#include "axis_edit_dialog.hpp"
 
 
-AxisScaleDialog::AxisScaleDialog(double min, double max, QWidget *parent) : QDialog(parent)
+AxisEditorDialog::AxisEditorDialog(int axisId, QString title, double min, double max, QWidget *parent) : QDialog(parent)
 {
+    Q_UNUSED(axisId);
+
     ui.setupUi(this);
 
     setWindowModality(Qt::ApplicationModal);
@@ -11,6 +13,8 @@ AxisScaleDialog::AxisScaleDialog(double min, double max, QWidget *parent) : QDia
 
     min_value = min;
     max_value = max;
+
+    ui.axisTitle->setText(title);
 
     ui.minValue->setText(QString::number(min, 'f', 4));
     ui.minValue->setPlaceholderText(tr("Minimum value"));
@@ -23,9 +27,19 @@ AxisScaleDialog::AxisScaleDialog(double min, double max, QWidget *parent) : QDia
 }
 
 
-AxisScaleDialog::~AxisScaleDialog()
+AxisEditorDialog::~AxisEditorDialog()
 {
     // TODO
+}
+
+
+/**
+ * @brief AxisEditorDialog::getTitle returns the "title" for the axis
+ * @return
+ */
+QString AxisEditorDialog::getTitle()
+{
+    return ui.axisTitle->text().trimmed();
 }
 
 
@@ -33,7 +47,7 @@ AxisScaleDialog::~AxisScaleDialog()
  * @brief AxisScaleDialog::getMinValue returns the "minimum" value
  * @return
  */
-double AxisScaleDialog::getMinValue()
+double AxisEditorDialog::getMinValue()
 {
     bool ok = false;
 
@@ -43,7 +57,7 @@ double AxisScaleDialog::getMinValue()
 }
 
 
-double AxisScaleDialog::getMaxValue()
+double AxisEditorDialog::getMaxValue()
 {
     bool ok = false;
 

@@ -45,7 +45,7 @@ SOURCES += \
     plugins/cobsr/cobsr.c \
     plugins/csv_importer.cpp \
     src/widgets/about_dialog.cpp \
-    src/widgets/axis_scale_dialog.cpp \
+    src/widgets/axis_edit_dialog.cpp \
     src/widgets/datatable_widget.cpp \
     src/widgets/dataview_tree.cpp \
     src/widgets/dataview_widget.cpp \
@@ -74,7 +74,7 @@ HEADERS += \
     plugins/cobsr/cobsr.h \
     plugins/csv_importer.hpp \
     src/widgets/about_dialog.hpp \
-    src/widgets/axis_scale_dialog.hpp \
+    src/widgets/axis_edit_dialog.hpp \
     src/widgets/datatable_widget.hpp \
     src/widgets/dataview_tree.hpp \
     src/widgets/dataview_widget.hpp \
@@ -84,7 +84,7 @@ HEADERS += \
 
 FORMS += \
     ui/about_dialog.ui \
-    ui/axis_scale_dialog.ui \
+    ui/axis_edit_dialog.ui \
     ui/curve_editor_dialog.ui \
     ui/dataview_widget.ui \
     ui/mainwindow.ui \

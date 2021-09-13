@@ -9,8 +9,9 @@
 #include <qclipboard.h>
 #include <qguiapplication.h>
 #include <qfiledialog.h>
+#include <qwt_text.h>
 
-#include "axis_scale_dialog.hpp"
+#include "axis_edit_dialog.hpp"
 
 #include "data_source.hpp"
 #include "plot_widget.hpp"
@@ -1070,13 +1071,28 @@ void PlotWidget::editAxisScale(QwtPlot::Axis axisId)
 {
     auto interval = axisInterval(axisId);
 
-    auto *dlg = new AxisScaleDialog(interval.minValue(), interval.maxValue());
+    QwtText title = axisTitle(axisId);
+
+    // TODO: Allow customization of color and size of axis title
+    auto font = title.font();
+    font.setPointSize(8);
+    title.setFont(font);
+
+    auto *dlg = new AxisEditorDialog(
+                axisId,
+                title.text(),
+                interval.minValue(),
+                interval.maxValue());
 
     int result = dlg->exec();
 
     if (result == QDialog::Accepted)
     {
         setAxisScale(axisId, dlg->getMinValue(), dlg->getMaxValue());
+
+        title.setText(dlg->getTitle());
+
+        setAxisTitle(axisId, title);
 
         setAutoReplot(true);
         replot();
