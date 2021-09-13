@@ -863,10 +863,30 @@ void PlotWidget::handlePlotDoubleClick(QPoint pos)
 {
     // Map the screen position to axis coordinates
     double x = invTransform(QwtPlot::xBottom, pos.x());
+    double y = 0;
     double y_left = invTransform(QwtPlot::yLeft, pos.y());
     double y_right = invTransform(QwtPlot::yRight, pos.y());
 
     // Work out which data series is "closest" to the point we clicked
+    uint64_t index = 0;
+    DataPoint dp;
+
+    for (auto curve : curves)
+    {
+        if (curve.isNull() || !curve->isVisible()) continue;
+
+        auto series = curve->getDataSeries();
+
+        if (series.isNull()) continue;
+
+        y = curve->yAxis() == QwtPlot::yLeft ? y_left : y_right;
+
+        if (series->getIndexForClosestPoint(x, y, index))
+        {
+            dp = series->getDataPoint(index);
+            qDebug() << series->getLabel() << dp.timestamp << dp.value;
+        }
+    }
 }
 
 
