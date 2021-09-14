@@ -85,7 +85,7 @@ protected:
     virtual void dragMoveEvent(QDragMoveEvent *event) override;
     virtual void dropEvent(QDropEvent *event) override;
 
-    bool handleMiddleMouseDrag(QMouseEvent *event);
+    void handleMiddleMouseDrag(QMouseEvent *event);
 
     void initZoomer(void);
     void initPanner(void);

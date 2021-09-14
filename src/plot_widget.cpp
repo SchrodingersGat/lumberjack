@@ -65,6 +65,10 @@ PlotWidget::~PlotWidget()
 }
 
 
+/**
+ * @brief PlotWidget::onContextMenu - manage right-click context menu
+ * @param pos - on-screen location of the right-click event
+ */
 void PlotWidget::onContextMenu(const QPoint &pos)
 {
     QMenu menu(this);
@@ -200,6 +204,7 @@ void PlotWidget::onContextMenu(const QPoint &pos)
         }
         else
         {
+            // List index is supplied to the action
             trackCurve(action->data().toInt());
         }
     }
@@ -283,6 +288,9 @@ void PlotWidget::selectBackgroundColor()
 }
 
 
+/**
+ * @brief PlotWidget::saveImageToClipboard - copy the current plot view to clipboard
+ */
 void PlotWidget::saveImageToClipboard()
 {
     auto *cliboard = QGuiApplication::clipboard();
@@ -291,6 +299,9 @@ void PlotWidget::saveImageToClipboard()
 }
 
 
+/**
+ * @brief PlotWidget::saveImageToFile - Save the current plot view to an image file
+ */
 void PlotWidget::saveImageToFile()
 {
     auto image = grab().toImage();
@@ -444,6 +455,9 @@ void PlotWidget::initPanner()
 }
 
 
+/**
+ * @brief PlotWidget::initLegend - initialize legend
+ */
 void PlotWidget::initLegend()
 {
     legend = new QwtLegend();
@@ -456,6 +470,9 @@ void PlotWidget::initLegend()
 }
 
 
+/**
+ * @brief PlotWidget::initGrid - initialize plot grid
+ */
 void PlotWidget::initGrid()
 {
     grid = new QwtPlotGrid();
@@ -774,7 +791,11 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 }
 
 
-bool PlotWidget::handleMiddleMouseDrag(QMouseEvent *event)
+/**
+ * @brief PlotWidget::handleMiddleMouseDrag - handle a mouse drag event with middle mouse button pressed
+ * @param event
+ */
+void PlotWidget::handleMiddleMouseDrag(QMouseEvent *event)
 {
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
@@ -805,8 +826,6 @@ bool PlotWidget::handleMiddleMouseDrag(QMouseEvent *event)
             panner->moveCanvas(delta.x(), 0);
         }
     }
-
-    return true;
 }
 
 
@@ -961,6 +980,12 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
 }
 
 
+/**
+ * @brief PlotWidget::addSeries - adds the provided DataSeries to the plot
+ * @param series - pointer to the DataSeries
+ * @param axis_id - axis ID (either QwtPlot::yLeft or QwtPlot::yRight)
+ * @return true if the series was added
+ */
 bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
 {
     if (series.isNull()) return false;
@@ -996,6 +1021,11 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
 }
 
 
+/**
+ * @brief PlotWidget::removeSeries - remove the curve associated with the provided DataSeries
+ * @param series - DataSeries pointer
+ * @return true if the DataSeries existed and was removed
+ */
 bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
 {
     for (int idx = 0; idx < curves.size(); idx++)
@@ -1036,6 +1066,9 @@ bool PlotWidget::removeSeries(QString label)
 }
 
 
+/**
+ * @brief PlotWidget::removeAllSeries removes all curves from the plot
+ */
 void PlotWidget::removeAllSeries()
 {
     while (curves.size() > 0)
@@ -1054,6 +1087,10 @@ void PlotWidget::removeAllSeries()
 }
 
 
+/**
+ * @brief PlotWidget::autoScale - autoscale the selected axis
+ * @param axis_id is the ID of the axis (e.g. QwtPlot::yLeft)
+ */
 void PlotWidget::autoScale(int axis_id)
 {
     QwtInterval interval_bottom;
@@ -1212,6 +1249,9 @@ void PlotWidget::editAxisScale(QwtPlot::Axis axisId)
 }
 
 
+/**
+ * @brief PlotWidget::getHorizontalPixels returns the number of horizontal dispay pixels
+ */
 int PlotWidget::getHorizontalPixels() const
 {
     return width();
