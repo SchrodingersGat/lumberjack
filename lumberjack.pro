@@ -85,6 +85,7 @@ HEADERS += \
 FORMS += \
     ui/about_dialog.ui \
     ui/axis_edit_dialog.ui \
+    ui/csv_import_options.ui \
     ui/curve_editor_dialog.ui \
     ui/dataview_widget.ui \
     ui/mainwindow.ui \

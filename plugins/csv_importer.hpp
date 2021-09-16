@@ -6,7 +6,27 @@
 #ifndef CSV_IMPORTER_HPP
 #define CSV_IMPORTER_HPP
 
+#include <qdialog.h>
+
 #include "data_source.hpp"
+
+#include "ui_csv_import_options.h"
+
+
+class CSVImportOptionsDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    CSVImportOptionsDialog(QString filename, QWidget *parent = nullptr);
+    ~CSVImportOptionsDialog();
+
+protected:
+    Ui::csvImportOptionsDialog ui;
+
+    QString filename;
+};
+
 
 
 class CSVImporter : public FileDataSource

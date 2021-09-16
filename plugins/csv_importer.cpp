@@ -6,6 +6,49 @@
 #include "csv_importer.hpp"
 
 
+CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent) : QDialog(parent), filename(filename)
+{
+    ui.setupUi(this);
+    setWindowModality(Qt::ApplicationModal);
+
+    setWindowTitle(tr("CSV Data Import Options"));
+
+    /* Initialize import options */
+
+    // Data label row selection
+    ui.dataLabelRow->setMinimum(0);
+    ui.dataLabelRow->setMaximum(100);
+    ui.dataLabelRow->setValue(1);
+
+    // Data units row selection
+    ui.dataUnitsRow->setMinimum(0);
+    ui.dataUnitsRow->setMaximum(100);
+    ui.dataUnitsRow->setValue(0);
+
+    // Data start row selection
+    ui.dataStartRow->setMinimum(1);
+    ui.dataStartRow->setMaximum(100);
+    ui.dataStartRow->setValue(2);
+
+    // Ignore rows starting with
+    ui.ignoreStartWith->clear();
+
+    // Column delimiter
+    ui.columnDelimiter->addItem(tr("Comma") + " - ','");
+    ui.columnDelimiter->addItem(tr("Tab") + " - '\\t'");
+    ui.columnDelimiter->addItem(tr("Colon") + " - ':'");
+    ui.columnDelimiter->addItem(tr("Semicolon") + " - ';'");
+    ui.columnDelimiter->addItem(tr("Pipe") + " - '|'");
+    ui.columnDelimiter->addItem(tr("Space") + " - ''");
+    ui.columnDelimiter->addItem(tr("Whitespace"));
+}
+
+CSVImportOptionsDialog::~CSVImportOptionsDialog()
+{
+    // TODO
+}
+
+
 
 CSVImporter::CSVImporter() : FileDataSource("CSV Importer")
 {
@@ -35,7 +78,13 @@ bool CSVImporter::setImportOptions()
 {
     // TODO - Set CSV import options
 
-    return true;
+    auto *dlg = new CSVImportOptionsDialog(filename);
+
+    int result = dlg->exec();
+
+    dlg->deleteLater();
+
+    return result == QDialog::Accepted;
 }
 
 
