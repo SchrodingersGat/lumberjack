@@ -160,6 +160,12 @@ void PlotWidget::onContextMenu(const QPoint &pos)
 
     QAction *action = menu.exec(mapToGlobal(pos));
 
+    // No action selection (or action cancelled)
+    if (!action)
+    {
+        return;
+    }
+
     if (action == fitToScreen)
     {
         autoScale(yBoth);
