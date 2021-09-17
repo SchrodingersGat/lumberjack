@@ -21,3 +21,4 @@ debug
 release
 unit_test/debug
 unit_test/release
+wininstall/
