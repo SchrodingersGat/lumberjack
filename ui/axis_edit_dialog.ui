@@ -63,26 +63,6 @@
       <string>Axis Options</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Maximum Value</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Minimum Value</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="maxValue"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="minValue"/>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
@@ -90,14 +70,39 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="maxValue"/>
+      </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="axisTitle"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Maximum Value</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Minimum Value</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="minValue"/>
       </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>axisTitle</tabstop>
+  <tabstop>maxValue</tabstop>
+  <tabstop>minValue</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
