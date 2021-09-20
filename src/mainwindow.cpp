@@ -333,9 +333,13 @@ void MainWindow::hideDockedWidget(QWidget *widget)
  */
 void MainWindow::toggleDataView(void)
 {
+    ui->action_Data_View->setCheckable(true);
+
     if (dataView.isVisible())
     {
         hideDockedWidget(&dataView);
+
+        ui->action_Data_View->setChecked(false);
     }
     else
     {
@@ -344,10 +348,9 @@ void MainWindow::toggleDataView(void)
         dock->setWidget(&dataView);
 
         addDockWidget(Qt::LeftDockWidgetArea, dock);
-    }
 
-    ui->action_Data_View->setCheckable(true);
-    ui->action_Data_View->setChecked(dataView.isVisible());
+        ui->action_Data_View->setChecked(true);
+    }
 }
 
 
@@ -356,9 +359,13 @@ void MainWindow::toggleDataView(void)
  */
 void MainWindow::toggleTimelineView(void)
 {
+    ui->action_Timeline->setCheckable(true);
+
     if (timelineView.isVisible())
     {
         hideDockedWidget(&timelineView);
+
+        ui->action_Timeline->setChecked(false);
     }
     else
     {
@@ -367,10 +374,9 @@ void MainWindow::toggleTimelineView(void)
         dock->setWidget(&timelineView);
 
         addDockWidget(Qt::BottomDockWidgetArea, dock);
-    }
 
-    ui->action_Timeline->setCheckable(true);
-    ui->action_Timeline->setChecked(timelineView.isVisible());
+        ui->action_Timeline->setChecked(true);
+    }
 }
 
 
@@ -379,9 +385,13 @@ void MainWindow::toggleTimelineView(void)
  */
 void MainWindow::toggleStatisticsView(void)
 {
+    ui->action_Statistics->setCheckable(true);
+
     if (statsView.isVisible())
     {
         hideDockedWidget(&statsView);
+
+        ui->action_Statistics->setChecked(false);
     }
     else
     {
@@ -390,8 +400,7 @@ void MainWindow::toggleStatisticsView(void)
         dock->setWidget(&statsView);
 
         addDockWidget(Qt::LeftDockWidgetArea, dock);
-    }
 
-    ui->action_Statistics->setCheckable(true);
-    ui->action_Statistics->setCheckable(statsView.isVisible());
+        ui->action_Statistics->setChecked(true);
+    }
 }
