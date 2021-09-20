@@ -66,6 +66,190 @@ PlotWidget::~PlotWidget()
 
 
 /**
+ * @brief PlotWidget::getOldestTimestamp returns the oldest timestamp for visible data
+ * @param ok - set to true if a value is found, else false
+ * @return the "oldest" value of all displayed graph curves
+ */
+double PlotWidget::getOldestTimestamp(bool *ok) const
+{
+    double oldest = __DBL_MAX__;
+
+    double t = 0;
+
+    if (ok != nullptr)
+    {
+        *ok = false;
+    }
+
+    for (auto curve : curves)
+    {
+        // Ignore null curves
+        if (curve.isNull()) continue;
+
+        // Ignore hidden curves
+        if (!curve->isVisible()) continue;
+
+        auto series = curve->getDataSeries();
+
+        if (series.isNull()) continue;
+
+        t = series->getOldestTimestamp();
+
+        if (t < oldest)
+        {
+            // A sample has been found
+            if (ok != nullptr)
+            {
+                *ok = true;
+            }
+
+            oldest = t;
+        }
+    }
+
+    return oldest;
+}
+
+
+/**
+ * @brief PlotWidget::getNewestTimestamp returns the newest timestamp for visible data
+ * @param ok - set to true if a value is found, else false
+ * @return the "newest" value of all displayed graph curves
+ */
+double PlotWidget::getNewestTimestamp(bool *ok) const
+{
+    double newest = __DBL_MIN__;
+
+    double t = 0;
+
+    if (ok != nullptr)
+    {
+        *ok = false;
+    }
+
+    for (auto curve : curves)
+    {
+        // Ignore null curves
+        if (curve.isNull()) continue;
+
+        // Ignore hidden curves
+        if (!curve->isVisible()) continue;
+
+        auto series = curve->getDataSeries();
+
+        if (series.isNull()) continue;
+
+        t = series->getNewestTimestamp();
+
+        if (t > newest)
+        {
+            // A sample has been found
+            if (ok != nullptr)
+            {
+                *ok = true;
+            }
+
+            newest = t;
+        }
+    }
+
+    return newest;
+}
+
+
+/**
+ * @brief PlotWidget::getMinimumValue returns the minimum value for visible data
+ * @param ok - set to true if a value is found, else false
+ * @return the "minimum" value of all displayed graph curves
+ */
+double PlotWidget::getMinimumValue(bool *ok) const
+{
+    double minimum = __DBL_MAX__;
+
+    double value = 0;
+
+    if (ok != nullptr)
+    {
+        *ok = false;
+    }
+
+    for (auto curve : curves)
+    {
+        // Ignore null curves
+        if (curve.isNull()) continue;
+
+        // Ignore hidden curves
+        if (!curve->isVisible()) continue;
+
+        auto series = curve->getDataSeries();
+
+        if (series.isNull()) continue;
+
+        value = series->getMinimumValue();
+
+        if (value < minimum)
+        {
+            // A sample has been found
+            if (ok != nullptr)
+            {
+                *ok = true;
+            }
+
+            minimum = value;
+        }
+    }
+
+    return minimum;
+}
+
+
+/**
+ * @brief PlotWidget::getMaximumValue returns the maximum value for visible data
+ * @param ok - set to true if a value is found, else false
+ * @return the "maximum" value of all displayed graph curves
+ */
+double PlotWidget::getMaximumValue(bool *ok) const
+{
+    double maximum = __DBL_MIN__;
+
+    double value = 0;
+
+    if (ok != nullptr)
+    {
+        *ok = false;
+    }
+
+    for (auto curve : curves)
+    {
+        // Ignore null curves
+        if (curve.isNull()) continue;
+
+        // Ignore hidden curves
+        if (!curve->isVisible()) continue;
+
+        auto series = curve->getDataSeries();
+
+        if (series.isNull()) continue;
+
+        value = series->getMaximumValue();
+
+        if (value > maximum)
+        {
+            // A sample has been found
+            if (ok != nullptr)
+            {
+                *ok = true;
+            }
+
+            maximum = value;
+        }
+    }
+
+    return maximum;
+}
+
+
+/**
  * @brief PlotWidget::onContextMenu - manage right-click context menu
  * @param pos - on-screen location of the right-click event
  */
@@ -324,6 +508,15 @@ void PlotWidget::saveImageToFile()
 }
 
 
+
+void PlotWidget::setTimeInterval(const QwtInterval &interval)
+{
+    autoScale(QwtPlot::xBottom, interval);
+
+    replot();
+}
+
+
 void PlotWidget::setBackgroundColor(QColor color)
 {
     QBrush b = canvasBackground();
@@ -530,6 +723,21 @@ void PlotWidget::updateLayout()
 
     // Force re-sampling of attached curve data when canvas dimensions are changed
     resampleCurves();
+
+    // Signal to other widgets that we have updated the view
+    updateCurrentView();
+}
+
+
+void PlotWidget::updateCurrentView()
+{
+    emit viewChanged(axisInterval(QwtPlot::xBottom));
+}
+
+
+void PlotWidget::updateTimestampLimits()
+{
+    emit timestampLimitsChanged(QwtInterval(getOldestTimestamp(), getNewestTimestamp()));
 }
 
 
@@ -588,6 +796,8 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
             {
                 // Toggle curve visibility
                 curve->setVisible(!curve->isVisible());
+
+                updateTimestampLimits();
             }
             else if (modifiers == Qt::ControlModifier)
             {
@@ -1023,6 +1233,8 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     setAutoReplot(true);
     replot();
 
+    updateTimestampLimits();
+
     return true;
 }
 
@@ -1047,6 +1259,9 @@ bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
         {
             curves.removeAt(idx);
             replot();
+
+            updateTimestampLimits();
+
             return true;
         }
     }

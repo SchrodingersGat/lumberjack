@@ -26,9 +26,18 @@ public:
 
     virtual void updateLayout(void) override;
 
+    double getOldestTimestamp(bool *ok = nullptr) const;
+    double getNewestTimestamp(bool *ok = nullptr) const;
+
+    double getMinimumValue(bool *ok = nullptr) const;
+    double getMaximumValue(bool *ok = nullptr) const;
+
 signals:
     // Emitted whenever the view rect is changed
-    void viewChanged(const QRectF &viewrect);
+    void viewChanged(const QwtInterval &view);
+
+    // Emitted whenever the timestamp limits are changed
+    void timestampLimitsChanged(const QwtInterval &limits);
 
     void fileDropped(QString filename);
 
@@ -67,6 +76,8 @@ public slots:
     void saveImageToClipboard();
     void saveImageToFile();
 
+    void setTimeInterval(const QwtInterval &interval);
+
 protected slots:
 
     void editAxisScale(QwtPlot::Axis axisId);
@@ -94,6 +105,9 @@ protected:
     void initGrid(void);
 
     void resampleCurves(int axis_id=yBoth);
+
+    void updateCurrentView();
+    void updateTimestampLimits();
 
     // Curve tracking
     bool isCurveTracked(void);
