@@ -26,6 +26,12 @@ public:
 
     virtual void updateLayout(void) override;
 
+    double getOldestTimestamp(bool *ok = nullptr) const;
+    double getNewestTimestamp(bool *ok = nullptr) const;
+
+    double getMinimumValue(bool *ok = nullptr) const;
+    double getMaximumValue(bool *ok = nullptr) const;
+
 signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QRectF &viewrect);
