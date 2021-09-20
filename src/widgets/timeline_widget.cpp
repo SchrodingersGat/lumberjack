@@ -42,6 +42,22 @@ void RangeMarker::draw(QPainter *painter,
 }
 
 
+TimelineZoomer::TimelineZoomer(QWidget *parent) : QwtPlotZoomer(parent, true)
+{
+    setMaxStackDepth(-1);
+    setTrackerMode(QwtPicker::AlwaysOff);
+
+    // Configure mouse actions
+    setMousePattern(QwtPlotZoomer::MouseSelect2, Qt::MouseButton::NoButton);
+    setMousePattern(QwtPlotZoomer::MouseSelect3, Qt::MouseButton::NoButton);
+    setMousePattern(QwtPlotZoomer::MouseSelect4, Qt::MouseButton::NoButton);
+    setMousePattern(QwtPlotZoomer::MouseSelect5, Qt::MouseButton::NoButton);
+    setMousePattern(QwtPlotZoomer::MouseSelect6, Qt::MouseButton::NoButton);
+
+    setZoomBase();
+}
+
+
 
 TimelineWidget::TimelineWidget(QWidget *parent) : QwtPlot(parent)
 {
@@ -53,7 +69,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QwtPlot(parent)
     setAxisScale(QwtPlot::yLeft, 0, 1);
     setAxisScale(QwtPlot::xBottom, 0, 1);
 
-    setMinimumHeight(50);
+    setMinimumHeight(20);
     setMaximumHeight(100);
 
     // Disable drawing of left axis
@@ -66,14 +82,27 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QwtPlot(parent)
     axisScaleDraw(QwtPlot::xBottom)->enableComponent(QwtAbstractScaleDraw::Labels, false);
     axisScaleDraw(QwtPlot::xBottom)->enableComponent(QwtAbstractScaleDraw::Ticks, false);
 
+    // Initialize range marker rectangle
     rangeMarker.attach(this);
-
     rangeMarker.setInterval(QwtInterval(0, 1));
+
+    // Initialize mouse zoomer
+    zoomer = new TimelineZoomer(canvas());
+
+    connect(zoomer, &QwtPlotZoomer::zoomed, this, &TimelineWidget::onZoomed);
+
 }
 
 
 TimelineWidget::~TimelineWidget()
 {
+    zoomer->deleteLater();
+}
+
+
+void TimelineWidget::onZoomed(const QRectF &zoomRect)
+{
+    emit timeUpdated(QwtInterval(zoomRect.left(), zoomRect.right()));
 }
 
 

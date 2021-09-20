@@ -76,6 +76,8 @@ public slots:
     void saveImageToClipboard();
     void saveImageToFile();
 
+    void setTimeInterval(const QwtInterval &interval);
+
 protected slots:
 
     void editAxisScale(QwtPlot::Axis axisId);

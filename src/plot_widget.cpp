@@ -508,6 +508,15 @@ void PlotWidget::saveImageToFile()
 }
 
 
+
+void PlotWidget::setTimeInterval(const QwtInterval &interval)
+{
+    autoScale(QwtPlot::xBottom, interval);
+
+    replot();
+}
+
+
 void PlotWidget::setBackgroundColor(QColor color)
 {
     QBrush b = canvasBackground();

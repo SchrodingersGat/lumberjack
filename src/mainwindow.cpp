@@ -151,6 +151,7 @@ void MainWindow::initSignalsSlots()
 
 
     // Timeline view
+    connect(&timelineView, &TimelineWidget::timeUpdated, &plotView, &PlotWidget::setTimeInterval);
 
 }
 
