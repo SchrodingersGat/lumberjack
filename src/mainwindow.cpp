@@ -138,11 +138,19 @@ void MainWindow::initSignalsSlots()
 {
     // TODO
 
+    // Plot widget signals
     connect(&plotView, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
+    connect(&plotView, &PlotWidget::viewChanged, this, &MainWindow::onViewChanged);
+    connect(&plotView, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewRect);
+    connect(&plotView, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
 
     // File drops
     connect(&plotView, &PlotWidget::fileDropped, this, &MainWindow::loadDroppedFile);
     connect(&dataView, &DataviewWidget::fileDropped, this, &MainWindow::loadDroppedFile);
+
+
+    // Timeline view
+
 }
 
 
@@ -155,6 +163,12 @@ void MainWindow::initStatusBar()
     ui->statusbar->addPermanentWidget(&y2_pos);
 
     updateCursorPos(0, 0, 0);
+}
+
+
+void MainWindow::onViewChanged(const QRectF &viewRect)
+{
+    // TODO
 }
 
 
@@ -348,6 +362,7 @@ void MainWindow::toggleTimelineView(void)
     {
         QDockWidget* dock = new QDockWidget(tr("Timeline"), this);
         dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+        dock->setWidget(&timelineView);
 
         addDockWidget(Qt::BottomDockWidgetArea, dock);
     }

@@ -36,6 +36,9 @@ signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QRectF &viewrect);
 
+    // Emitted whenever the timestamp limits are changed
+    void timestampLimitsChanged(const QwtInterval &limits);
+
     void fileDropped(QString filename);
 
     void cursorPositionChanged(double &t, double &y1, double &y2);
@@ -100,6 +103,8 @@ protected:
     void initGrid(void);
 
     void resampleCurves(int axis_id=yBoth);
+
+    void updateTimestampLimits();
 
     // Curve tracking
     bool isCurveTracked(void);

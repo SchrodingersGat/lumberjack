@@ -717,6 +717,12 @@ void PlotWidget::updateLayout()
 }
 
 
+void PlotWidget::updateTimestampLimits()
+{
+    emit timestampLimitsChanged(QwtInterval(getOldestTimestamp(), getNewestTimestamp()));
+}
+
+
 /*
  * Resample all attached curves to the displayed time region
  *
@@ -772,6 +778,8 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
             {
                 // Toggle curve visibility
                 curve->setVisible(!curve->isVisible());
+
+                updateTimestampLimits();
             }
             else if (modifiers == Qt::ControlModifier)
             {
@@ -1207,6 +1215,8 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     setAutoReplot(true);
     replot();
 
+    updateTimestampLimits();
+
     return true;
 }
 
@@ -1231,6 +1241,9 @@ bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
         {
             curves.removeAt(idx);
             replot();
+
+            updateTimestampLimits();
+
             return true;
         }
     }

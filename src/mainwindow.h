@@ -26,6 +26,7 @@ public:
 
 public slots:
 
+    void onViewChanged(const QRectF &viewrect);
     void updateCursorPos(double t, double y1, double y2);
 
     void loadDroppedFile(QString filename);
