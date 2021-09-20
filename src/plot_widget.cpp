@@ -714,6 +714,15 @@ void PlotWidget::updateLayout()
 
     // Force re-sampling of attached curve data when canvas dimensions are changed
     resampleCurves();
+
+    // Signal to other widgets that we have updated the view
+    updateCurrentView();
+}
+
+
+void PlotWidget::updateCurrentView()
+{
+    emit viewChanged(axisInterval(QwtPlot::xBottom));
 }
 
 

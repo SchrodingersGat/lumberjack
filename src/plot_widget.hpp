@@ -34,7 +34,7 @@ public:
 
 signals:
     // Emitted whenever the view rect is changed
-    void viewChanged(const QRectF &viewrect);
+    void viewChanged(const QwtInterval &view);
 
     // Emitted whenever the timestamp limits are changed
     void timestampLimitsChanged(const QwtInterval &limits);
@@ -104,6 +104,7 @@ protected:
 
     void resampleCurves(int axis_id=yBoth);
 
+    void updateCurrentView();
     void updateTimestampLimits();
 
     // Curve tracking

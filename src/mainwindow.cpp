@@ -130,6 +130,7 @@ void MainWindow::initDocks()
     this->setDockOptions(AnimatedDocks | AllowNestedDocks);
 
     toggleDataView();
+    toggleTimelineView();
 //    toggleStatisticsView();
 }
 
@@ -140,8 +141,8 @@ void MainWindow::initSignalsSlots()
 
     // Plot widget signals
     connect(&plotView, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
-    connect(&plotView, &PlotWidget::viewChanged, this, &MainWindow::onViewChanged);
-    connect(&plotView, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewRect);
+    connect(&plotView, &PlotWidget::viewChanged, this, &MainWindow::onTimescaleChanged);
+    connect(&plotView, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
     connect(&plotView, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
 
     // File drops
@@ -166,7 +167,7 @@ void MainWindow::initStatusBar()
 }
 
 
-void MainWindow::onViewChanged(const QRectF &viewRect)
+void MainWindow::onTimescaleChanged(const QwtInterval &viewRect)
 {
     // TODO
 }
