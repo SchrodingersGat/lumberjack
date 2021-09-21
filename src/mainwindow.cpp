@@ -130,9 +130,22 @@ void MainWindow::initDocks()
 {
     this->setDockOptions(AnimatedDocks | AllowNestedDocks);
 
-    toggleDataView();
-    toggleTimelineView();
-//    toggleStatisticsView();
+    auto *settings = LumberjackSettings::getInstance();
+
+    if (settings->loadBoolean("mainwindow", "showStatsView"))
+    {
+        toggleStatisticsView();
+    }
+
+    if (settings->loadBoolean("mainwindow", "showDataView"))
+    {
+        toggleDataView();
+    }
+
+    if (settings->loadBoolean("mainwindow", "showTimelineView"))
+    {
+        toggleTimelineView();
+    }
 }
 
 
@@ -350,11 +363,14 @@ void MainWindow::toggleDataView(void)
 {
     ui->action_Data_View->setCheckable(true);
 
+    auto *settings = LumberjackSettings::getInstance();
+
     if (dataView.isVisible())
     {
         hideDockedWidget(&dataView);
 
         ui->action_Data_View->setChecked(false);
+        settings->saveSetting("mainwindow", "showDataView", false);
     }
     else
     {
@@ -365,6 +381,7 @@ void MainWindow::toggleDataView(void)
         addDockWidget(Qt::LeftDockWidgetArea, dock);
 
         ui->action_Data_View->setChecked(true);
+        settings->saveSetting("mainwindow", "showDataView", true);
     }
 }
 
@@ -374,6 +391,8 @@ void MainWindow::toggleDataView(void)
  */
 void MainWindow::toggleTimelineView(void)
 {
+    auto *settings = LumberjackSettings::getInstance();
+
     ui->action_Timeline->setCheckable(true);
 
     if (timelineView.isVisible())
@@ -381,6 +400,7 @@ void MainWindow::toggleTimelineView(void)
         hideDockedWidget(&timelineView);
 
         ui->action_Timeline->setChecked(false);
+        settings->saveSetting("mainwindow", "showTimelineView", false);
     }
     else
     {
@@ -391,6 +411,7 @@ void MainWindow::toggleTimelineView(void)
         addDockWidget(Qt::BottomDockWidgetArea, dock);
 
         ui->action_Timeline->setChecked(true);
+        settings->saveSetting("mainwindow", "showTimelineView", true);
     }
 }
 
@@ -400,6 +421,8 @@ void MainWindow::toggleTimelineView(void)
  */
 void MainWindow::toggleStatisticsView(void)
 {
+    auto *settings = LumberjackSettings::getInstance();
+
     ui->action_Statistics->setCheckable(true);
 
     if (statsView.isVisible())
@@ -407,6 +430,7 @@ void MainWindow::toggleStatisticsView(void)
         hideDockedWidget(&statsView);
 
         ui->action_Statistics->setChecked(false);
+        settings->saveSetting("mainwindow", "showStatsView", false);
     }
     else
     {
@@ -417,5 +441,6 @@ void MainWindow::toggleStatisticsView(void)
         addDockWidget(Qt::LeftDockWidgetArea, dock);
 
         ui->action_Statistics->setChecked(true);
+        settings->saveSetting("mainwindow", "showStatsView", true);
     }
 }
