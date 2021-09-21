@@ -327,19 +327,18 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
 
     if (newVariable.decode(&packet))
     {
-        QString group = QString(newVariable.ownerName) + ":" + QString::number(newVariable.ownerId);
-        QString title = QString(newVariable.title);
+        QString group = QString(newVariable.ownerName);
 
         // Add a new variable
         DataSeries *series = new DataSeries();
 
-        QString label = QString(newVariable.ownerName) + ":" + QString::number(newVariable.ownerId);
+        QString label = QString(newVariable.ownerName) + "_" + QString::number(newVariable.ownerId) + ":" + QString(newVariable.title);
 
         series->setGroup(group);
-        series->setLabel(title);
+        series->setLabel(label);
         series->setUnits(newVariable.units);
 
-        variableMap[newVariable.variableId] = title;
+        variableMap[newVariable.variableId] = label;
 
         addSeries(series);
     }
