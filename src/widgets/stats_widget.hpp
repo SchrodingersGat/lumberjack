@@ -15,6 +15,8 @@ public:
 
 protected:
     Ui::stats_form ui;
+
+    void initTable();
 };
 
 #endif // STATS_WIDGET_HPP

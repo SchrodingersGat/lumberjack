@@ -19,6 +19,7 @@ DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)
 
     connect(this, &QTreeWidget::customContextMenuRequested, this, &DataViewTree::onContextMenu);
 
+    setAlternatingRowColors(true);
 }
 
 DataViewTree::~DataViewTree()
