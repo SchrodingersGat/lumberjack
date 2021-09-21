@@ -282,6 +282,7 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s) :
         QwtPlotCurve::setTitle((*series).getLabel());
 
         connect(&(*series), &DataSeries::styleUpdated, this, &PlotCurve::updateLineStyle);
+        connect(&(*series), &DataSeries::styleUpdated, this, &PlotCurve::updateLabel);
 
 #ifdef CI_UNIT_TEST
         qDebug() << "Skipping GUI steps for unit testing";

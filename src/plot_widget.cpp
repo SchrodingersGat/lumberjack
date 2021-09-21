@@ -249,6 +249,31 @@ double PlotWidget::getMaximumValue(bool *ok) const
 }
 
 
+
+/**
+ * @brief PlotWidget::getVisibleCurves returns a list of visible curves
+ * @param axisId is the ID of the yAxis (use yBoth for all curves)
+ * @return
+ */
+QList<QSharedPointer<PlotCurve>> PlotWidget::getVisibleCurves(int axisId)
+{
+    QList<QSharedPointer<PlotCurve>> pc;
+
+    for (auto curve : curves)
+    {
+        // Ignore null or hidden curves
+        if (curve.isNull() || !curve->isVisible()) continue;
+
+        if (axisId == yBoth || axisId == curve->yAxis())
+        {
+            pc.append(curve);
+        }
+    }
+
+    return pc;
+}
+
+
 /**
  * @brief PlotWidget::onContextMenu - manage right-click context menu
  * @param pos - on-screen location of the right-click event

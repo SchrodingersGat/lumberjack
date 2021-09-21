@@ -346,10 +346,14 @@ double DataSeries::getMinimumValue(double t_min, double t_max) const
     auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
     auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
 
-    double value = getValue(idx_min);
+    double value = __DBL_MAX__;
+
+    unsigned int length = size();
 
     for (auto idx = idx_min + 1; idx <= idx_max && idx < size(); idx++)
     {
+        if (idx >= length) continue;
+
         double v = getValue(idx);
 
         if (v < value)
@@ -375,10 +379,14 @@ double DataSeries::getMaximumValue(double t_min, double t_max) const
     auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
     auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
 
-    double value = getValue(idx_min);
+    double value = __DBL_MIN__;
+
+    unsigned int length = size();
 
     for (auto idx = idx_min + 1; idx <= idx_max && idx < size(); idx++)
     {
+        if (idx >= length) continue;
+
         double v = getValue(idx);
 
         if (v > value)
@@ -443,6 +451,8 @@ double DataSeries::getMeanValue(void) const
 
 double DataSeries::getMeanValue(double t_min, double t_max) const
 {
+    if (size() == 0) return 0;
+
     auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
     auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
 
@@ -460,12 +470,19 @@ double DataSeries::getMeanValue(double t_min, double t_max) const
         }
     }
 
+    if (count == 0)
+    {
+        // Prevent divide-by-zero errors
+        return 0;
+    }
+
     return accumulator / count;
 }
 
 
 uint64_t DataSeries::getIndexForTimestamp(double t, SearchDirection direction) const
 {
+
     if (t < getOldestTimestamp())
     {
         return 0;
