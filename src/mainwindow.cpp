@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include <qfiledialog.h>
+#include <qsharedpointer.h>
 
 #include <qwt_plot.h>
 
@@ -168,9 +169,23 @@ void MainWindow::initStatusBar()
 }
 
 
-void MainWindow::onTimescaleChanged(const QwtInterval &viewRect)
+void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 {
-    // TODO
+    QList<QSharedPointer<DataSeries>> seriesList;
+
+    auto curveList = plotView.getVisibleCurves();
+
+    for (auto curve : curveList)
+    {
+        auto series = curve->getDataSeries();
+
+        if (series.isNull()) continue;
+
+        seriesList.append(series);
+    }
+
+    // Update the "statistics" view
+    statsView.updateStats(seriesList, viewInterval);
 }
 
 

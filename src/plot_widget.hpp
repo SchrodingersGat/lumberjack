@@ -32,6 +32,8 @@ public:
     double getMinimumValue(bool *ok = nullptr) const;
     double getMaximumValue(bool *ok = nullptr) const;
 
+    QList<QSharedPointer<PlotCurve>> getVisibleCurves(int axisId = yBoth);
+
 signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QwtInterval &view);
