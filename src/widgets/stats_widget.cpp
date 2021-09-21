@@ -25,7 +25,7 @@ void StatsWidget::initTable()
     headers << tr("Min");
     headers << tr("Max");
     headers << tr("Mean");
-    headers << tr("Std Dev");
+//    headers << tr("Std Dev");
 
     table->setColumnCount(headers.length());
     table->setHorizontalHeaderLabels(headers);
@@ -67,6 +67,9 @@ void StatsWidget::updateStats(const QList<QSharedPointer<DataSeries>> &seriesLis
         auto series = seriesList.at(idx);
 
         if (series.isNull()) continue;
+
+        // TODO: If the series does not have any data points within the interval,
+        //       then we should simply ignore it (or display dashes)
 
         double vMin = series->getMinimumValue(tMin, tMax);
         double vMax = series->getMaximumValue(tMin, tMax);
