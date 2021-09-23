@@ -15,9 +15,14 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     ui.softwareVersion->setText(LUMBERJACK_VERSION_STRING);
     ui.buildDate->setText(__DATE__);
 
-    ui.compiler->setText(COMPILER);
-    ui.compilerVersion->setText(COMPILER_VERSION);
-    ui.architecture->setText(ARCHITECTURE);
+    QString compileInfo = QString(COMPILER);
+
+    compileInfo += " ";
+    compileInfo += QString(COMPILER_VERSION);
+    compileInfo += " ";
+    compileInfo += QString(ARCHITECTURE);
+
+    ui.compiler->setText(compileInfo);
 
     ui.projectLInk->setTextFormat(Qt::RichText);
     ui.projectLInk->setOpenExternalLinks(true);
