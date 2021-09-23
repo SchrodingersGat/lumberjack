@@ -111,3 +111,6 @@ win32 {
 #        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --force --verbose 2 -gui -core -opengl
     }
 }
+
+RESOURCES += \
+    resources.qrc
