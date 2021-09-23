@@ -91,6 +91,9 @@ FORMS += \
     ui/mainwindow.ui \
     ui/stats_view.ui
 
+# Application icon
+RC_ICONS = logo/lumberjack.ico
+
 #Set the location for the generated ui_xxxx.h files
 UI_DIR = ui_tmp/
 
