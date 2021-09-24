@@ -177,6 +177,10 @@ bool CSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& 
     {
         return extractHeaders(rowIndex, row, errors);
     }
+    else if (rowIndex == unitsRow)
+    {
+        // TODO - Extract units data
+    }
     else
     {
         return extractData(rowIndex, row, errors);
@@ -222,6 +226,8 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
         }
 
         addSeries(header);
+
+        columnMap[header] = getSeriesByLabel(header);
     }
 
     return true;
@@ -250,23 +256,13 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
             continue;
         }
 
+        QString text = row.at(ii).trimmed();
+
         if (ii >= headers.length())
         {
             qWarning() << "Line" << rowIndex << "exceeded header count";
             continue;
         }
-
-        QString header = headers.at(ii);
-
-        auto series = getSeriesByLabel(header);
-
-        if (series.isNull())
-        {
-            qWarning() << "Could not find series matching label" << header;
-            continue;
-        }
-
-        QString text = row.at(ii).trimmed();
 
         // Ignore empty cell values
         if (text.isEmpty())
@@ -276,14 +272,20 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
 
         value = text.toDouble(&result);
 
-        if (result)
+        // Data could not be converted to a number
+        if (!result) continue;
+
+        QString header = headers.at(ii);
+
+        if (!columnMap.contains(header))
         {
-            series->addData(timestamp, value, false);
+            qWarning() << "Could not find series matching label" << header;
+            continue;
         }
-        else
-        {
-            // qDebug() << "Line" << rowIndex << "column" << ii << "skipped value" << text;
-        }
+
+        auto series = columnMap[header];
+
+        series->addData(timestamp, value, false);
     }
 
     return true;

@@ -36,8 +36,6 @@ void StatsWidget::updateStats(const QList<QSharedPointer<DataSeries>> &seriesLis
 {
     auto* table = ui.statsTable;
 
-    qDebug() << "updating" << seriesList.count() << "series";
-
     double tMin = interval.minValue();
     double tMax = interval.maxValue();
 
