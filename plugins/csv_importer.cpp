@@ -226,6 +226,8 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
         }
 
         addSeries(header);
+
+        columnMap[header] = getSeriesByLabel(header);
     }
 
     return true;
@@ -275,13 +277,13 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
 
         QString header = headers.at(ii);
 
-        auto series = getSeriesByLabel(header);
-
-        if (series.isNull())
+        if (!columnMap.contains(header))
         {
             qWarning() << "Could not find series matching label" << header;
             continue;
         }
+
+        auto series = columnMap[header];
 
         series->addData(timestamp, value, false);
     }

@@ -57,6 +57,8 @@ protected:
     bool extractHeaders(int rowIndex, const QStringList &row, QStringList &errors);
     bool extractData(int rowIndex, const QStringList &row, QStringList &errors);
     bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
+    // Keep track of data columns while loading
+    QMap<QString, QSharedPointer<DataSeries>> columnMap;
 };
 
 
