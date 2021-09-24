@@ -47,6 +47,7 @@ protected:
     // Import configuration options
     int timestampColumn = 0;
     int headerRow = 0;
+    int unitsRow = -1;
     double timestampScaler = 0.001;     // Convert from ms to s
 
     QString delimiter = ",";
