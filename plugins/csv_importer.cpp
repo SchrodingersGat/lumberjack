@@ -177,6 +177,10 @@ bool CSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& 
     {
         return extractHeaders(rowIndex, row, errors);
     }
+    else if (rowIndex == unitsRow)
+    {
+        // TODO - Extract units data
+    }
     else
     {
         return extractData(rowIndex, row, errors);
@@ -250,11 +254,24 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
             continue;
         }
 
+        QString text = row.at(ii).trimmed();
+
         if (ii >= headers.length())
         {
             qWarning() << "Line" << rowIndex << "exceeded header count";
             continue;
         }
+
+        // Ignore empty cell values
+        if (text.isEmpty())
+        {
+            continue;
+        }
+
+        value = text.toDouble(&result);
+
+        // Data could not be converted to a number
+        if (!result) continue;
 
         QString header = headers.at(ii);
 
@@ -266,24 +283,7 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
             continue;
         }
 
-        QString text = row.at(ii).trimmed();
-
-        // Ignore empty cell values
-        if (text.isEmpty())
-        {
-            continue;
-        }
-
-        value = text.toDouble(&result);
-
-        if (result)
-        {
-            series->addData(timestamp, value, false);
-        }
-        else
-        {
-            // qDebug() << "Line" << rowIndex << "column" << ii << "skipped value" << text;
-        }
+        series->addData(timestamp, value, false);
     }
 
     return true;

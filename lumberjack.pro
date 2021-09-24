@@ -117,10 +117,10 @@ win32 {
         QMAKE_POST_LINK += $$QMAKE_COPY $$shell_path($$PWD)\release\lumberjack.exe $$shell_path($$quote($$WININSTALL)) $$escape_expand(\n\t)
 
         # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force --verbose 2 -gui -core -opengl $$shell_path($$quote($$WININSTALL))\lumberjack.exe $$escape_expand(\n\t)
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force --verbose 2 -gui -core $$shell_path($$quote($$WININSTALL))\lumberjack.exe $$escape_expand(\n\t)
 
         # Copy qwt .DLL
-        QMAKE_POST_LINK += $$QMAKE_COPY $$shell_path($$PWD)\qwt\lib\qwt.dll $$shell_path($$quote($$WININSTALL)) $$escape_expand(\n\t))
+        QMAKE_POST_LINK += $$QMAKE_COPY $$shell_path($$PWD)\qwt\lib\qwt.dll $$shell_path($$quote($$WININSTALL)) $$escape_expand(\n\t)
     }
 }
 
