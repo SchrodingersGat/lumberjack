@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include <qfile.h>
 #include <qelapsedtimer.h>
 #include <qprogressdialog.h>
@@ -76,6 +78,8 @@ QStringList CSVImporter::getSupportedFileTypes() const
 
 bool CSVImporter::setImportOptions()
 {
+    return true;
+
     // TODO - Set CSV import options
 
     auto *dlg = new CSVImportOptionsDialog(filename);
@@ -180,6 +184,8 @@ bool CSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& 
     else if (rowIndex == unitsRow)
     {
         // TODO - Extract units data
+
+        return true;
     }
     else
     {
@@ -219,10 +225,11 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
         // Check that we don't have a duplicate header already
         auto series = getSeriesByLabel(header);
 
-        if (!series.isNull())
+        while (!getSeriesByLabel(header).isNull())
         {
             // TODO: Do something about duplicate headers!
-            qWarning() << "Found duplicate header!";
+            qWarning() << "Found duplicate header:" << header;
+            header += "_2";
         }
 
         addSeries(header);
@@ -236,6 +243,7 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
 
 bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList &errors)
 {
+
     double timestamp = 0;
 
     QString text;
@@ -303,6 +311,70 @@ bool CSVImporter::extractTimestamp(int rowIndex, const QStringList &row, double 
     QString ts = row.at(timestampColumn);
 
     bool result = false;
+
+    // Convert from hh:mm::ss
+    if (ts.contains(":"))
+    {
+        QStringList hhmmss = ts.trimmed().split(":");
+
+        double t = 0;
+
+        double hh = 0;
+        double mm = 0;
+        double ss = 0;
+        double ms = 0;
+
+        bool hhOk = true;
+        bool mmOk = true;
+        bool ssOk = true;
+        bool msOk = true;
+
+        // Expected format is hh:mm:ss:ms
+
+        if (hhmmss.length() > 0)
+        {
+            hh = hhmmss[0].toDouble(&hhOk);
+        }
+
+        if (hhmmss.length() > 1)
+        {
+            mm = hhmmss[1].toDouble(&mmOk);
+        }
+
+        if (hhmmss.length() > 2)
+        {
+            ss = hhmmss[2].toDouble(&ssOk);
+        }
+
+        // Process milliseconds
+        if (hhmmss.length() > 3)
+        {
+            ms = hhmmss[3].toDouble(&msOk);
+
+            if (msOk)
+            {
+                // "Resolution" of milliseconds depends on the length of the provided string
+                ms /= pow(10, hhmmss[3].length());
+            }
+        }
+
+        if (hhOk && mmOk && ssOk && msOk)
+        {
+            t = ss;
+            t += (mm * 60);
+            t += (hh * 3600);
+            t += ms;
+
+            timestamp = t;
+
+            qDebug() << ts << "->" << timestamp;
+
+            return true;
+        }
+
+        return false;
+
+    }
 
     timestamp = ts.toDouble(&result);
 

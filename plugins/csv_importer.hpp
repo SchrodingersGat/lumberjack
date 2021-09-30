@@ -43,6 +43,13 @@ public:
     virtual bool setImportOptions() override;
     virtual bool loadDataFromFile(QStringList& errors) override;
 
+    enum TimestampFormat
+    {
+        SECONDS = 0,
+        MILLISECONDS = 1,
+        HHMMSS = 2,
+    };
+
 protected:
     // Import configuration options
     int timestampColumn = 0;
