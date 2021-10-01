@@ -93,6 +93,8 @@ double PlotWidget::getOldestTimestamp(bool *ok) const
 
         if (series.isNull()) continue;
 
+        if (!series->hasData()) continue;
+
         t = series->getOldestTimestamp();
 
         if (t < oldest)
