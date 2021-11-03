@@ -561,6 +561,7 @@ void PlotWidget::setBackgroundColor(QColor color)
     pen.setColor(inverse);
 
     crosshair->setLinePen(pen);
+    zoomer->setRubberBandPen(pen);
 
     replot();
 }
