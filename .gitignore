@@ -22,3 +22,6 @@ release
 unit_test/debug
 unit_test/release
 wininstall/
+
+# Project files, workspaces, etc
+.vscode/
