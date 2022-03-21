@@ -43,6 +43,11 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
     ui.columnDelimiter->addItem(tr("Pipe") + " - '|'");
     ui.columnDelimiter->addItem(tr("Space") + " - ''");
     ui.columnDelimiter->addItem(tr("Whitespace"));
+
+    // Timestamp format
+    ui.timestampFormat->addItem(tr("Seconds"), CSVImporter::SECONDS);
+    ui.timestampFormat->addItem(tr("Milliseconds"), CSVImporter::MILLISECONDS);
+    ui.timestampFormat->addItem(tr("hh:mm::ss"), CSVImporter::HHMMSS);
 }
 
 CSVImportOptionsDialog::~CSVImportOptionsDialog()

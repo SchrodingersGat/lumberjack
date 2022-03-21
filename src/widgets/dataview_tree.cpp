@@ -30,7 +30,13 @@ DataViewTree::~DataViewTree()
 
 void DataViewTree::setupTree()
 {
+    static bool configured = false;
+
     clear();
+
+    if (configured) return;
+
+    configured = true;
 
     QStringList labels;
 
@@ -196,6 +202,8 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 
 int DataViewTree::refresh(QString filters)
 {
+    setUpdatesEnabled(false);
+
     setupTree();
 
     // Save the filter text
@@ -256,6 +264,8 @@ int DataViewTree::refresh(QString filters)
             series_count++;
         }
     }
+
+    setUpdatesEnabled(true);
 
     expandAll();
 

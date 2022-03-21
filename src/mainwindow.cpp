@@ -47,49 +47,52 @@ MainWindow::MainWindow(QWidget *parent)
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
 
-    /*
-    manager->addSource(new DataSource("Source A"));
-    manager->addSource(new DataSource("Source B"));
-    manager->addSource(new DataSource("Source C"));
-    manager->addSource(new DataSource("Source D"));
+    // TODO: Add a command-line option for adding "demo" data
 
-    auto src = manager->getSourceByLabel("Source B");
-
-    src->addSeries(new DataSeries("Cat"));
-    src->addSeries(new DataSeries("Dog"));
-    src->addSeries(new DataSeries("Rat"));
-
-    auto *series = new DataSeries("My data");
-
-    for (int idx = 0; idx < 5000; idx += 50)
+    if (0)
     {
-        for (double t = -10; t <= 10; t += 0.01)
+
+        manager->addSource(new DataSource("Source A"));
+        manager->addSource(new DataSource("Source B"));
+        manager->addSource(new DataSource("Source C"));
+        manager->addSource(new DataSource("Source D"));
+
+        auto src = manager->getSourceByLabel("Source B");
+
+        src->addSeries(new DataSeries("Cat"));
+        src->addSeries(new DataSeries("Dog"));
+        src->addSeries(new DataSeries("Rat"));
+
+        auto *series = new DataSeries("My data");
+
+        for (int idx = 0; idx < 5000; idx += 50)
         {
-            series->addData(t + idx, (double) (rand() % 1000) - 500);
+            for (double t = -10; t <= 10; t += 0.01)
+            {
+                series->addData(t + idx, (double) (rand() % 1000) - 500);
+            }
+
+            src->getSeriesByLabel("Cat")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
+            src->getSeriesByLabel("Rat")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
+            src->getSeriesByLabel("Dog")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
         }
 
-        src->getSeriesByLabel("Cat")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
-        src->getSeriesByLabel("Rat")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
-        src->getSeriesByLabel("Dog")->addData(idx + rand() % 20 - 10, (double) (rand() % 500) - 250);
+        src->addSeries(series);
+
+        src = manager->getSourceByLabel("Source A");
+
+        auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
+        auto series_3 = QSharedPointer<DataSeries>(new DataSeries("Series 3"));
+
+        for (double t = 0; t < 100; t += 0.0001)
+        {
+            series_2->addData(t, 10 * cos(1 * t));
+            series_3->addData(t, 10 * sin(15 * t));
+        }
+
+        src->addSeries(series_2);
+        src->addSeries(series_3);
     }
-
-    src->addSeries(series);
-
-    src = manager->getSourceByLabel("Source A");
-
-    auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
-    auto series_3 = QSharedPointer<DataSeries>(new DataSeries("Series 3"));
-
-    for (double t = 0; t < 100; t += 0.0001)
-    {
-        series_2->addData(t, 10 * cos(1 * t));
-        series_3->addData(t, 10 * sin(15 * t));
-    }
-
-    src->addSeries(series_2);
-    src->addSeries(series_3);
-
-    */
 }
 
 
