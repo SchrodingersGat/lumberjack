@@ -34,16 +34,17 @@ void DataViewTree::setupTree()
 
     clear();
 
-    if (configured) return;
+//    if (configured) return;
 
     configured = true;
 
     QStringList labels;
 
-    setColumnCount(2);
+    setColumnCount(3);
 
     labels.append(tr("Label"));
     labels.append(tr("Data"));
+    labels.append("");
 
     setHeaderLabels(labels);
 
@@ -217,16 +218,16 @@ int DataViewTree::refresh(QString filters)
     {
         auto source = manager->getSourceByLabel(source_label);
 
+        QStringList labels = source->getSeriesLabels(filters);
+
         if (source.isNull()) continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
 
         item->setText(0, source_label);
-        item->setText(2, QString::number(source->getSeriesCount()));
+        item->setText(1, QString::number(labels.count()) + " series");
 
         int idx = topLevelItemCount();
-
-        QStringList labels = source->getSeriesLabels(filters);
 
         if (labels.isEmpty() && !filters.isEmpty())
         {
@@ -249,18 +250,8 @@ int DataViewTree::refresh(QString filters)
             // Series label
             child->setText(0, series->getLabel());
 
-            // Series color
-            QString color = series->getColor().name();
-
-            QString colorString = "<span style='background-color: " + color + "; color: " + color + ";'>---</span>";
-
-            // Series data
-            QLabel* colorLabel = new QLabel(QString::number(series->size()) + " " + colorString);
-
-            // Right-align
-            colorLabel->setAlignment(Qt::AlignRight);
-
-            setItemWidget(child, 1, colorLabel);
+            child->setText(1, QString::number(series->size()));
+            child->setBackground(2, series->getColor());
 
             item->addChild(child);
 
