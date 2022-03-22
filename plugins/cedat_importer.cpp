@@ -287,8 +287,6 @@ void CEDATImporter::processBlock()
                 blockData.count()
     );
 
-    t_cobbs += tim.nsecsElapsed();
-
     if (result.status != COBSR_DECODE_OK)
     {
         qWarning() << "cobsr_decode returned status " + QString::number(result.status);
@@ -301,7 +299,7 @@ void CEDATImporter::processBlock()
         return;
     }
 
-    processPacket(data);
+    processPacket(block_buffer, result.out_len);
 }
 
 
@@ -317,7 +315,8 @@ void CEDATImporter::processPacket(uint8_t *buffer, int length)
 
     if (!packet.valid)
     {
-        qWarning() << "Invalid packet:" << packetData.toHex(' ');
+        QByteArray pkt((char*) buffer, length);
+        qWarning() << "Invalid packet:" << pkt.toHex(' ');
         return;
     }
 

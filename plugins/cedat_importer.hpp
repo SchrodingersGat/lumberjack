@@ -47,7 +47,7 @@ public:
 protected:
     void processChunk(const QByteArray& chunk);
     void processBlock();
-    void processPacket(const QByteArray& packet);
+    void processPacket(uint8_t *buffer, int length);
 
     // A single "block" of data (separated in the file by zero)
     QByteArray blockData;
