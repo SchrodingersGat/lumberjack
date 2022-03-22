@@ -12,9 +12,9 @@
 #include "cedat_importer.hpp"
 
 // Simple fletcher checksum algorithm
-uint16_t  fletcher_encode(QByteArray data, uint32_t len);
+uint16_t  fletcher_encode(uint8_t *data, uint32_t len);
 
-uint16_t fletcher_encode(QByteArray data, uint32_t len)
+uint16_t fletcher_encode(uint8_t *data, uint32_t len)
 {
 
     uint32_t i = 0;
@@ -22,12 +22,10 @@ uint16_t fletcher_encode(QByteArray data, uint32_t len)
     unsigned char c1 = 0;
     uint16_t Checksum;
 
-    if (data.count() < len) len = data.count();
-
     // Calculate checksum intermediate bytes
     for( i = 0; i < len; i++)
     {
-        c0 = (unsigned char)(c0 + (unsigned char) data.at(i));
+        c0 = (unsigned char)(c0 + (unsigned char) data[i]);
         c1 = (unsigned char)(c1 + c0);
     }// for all the bytes
 
@@ -46,7 +44,7 @@ CEDATPacket::CEDATPacket()
 }
 
 
-CEDATPacket::CEDATPacket(QByteArray payload)
+CEDATPacket::CEDATPacket(uint8_t *buffer, int length)
 {
     /*
      * Construct a "CEDATPacket" object from incoming bytes:
@@ -63,32 +61,30 @@ CEDATPacket::CEDATPacket(QByteArray payload)
 
     reset();
 
-    const int n = payload.count();
-
     int offset = 0;
 
-    if (n < 6)
+    if (length < 6)
     {
-        qWarning() << "CEDATPacket constructor called with only " + QString::number(n) + " bytes";
+        qWarning() << "CEDATPacket constructor called with only " + QString::number(length) + " bytes";
         return;
     }
 
     // Extract packet type and packet flags
-    pktType = payload[0] & 0xFF;
-    pktFlags = payload[1] & 0xFF;
+    pktType = buffer[0] & 0xFF;
+    pktFlags = buffer[1] & 0xFF;
 
     // How many timestamp bytes?
     int nTsBytes = pktFlags & 0x0F;
 
-    if (n < (6 + nTsBytes))
+    if (length < (6 + nTsBytes))
     {
-        qWarning() << "CEDATPacket called with insufficient bytes after timestamp (" + QString::number(n) + ")";
+        qWarning() << "CEDATPacket called with insufficient bytes after timestamp (" + QString::number(length) + ")";
         return;
     }
 
     for (int ii = 0; ii < nTsBytes; ii++)
     {
-        uint8_t tsByte = payload[2 + ii];
+        uint8_t tsByte = buffer[2 + ii];
 
         // Timestamp is "little endian" encoded
         pktTimestamp += ((uint64_t) tsByte & 0xFF) << (8 * ii);
@@ -97,33 +93,35 @@ CEDATPacket::CEDATPacket(QByteArray payload)
     offset = nTsBytes + 2;
 
     // Packet length is "big endian" encoded
-    pktLength  = (uint16_t) (payload[offset++] & 0xFF) << 8;
-    pktLength += (uint16_t) (payload[offset++] & 0xFF);
+    pktLength  = (uint16_t) (buffer[offset++] & 0xFF) << 8;
+    pktLength += (uint16_t) (buffer[offset++] & 0xFF);
 
-    if (n < (6 + nTsBytes + pktLength))
+    if (length < (6 + nTsBytes + pktLength))
     {
-        qWarning() << "CEDATPacket called with insufficient bytes after length (" + QString::number(n) + ")";
+        qWarning() << "CEDATPacket called with insufficient bytes after length (" + QString::number(length) + ")";
         return;
     }
 
     for (int idx = 0; idx < pktLength; idx++)
     {
-        pktData[idx] = payload[offset++] & 0xFF;
+        pktData[idx] = buffer[offset++] & 0xFF;
     }
 
     // Calculate the checksum across number of bytes received so far
-    uint16_t checksum = fletcher_encode(payload, offset);
+    uint16_t checksum = fletcher_encode(buffer, offset);
 
     // Calculate checksum - "big endian" encoded
-    pktChecksum  = (uint16_t) (payload[offset++] & 0xFF) << 8;
-    pktChecksum += (uint16_t) (payload[offset++] & 0xFF);
+    pktChecksum  = (uint16_t) (buffer[offset++] & 0xFF) << 8;
+    pktChecksum += (uint16_t) (buffer[offset++] & 0xFF);
 
     valid = pktChecksum == checksum;
 
     if (!valid)
     {
         qWarning() << "Checksum mismatch:" << QString::number(pktChecksum, 16) << QString::number(checksum, 16);
-        qWarning() << "Payload:" << payload.toHex(' ');
+
+        QByteArray pkt((char*) buffer, length);
+        qWarning() << "Payload:" << pkt.toHex(' ');
     }
 }
 
@@ -274,21 +272,22 @@ void CEDATImporter::processChunk(const QByteArray& chunk)
  */
 void CEDATImporter::processBlock()
 {
+    // Allocate a buffer for decoding cobs data
+    static uint8_t block_buffer[CEDAT_PKT_SIZE_MAX];
+
     // Ignore empty block
     if (blockData.isEmpty()) return;
 
-    // Construct an empty byte array for cobsr decoded data
-    QByteArray data(blockData.count(), 0x00);
 
     // Cobbs-decode the data
     auto result = cobsr_decode(
-                reinterpret_cast<uint8_t*>(data.data()),
-                data.count(),
+                block_buffer,
+                CEDAT_PKT_SIZE_MAX,
                 reinterpret_cast<const uint8_t*>(blockData.constData()),
                 blockData.count()
     );
 
-    data.truncate(result.out_len);
+    t_cobbs += tim.nsecsElapsed();
 
     if (result.status != COBSR_DECODE_OK)
     {
@@ -306,10 +305,10 @@ void CEDATImporter::processBlock()
 }
 
 
-void CEDATImporter::processPacket(const QByteArray &packetData)
+void CEDATImporter::processPacket(uint8_t *buffer, int length)
 {
     // Convert the QByteArray data into a structured packet
-    CEDATPacket packet(packetData);
+    CEDATPacket packet(buffer, length);
 
     // Various data structures
     CEDAT_NewLogVariable_t newVariable;

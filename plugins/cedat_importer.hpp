@@ -8,13 +8,16 @@
 #include "CEDATProtocol.hpp"
 
 
+#define CEDAT_PKT_SIZE_MAX 1040
+
+
 class CEDATPacket
 {
 public:
     CEDATPacket();
-    CEDATPacket(QByteArray payload);
+    CEDATPacket(uint8_t *buffer, int length);
 
-    uint8_t pktData[1040];
+    uint8_t pktData[CEDAT_PKT_SIZE_MAX];
     uint8_t pktType = 0;
     uint8_t pktFlags = 0;
     uint16_t pktLength = 0;
@@ -50,7 +53,7 @@ protected:
     QByteArray blockData;
 
     // Keep an internal map of variable IDs for matching to existing data series
-    QMap<int, QString> variableMap;
+    QMap<int, QSharedPointer<DataSeries>> variableMap;
 };
 
 

@@ -68,7 +68,8 @@ protected:
     //! Cursor for selecting next color
     int color_wheel_cursor = 0;
 
-    QVector<QSharedPointer<DataSeries>> data_series;
+    // Keep a map of label:series for efficient lookup
+    QMap<QString, QSharedPointer<DataSeries>> data_series;
 };
 
 
