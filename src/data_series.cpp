@@ -133,7 +133,7 @@ void DataSeries::setColor(QColor c)
 
 DataSeries::~DataSeries()
 {
-    qDebug() << "~DataSeries" << label;
+//    qDebug() << "~DataSeries" << label;
     clearData(false);
 }
 
@@ -160,13 +160,13 @@ QRectF DataSeries::getBounds() const
 }
 
 
-QVector<DataPoint> DataSeries::getData(void) const
+std::vector<DataPoint> DataSeries::getData(void) const
 {
     return data;
 }
 
 
-QVector<DataPoint> DataSeries::getData(double t_min, double t_max) const
+std::vector<DataPoint> DataSeries::getData(double t_min, double t_max) const
 {
     // Ensure that the timestamps are the right way around!
     if (t_min > t_max)
@@ -181,7 +181,17 @@ QVector<DataPoint> DataSeries::getData(double t_min, double t_max) const
     auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
     auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
 
-    return data.mid(idx_min, idx_max - idx_min);
+    // Construct a subset of the data
+    std::vector<DataPoint> subset;
+
+    subset.resize(idx_max - idx_min + 2);
+
+    for (uint64_t idx = idx_min; idx <= idx_max; idx++)
+    {
+        subset.push_back(data[idx]);
+    }
+
+    return subset;
 }
 
 
@@ -217,7 +227,8 @@ void DataSeries::addData(DataPoint point, bool do_update)
 {
     data_mutex.lock();
 
-    if (size() == 0 || point.timestamp > getNewestTimestamp())
+    // If the new datapoint is of equal or greater timestamp value, simply append!
+    if (size() == 0 || point.timestamp >= getNewestTimestamp())
     {
         data.push_back(point);
     }
@@ -257,9 +268,18 @@ void DataSeries::clipTimeRange(double t_min, double t_max, bool do_update)
     auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
     auto idx_max = getIndexForTimestamp(t_max, SEARCH_LEFT_TO_RIGHT);
 
-    auto span = idx_max - idx_min;
+    // Construct a subset of the data
+    std::vector<DataPoint> subset;
 
-    data = data.mid(idx_min, span);
+    subset.resize(idx_max - idx_min + 2);
+
+    for (uint64_t idx = idx_min; idx <= idx_max; idx++)
+    {
+        subset.push_back(data[idx]);
+    }
+
+    // Override original data
+    data = subset;
 
     if (do_update)
     {

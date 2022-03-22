@@ -134,7 +134,7 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
         return false;
     }
 
-    for (auto s: data_series)
+    for (auto s : data_series.values())
     {
         if (s == series)
         {
@@ -143,7 +143,7 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
         }
     }
 
-    data_series.push_back(series);
+    data_series[series->getLabel()] = series;
 
     if (auto_color)
     {
@@ -183,22 +183,25 @@ bool DataSource::addSeries(QString label, bool auto_color)
  */
 QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
 {
-    if (index < data_series.size())
+    QList<QString> keys = data_series.keys();
+
+    if (index < (unsigned int) keys.length())
     {
-        return data_series.at(index);
+        return data_series[keys[index]];
     }
 
+    // No match found
     return QSharedPointer<DataSeries>(nullptr);
 }
 
 
 bool DataSource::removeSeries(QSharedPointer<DataSeries> series, bool update)
 {
-    for (int idx = 0; idx < data_series.size(); idx++)
+    for (QString label : data_series.keys())
     {
-        if (series == data_series.at(idx))
+        if (data_series.value(label) == series)
         {
-            removeSeriesByIndex(idx);
+            data_series.remove(label);
 
             if (update)
             {
@@ -209,24 +212,7 @@ bool DataSource::removeSeries(QSharedPointer<DataSeries> series, bool update)
         }
     }
 
-    return false;
-}
-
-
-bool DataSource::removeSeriesByIndex(unsigned int index, bool update)
-{
-    if (index < data_series.size())
-    {
-        data_series.removeAt(index);
-
-        if (update)
-        {
-            emit dataChanged();
-        }
-
-        return true;
-    }
-
+    // No matching series found
     return false;
 }
 
@@ -238,47 +224,39 @@ bool DataSource::removeSeriesByIndex(unsigned int index, bool update)
  */
 QSharedPointer<DataSeries> DataSource::getSeriesByLabel(QString label)
 {
-    for (auto s : data_series)
+    if (data_series.contains(label))
     {
-        if (!s.isNull() && s->getLabel() == label)
-        {
-            return s;
-        }
+        return data_series[label];
     }
 
+    // No match found - return a null series
     return QSharedPointer<DataSeries>(nullptr);
 }
 
 
 bool DataSource::removeSeriesByLabel(QString label, bool update)
 {
-    for (int idx = 0; idx < data_series.size(); idx++)
+    if (data_series.contains(label))
     {
-        auto series = data_series.at(idx);
+        data_series.remove(label);
 
-        if (!series.isNull() && (*series).getLabel() == label)
+        if (update)
         {
-            data_series.removeAt(idx);
-
-            if (update)
-            {
-                emit dataChanged();
-            }
-
-            return true;
+            emit dataChanged();
         }
-    }
 
-    return false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
 void DataSource::removeAllSeries(bool update)
 {
-    while (data_series.count() > 0)
-    {
-        removeSeriesByIndex(0, false);
-    }
+    data_series.clear();
 
     if (update)
     {

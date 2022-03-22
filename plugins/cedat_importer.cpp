@@ -338,7 +338,8 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
         series->setLabel(label);
         series->setUnits(newVariable.units);
 
-        variableMap[newVariable.variableId] = label;
+        // Store a local copy of this data series, for "immediate" access
+        variableMap[newVariable.variableId] = QSharedPointer<DataSeries>(series);
 
         addSeries(series);
     }
@@ -346,9 +347,8 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
     {
         if (variableMap.contains(newDataFloat.variableId))
         {
-            QString label = variableMap[newDataFloat.variableId];
 
-            auto series = getSeriesByLabel(label);
+            auto series = variableMap[newDataFloat.variableId];
 
             if (!series.isNull())
             {
@@ -365,9 +365,8 @@ void CEDATImporter::processPacket(const QByteArray &packetData)
     {
         if (variableMap.contains(newDataBoolean.variableId))
         {
-            QString label = variableMap[newDataBoolean.variableId];
 
-            auto series = getSeriesByLabel(label);
+            auto series = variableMap[newDataBoolean.variableId];
 
             if (!series.isNull())
             {

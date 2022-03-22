@@ -4,6 +4,7 @@
 #include <qdebug.h>
 #include <qobject.h>
 #include <qvector.h>
+#include <vector>
 #include <qmutex.h>
 #include <QRectF>
 #include <QColor>
@@ -151,8 +152,8 @@ public:
 
     QRectF getBounds(void) const;
 
-    QVector<DataPoint> getData() const;
-    QVector<DataPoint> getData(double t_min, double t_max) const;
+    std::vector<DataPoint> getData() const;
+    std::vector<DataPoint> getData(double t_min, double t_max) const;
 
     const DataPoint getDataPoint(uint64_t idx) const;
     double getTimestamp(uint64_t idx) const;
@@ -193,7 +194,7 @@ signals:
 
 protected:
 
-    QVector<DataPoint> data;
+    std::vector<DataPoint> data;
 
     //! mutex for controlling data access
     mutable QMutex data_mutex;
