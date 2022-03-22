@@ -235,13 +235,16 @@ int DataViewTree::refresh(QString filters)
 
         insertTopLevelItem(idx, item);
 
+        // Construct a flat list of childItems to add to the tree in a single operation
+        QList<QTreeWidgetItem*> childItems;
+
         for (QString series_label : labels)
         {
             auto series = source->getSeriesByLabel(series_label);
 
             if (series.isNull()) continue;
 
-            QTreeWidgetItem *child = new QTreeWidgetItem(item);
+            QTreeWidgetItem *child = new QTreeWidgetItem();
 
             // Series label
             child->setText(0, series->getLabel());
@@ -263,6 +266,8 @@ int DataViewTree::refresh(QString filters)
 
             series_count++;
         }
+
+        item->addChildren(childItems);
     }
 
     setUpdatesEnabled(true);
