@@ -200,7 +200,6 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
     const int CHUNK_SIZE = 4096;
 
     qint64 byte_count = 0;
-    qint64 chunk_count = 0;
 
     QByteArray chunk;
 
@@ -209,7 +208,6 @@ bool CEDATImporter::loadDataFromFile(QStringList &errors)
     {
         chunk = f.read(CHUNK_SIZE);
 
-        chunk_count += 1;
         byte_count += chunk.size();
 
         if (chunk.size() > 0)
