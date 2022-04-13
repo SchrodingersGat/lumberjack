@@ -106,7 +106,9 @@ protected:
     void initCrosshairs(void);
     void initGrid(void);
 
-    void resampleCurves(int axis_id=yBoth);
+    void resampleCurves(int axis_id = yBoth);
+
+    void updateCursorShape(QMouseEvent *event = nullptr);
 
     void updateCurrentView();
     void updateTimestampLimits();
