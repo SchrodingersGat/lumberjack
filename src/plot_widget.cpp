@@ -1077,6 +1077,8 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
+    auto modifidiers = QApplication::keyboardModifiers();
+
     /* Middle-mouse + drag is (normally) handled by the PlotPanner class.
      * However this does *not* work for dragging individual axes.
      */
@@ -1084,6 +1086,27 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
     if (event->buttons() & Qt::MiddleButton)
     {
         handleMiddleMouseDrag(event);
+    }
+    else
+    {
+        Qt::CursorShape cursorShape = Qt::CrossCursor;
+
+        if (modifidiers == Qt::ShiftModifier)
+        {
+            // Horizontal modifier
+            cursorShape = Qt::SizeHorCursor;
+        }
+        else if (modifidiers == Qt::ControlModifier)
+        {
+            // Vertical modifier
+            cursorShape = Qt::SizeVerCursor;
+        }
+
+        if (canvas()->cursor() != cursorShape)
+        {
+            canvas()->setCursor(cursorShape);
+        }
+
     }
 
     double x = canvas_pos.x();
@@ -1158,6 +1181,8 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
 
 void PlotWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event)
+
     // Return to normal cursor
     if (canvas()->cursor() != Qt::CrossCursor)
     {
