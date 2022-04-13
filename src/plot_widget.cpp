@@ -1031,6 +1031,8 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 
     }
 
+    updateCursorShape();
+
     replot();
 }
 
@@ -1077,7 +1079,7 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
-    auto modifidiers = QApplication::keyboardModifiers();
+    updateCursorShape(event);
 
     /* Middle-mouse + drag is (normally) handled by the PlotPanner class.
      * However this does *not* work for dragging individual axes.
@@ -1086,27 +1088,6 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
     if (event->buttons() & Qt::MiddleButton)
     {
         handleMiddleMouseDrag(event);
-    }
-    else
-    {
-        Qt::CursorShape cursorShape = Qt::CrossCursor;
-
-        if (modifidiers == Qt::ShiftModifier)
-        {
-            // Horizontal modifier
-            cursorShape = Qt::SizeHorCursor;
-        }
-        else if (modifidiers == Qt::ControlModifier)
-        {
-            // Vertical modifier
-            cursorShape = Qt::SizeVerCursor;
-        }
-
-        if (canvas()->cursor() != cursorShape)
-        {
-            canvas()->setCursor(cursorShape);
-        }
-
     }
 
     double x = canvas_pos.x();
@@ -1173,21 +1154,15 @@ void PlotWidget::mousePressEvent(QMouseEvent *event)
     else if (event->buttons() & Qt::MiddleButton)
     {
         middleMouseStartPoint = canvas_pos;
-
-        canvas()->setCursor(Qt::SizeAllCursor);
     }
+
+    updateCursorShape(event);
 }
 
 
 void PlotWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event)
-
-    // Return to normal cursor
-    if (canvas()->cursor() != Qt::CrossCursor)
-    {
-        canvas()->setCursor(Qt::CrossCursor);
-    }
+    updateCursorShape(event);
 }
 
 
@@ -1199,11 +1174,11 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
 
+    updateCursorShape(event);
+
     // Middle button auto-scales graph
     if (event->button() == Qt::MiddleButton)
     {
-        canvas()->setCursor(Qt::SizeAllCursor);
-
         int axis_id = yBoth;
 
         if (canvas_pos.y() < 0)
@@ -1245,6 +1220,45 @@ void PlotWidget::mouseDoubleClickEvent(QMouseEvent *event)
         {
             editAxisScale(QwtPlot::xBottom);
         }
+    }
+}
+
+
+/**
+ * @brief PlotWidget::updateCursorShape updates the mouse cursor shape based on user intent
+ *
+ * - Shift modifier = horizontal adjust
+ * - Control modifier = vertical adjust
+ * - Middle mouse press = pan
+ */
+void PlotWidget::updateCursorShape(QMouseEvent *event)
+{
+    // Default shape unless otherwise modified
+    Qt::CursorShape shape = Qt::CrossCursor;
+
+    auto modifiers = QApplication::keyboardModifiers();
+
+    if (event && (event->buttons() & Qt::MiddleButton))
+    {
+        shape = Qt::SizeAllCursor;
+    }
+
+    else
+    {
+        if (modifiers == Qt::ShiftModifier)
+        {
+            shape = Qt::SizeHorCursor;
+        }
+        else if (modifiers == Qt::ControlModifier)
+        {
+            shape = Qt::SizeVerCursor;
+        }
+    }
+
+    // Update cursor shape if it is different
+    if (canvas()->cursor() != shape)
+    {
+        canvas()->setCursor(shape);
     }
 }
 
