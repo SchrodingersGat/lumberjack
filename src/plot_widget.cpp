@@ -15,6 +15,7 @@
 
 #include "data_source.hpp"
 #include "plot_widget.hpp"
+#include "lumberjack_settings.hpp"
 
 
 PlotWidget::PlotWidget() : QwtPlot()
@@ -43,6 +44,17 @@ PlotWidget::PlotWidget() : QwtPlot()
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(this, &PlotWidget::customContextMenuRequested, this, &PlotWidget::onContextMenu);
+
+    // Load graph widget settings
+
+    auto *settings = LumberjackSettings::getInstance();
+
+    QString bgColor = settings->loadSetting("graph", "defaultBackgroundColor", "#F0F0F0").toString();
+
+    if (QColor::isValidColor(bgColor))
+    {
+        setBackgroundColor(QColor(bgColor));
+    }
 }
 
 PlotWidget::~PlotWidget()
@@ -501,6 +513,11 @@ void PlotWidget::selectBackgroundColor()
     if (ok)
     {
         setBackgroundColor(c);
+
+        auto *settings = LumberjackSettings::getInstance();
+
+        // Save the background color as 'default'
+        settings->saveSetting("graph", "defaultBackgroundColor", c.name());
     }
 }
 
