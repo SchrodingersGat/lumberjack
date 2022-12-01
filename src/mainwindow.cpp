@@ -129,6 +129,7 @@ void MainWindow::saveWorkspaceSettings()
     settings->saveSetting("mainwindow", "showDataView", dataView.isVisible());
     settings->saveSetting("mainwindow", "showTimelineView", timelineView.isVisible());
     settings->saveSetting("mainwindow", "showStatsView", statsView.isVisible());
+    settings->saveSetting("mainwindow", "showDebugView", debugWidget.isVisible());
 }
 
 
@@ -141,6 +142,7 @@ void MainWindow::initMenus()
     connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
 
     connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
+    connect(ui->action_Debug, &QAction::triggered, this, &MainWindow::toggleDebugView);
 
     connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
 
@@ -174,6 +176,11 @@ void MainWindow::initDocks()
     if (settings->loadBoolean("mainwindow", "showTimelineView"))
     {
         toggleTimelineView();
+    }
+
+    if (settings->loadBoolean("mainwindow", "showDebugView"))
+    {
+        toggleDebugView();
     }
 }
 
@@ -276,6 +283,30 @@ void MainWindow::showAboutInfo()
     AboutDialog dlg;
 
     dlg.exec();
+}
+
+
+/*
+ * Toggle display of the "Debug" window
+ */
+void MainWindow::toggleDebugView()
+{
+    ui->action_Debug->setCheckable(true);
+
+    if (debugWidget.isVisible())
+    {
+        hideDockedWidget(&debugWidget);
+        ui->action_Debug->setChecked(false);
+    }
+    else
+    {
+        QDockWidget *dock = new QDockWidget(tr("Debug View"), this);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setWidget(&debugWidget);
+
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+        ui->action_Debug->setChecked(true);
+    }
 }
 
 

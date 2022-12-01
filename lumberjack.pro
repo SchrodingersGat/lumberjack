@@ -49,6 +49,7 @@ SOURCES += \
     src/widgets/datatable_widget.cpp \
     src/widgets/dataview_tree.cpp \
     src/widgets/dataview_widget.cpp \
+    src/widgets/debug_widget.cpp \
     src/widgets/series_editor_dialog.cpp \
     src/widgets/stats_widget.cpp \
     src/widgets/timeline_widget.cpp
@@ -78,6 +79,7 @@ HEADERS += \
     src/widgets/datatable_widget.hpp \
     src/widgets/dataview_tree.hpp \
     src/widgets/dataview_widget.hpp \
+    src/widgets/debug_widget.hpp \
     src/widgets/series_editor_dialog.hpp \
     src/widgets/stats_widget.hpp \
     src/widgets/timeline_widget.hpp
@@ -88,6 +90,7 @@ FORMS += \
     ui/csv_import_options.ui \
     ui/curve_editor_dialog.ui \
     ui/dataview_widget.ui \
+    ui/debug_widget.ui \
     ui/mainwindow.ui \
     ui/stats_view.ui
 

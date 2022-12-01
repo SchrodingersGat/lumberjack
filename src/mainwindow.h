@@ -7,10 +7,12 @@
 #include "data_series.hpp"
 #include "plot_curve.hpp"
 
+#include "debug_widget.hpp"
 #include "plot_widget.hpp"
 #include "stats_widget.hpp"
 #include "dataview_widget.hpp"
 #include "timeline_widget.hpp"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -52,6 +54,7 @@ protected slots:
 
     void showAboutInfo(void);
 
+    void toggleDebugView(void);
     void toggleDataView(void);
     void toggleTimelineView(void);
     void toggleStatisticsView(void);
@@ -71,6 +74,8 @@ private:
     DataviewWidget dataView;
     StatsWidget statsView;
     TimelineWidget timelineView;
+
+    DebugWidget debugWidget;
 
 };
 #endif // MAINWINDOW_H
