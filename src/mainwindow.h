@@ -32,8 +32,7 @@ public slots:
 
     void onTimescaleChanged(const QwtInterval &view);
     void updateCursorPos(double t, double y1, double y2);
-
-    void loadDroppedFile(QString filename);
+    void loadDataFromFile(QString filename);
 
 protected:
     void initMenus(void);
@@ -41,7 +40,7 @@ protected:
     void initSignalsSlots(void);
     void initStatusBar(void);
 
-    void importData(void);
+    QList<QSharedPointer<FileDataSource>> getFileImporters();
 
     void loadWorkspaceSettings(void);
     void saveWorkspaceSettings(void);
@@ -53,6 +52,9 @@ protected:
 protected slots:
 
     void showAboutInfo(void);
+
+    void importData(void);
+    void loadDroppedFile(QString filename);
 
     void toggleDebugView(void);
     void toggleDataView(void);

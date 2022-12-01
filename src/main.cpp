@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     // Import data from specified files
     for (auto file : parser.values(loadFilesOption))
     {
-        w.loadDroppedFile(file);
+        w.loadDataFromFile(file);
     }
 
     return a.exec();

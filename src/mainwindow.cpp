@@ -316,45 +316,74 @@ void MainWindow::toggleDebugView()
 void MainWindow::loadDroppedFile(QString filename)
 {
     qDebug() << "MainWindow::loadDroppedFile" << filename;
+    loadDataFromFile(filename);
+}
 
-    // Determine which loader plugin to use
-    // Get list of available importers
 
-    // TODO: In the future, push this off to a "plugin" module!!
+/*
+ * Construct a list of available data file importer classes
+ */
+QList<QSharedPointer<FileDataSource>> MainWindow::getFileImporters()
+{
+    // TODO: In the future this should hook into the plugin architecture
 
     QList<QSharedPointer<FileDataSource>> sources;
 
     sources.append(QSharedPointer<FileDataSource>(new CSVImporter()));
     sources.append(QSharedPointer<FileDataSource>(new CEDATImporter()));
 
-    // For now, use the first available plugin
-    // TODO: In the future, handle multiple plugin matches
+    return sources;
+}
 
-    QFileInfo info(filename);
 
-    QString extension = info.suffix();
+void MainWindow::loadDataFromFile(QString filename)
+{
+    qDebug() << "loadDataFromFile:" << filename;
 
-    // TODO: Display errors
+    auto *settings = LumberjackSettings::getInstance();
+
+    // Record the directory this file was loaded from
+    QFileInfo fi(filename);
+    settings->saveSetting("import", "lastDirectory", fi.absoluteDir().absolutePath());
+
+    auto sources = getFileImporters();
+
     QStringList errors;
+    bool matched = false;
+    bool loaded = false;
 
     for (auto source : sources)
     {
-        if (source->supportsFileType(extension))
+        if (source.isNull()) continue;
+
+        if (source->supportsFileType(fi.suffix()))
         {
-            bool result = source->loadData(filename, errors);
+            matched = true;
 
-            if (errors.length() > 0)
-            {
-                for (auto error : errors)
-                {
-                    qWarning() << error;
-                }
-            }
+            loaded = source->loadData(filename, errors);
 
-            if (result)
+            if (loaded)
             {
                 DataSourceManager::getInstance()->addSource(source);
+                break;
             }
+        }
+    }
+
+    if (!matched)
+    {
+        qWarning() << "No importer class found for" << filename;
+    }
+    else if (!loaded)
+    {
+        qCritical() << "File could not be loaded" << filename;
+    }
+
+    if (errors.length() > 0)
+    {
+        for (auto error : errors)
+        {
+            qWarning() << error;
         }
     }
 }
@@ -367,17 +396,7 @@ void MainWindow::importData()
 {
     auto *settings = LumberjackSettings::getInstance();
 
-    // Get list of available importers
-
-    // TODO: In the future, push this off to a "plugin" module!!
-
-    QList<QSharedPointer<FileDataSource>> sources;
-
-    sources.append(QSharedPointer<FileDataSource>(new CSVImporter()));
-    sources.append(QSharedPointer<FileDataSource>(new CEDATImporter()));
-
-    // Assemble list of available files
-
+    auto sources = getFileImporters();
     // Assemble set of supported file types
     QStringList supportedFileTypes;
 
@@ -433,27 +452,7 @@ void MainWindow::importData()
 
     QString filename = files.first();
 
-    // Record the directory this file was loaded from
-    QFileInfo fi(filename);
-    settings->saveSetting("import", "lastDirectory", fi.absoluteDir().absolutePath());
-
-    for (auto source : sources)
-    {
-        if (!source.isNull() && source->getFilePattern() == filter)
-        {
-            // TODO: Support cases where multiple plugins may match the same file extension
-
-            QStringList errors;
-
-            bool result = source->loadData(filename, errors);
-
-            // Add the loaded data to the DataSourceManager
-            if (result)
-            {
-                DataSourceManager::getInstance()->addSource(source);
-            }
-        }
-    }
+    loadDataFromFile(filename);
 }
 
 
