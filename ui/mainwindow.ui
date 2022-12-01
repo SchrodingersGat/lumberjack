@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -41,6 +41,8 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="action_About"/>
+    <addaction name="separator"/>
+    <addaction name="action_Debug"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -95,6 +97,11 @@
   <action name="action_Import_Data">
    <property name="text">
     <string>&amp;Import Data</string>
+   </property>
+  </action>
+  <action name="action_Debug">
+   <property name="text">
+    <string>&amp;Debug</string>
    </property>
   </action>
  </widget>

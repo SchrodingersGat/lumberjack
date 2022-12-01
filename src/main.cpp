@@ -2,6 +2,7 @@
 #include <qcommandlineparser.h>
 #include <qcommandlineoption.h>
 
+#include "lumberjack_debug.hpp"
 #include "lumberjack_version.hpp"
 
 #include "mainwindow.h"
@@ -10,6 +11,9 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    // Install custom debug handler
+    registerLumberjackDebugHandler();
 
     // Configure application properties
     a.setApplicationName("lumberjack");
@@ -34,19 +38,22 @@ int main(int argc, char *argv[])
 
     parser.process(a);
 
+    qDebug() << "Starting lumberjack application:" << LUMBERJACK_VERSION_STRING;
+
     MainWindow w;
     w.show();
 
     // Load dummy data if required
     if (parser.isSet(dummyDataOption))
     {
+        qDebug() << "Loading dummy data";
         w.loadDummyData();
     }
 
     // Import data from specified files
     for (auto file : parser.values(loadFilesOption))
     {
-        w.loadDroppedFile(file);
+        w.loadDataFromFile(file);
     }
 
     return a.exec();

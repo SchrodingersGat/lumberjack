@@ -29,6 +29,7 @@ SOURCES += \
     src/helpers.cpp \
     src/data_series.cpp \
     src/data_source.cpp \
+    src/lumberjack_debug.cpp \
     src/lumberjack_settings.cpp \
     src/plot_curve.cpp \
     src/plot_widget.cpp \
@@ -49,6 +50,7 @@ SOURCES += \
     src/widgets/datatable_widget.cpp \
     src/widgets/dataview_tree.cpp \
     src/widgets/dataview_widget.cpp \
+    src/widgets/debug_widget.cpp \
     src/widgets/series_editor_dialog.cpp \
     src/widgets/stats_widget.cpp \
     src/widgets/timeline_widget.cpp
@@ -57,6 +59,7 @@ HEADERS += \
     src/helpers.hpp \
     src/data_series.hpp \
     src/data_source.hpp \
+    src/lumberjack_debug.hpp \
     src/lumberjack_settings.hpp \
     src/lumberjack_version.hpp \
     src/plot_curve.hpp \
@@ -78,6 +81,7 @@ HEADERS += \
     src/widgets/datatable_widget.hpp \
     src/widgets/dataview_tree.hpp \
     src/widgets/dataview_widget.hpp \
+    src/widgets/debug_widget.hpp \
     src/widgets/series_editor_dialog.hpp \
     src/widgets/stats_widget.hpp \
     src/widgets/timeline_widget.hpp
@@ -88,6 +92,7 @@ FORMS += \
     ui/csv_import_options.ui \
     ui/curve_editor_dialog.ui \
     ui/dataview_widget.ui \
+    ui/debug_widget.ui \
     ui/mainwindow.ui \
     ui/stats_view.ui
 
