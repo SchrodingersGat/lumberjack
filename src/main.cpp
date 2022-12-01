@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     parser.process(a);
 
     // Install custom debug handler
-    qInstallMessageHandler(lumberjackDebugHandler);
+    registerLumberjackDebugHandler();
 
     MainWindow w;
     w.show();

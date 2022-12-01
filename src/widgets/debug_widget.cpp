@@ -1,3 +1,5 @@
+#include <qscrollbar.h>
+
 #include "debug_widget.hpp"
 
 #include "lumberjack_debug.hpp"
@@ -16,6 +18,21 @@ DebugWidget::DebugWidget(QWidget *parent) : QWidget(parent)
     connect(ui.showWarning, &QCheckBox::released, this, &DebugWidget::debugPreferencesChanged);
     connect(ui.showInfo, &QCheckBox::released, this, &DebugWidget::debugPreferencesChanged);
     connect(ui.showDebug, &QCheckBox::released, this, &DebugWidget::debugPreferencesChanged);
+
+    auto *settings = LumberjackSettings().getInstance();
+
+    ui.showFatal->setChecked(settings->loadBoolean("debug", "showFatal"));
+    ui.showCritical->setChecked(settings->loadBoolean("debug", "showCritical"));
+    ui.showWarning->setChecked(settings->loadBoolean("debug", "showWarning"));
+    ui.showInfo->setChecked(settings->loadBoolean("debug", "showInfo"));
+    ui.showDebug->setChecked(settings->loadBoolean("debug", "showDebug"));
+
+    updateDebugMessages();
+
+    // Periodically refresh messages
+    updateTimer = new QTimer(this);
+    connect(updateTimer, &QTimer::timeout, this, &DebugWidget::updateDebugMessages);
+    updateTimer->start(250);
 }
 
 
@@ -38,18 +55,90 @@ void DebugWidget::debugPreferencesChanged()
 
 void DebugWidget::updateDebugMessages()
 {
-    auto messages = getLumberjackDebugMessages();
-
-    ui.debug->clear();
+    auto messages = getLumberjackDebugMessages(latestTimestamp);
 
     for (auto &msg : messages)
     {
-        ui.debug->append(msg.message);
+        qint64 t = msg.timestamp;
+
+        latestTimestamp = t;
+
+        // Extract timestamp
+        QString text;
+
+        // Milliseconds
+        text += "." + QString::number(t % 1000).rightJustified(3, '0');
+        t /= 1000;
+
+        // Seconds
+        text = ":" + QString::number(t % 60).rightJustified(2, '0') + text;
+        t /= 60;
+
+        // Minutes
+        text = ":" + QString::number(t % 60).rightJustified(2, '0') + text;
+        t /= 60;
+
+        // Hours
+        text = QString::number(t) + text;
+
+        text += " - ";
+        text += msg.message;
+        text += "<br>";
+
+        addDebugMessage(msg.messageType, text);
     }
+}
+
+
+/*
+ * Append a single debug message to the display
+ */
+void DebugWidget::addDebugMessage(QtMsgType type, QString &msg)
+{
+    QString color = "black";
+
+    switch (type)
+    {
+    case QtMsgType::QtCriticalMsg:
+        color = "red";
+        break;
+    case QtMsgType::QtFatalMsg:
+        color = "orange";
+        break;
+    case QtMsgType::QtWarningMsg:
+        color = "yellow";
+        break;
+    case QtMsgType::QtInfoMsg:
+        color = "blue";
+        break;
+    case QtMsgType::QtDebugMsg:
+        color = "green";
+        break;
+    default:
+        break;
+    }
+
+    QString html;
+
+    html += "<font color='" + color + "'>";
+    html += msg;
+    html += "</font>";
+
+    ui.debugConsole->insertHtml(html);
+
+    QTextCursor cursor = ui.debugConsole->textCursor();
+    cursor.movePosition(QTextCursor::End);
+
+    // Scroll to the bottom of the window
+    ui.debugConsole->verticalScrollBar()->setValue(ui.debugConsole->verticalScrollBar()->maximum());
+
+    QApplication::processEvents();
 }
 
 
 void DebugWidget::clearDebugMessages()
 {
+    ui.debugConsole->clear();
     clearLumberjackDebugMessages();
+    updateDebugMessages();
 }
