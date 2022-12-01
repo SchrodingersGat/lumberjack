@@ -116,6 +116,13 @@ void MainWindow::loadDummyData()
  */
 void MainWindow::loadWorkspaceSettings()
 {
+    auto *settings = LumberjackSettings::getInstance();
+
+    QByteArray state = settings->loadSetting("mainwindow", "state", QByteArray()).toByteArray();
+    QByteArray geometry = settings->loadSetting("mainwindow", "geometry", QByteArray()).toByteArray();
+
+    restoreState(state);
+    restoreGeometry(geometry);
 }
 
 
@@ -130,6 +137,9 @@ void MainWindow::saveWorkspaceSettings()
     settings->saveSetting("mainwindow", "showTimelineView", timelineView.isVisible());
     settings->saveSetting("mainwindow", "showStatsView", statsView.isVisible());
     settings->saveSetting("mainwindow", "showDebugView", debugWidget.isVisible());
+
+    settings->saveSetting("mainwindow", "state", saveState());
+    settings->saveSetting("mainwindow", "geometry", saveGeometry());
 }
 
 
