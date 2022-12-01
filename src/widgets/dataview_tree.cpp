@@ -2,6 +2,7 @@
 #include <QMimeData>
 #include <qmenu.h>
 #include <qaction.h>
+#include <qheaderview.h>
 
 #include "datatable_widget.hpp"
 #include "series_editor_dialog.hpp"
@@ -28,22 +29,18 @@ DataViewTree::~DataViewTree()
 }
 
 
+/*
+ * Initialize the tree display
+ */
 void DataViewTree::setupTree()
 {
-    static bool configured = false;
-
     clear();
-
-//    if (configured) return;
-
-    configured = true;
 
     QStringList labels;
 
-    setColumnCount(3);
+    setColumnCount(2);
 
     labels.append(tr("Label"));
-    labels.append(tr("Data"));
     labels.append("");
 
     setHeaderLabels(labels);
@@ -56,9 +53,16 @@ void DataViewTree::setupTree()
 
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+
+    header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    header()->setSectionResizeMode(1, QHeaderView::Fixed);
+    header()->setStretchLastSection(false);
 }
 
 
+/*
+ * Callback function to edit a particular DataSeries.
+ */
 void DataViewTree::editDataSeries(QSharedPointer<DataSeries> series)
 {
     if (series.isNull())
@@ -80,7 +84,9 @@ void DataViewTree::editDataSeries(QSharedPointer<DataSeries> series)
 }
 
 
-
+/*
+ * Callback when a right-click context menu is created for a particular item
+ */
 void DataViewTree::onContextMenu(const QPoint &pos)
 {
     QTreeWidgetItem *item = itemAt(pos);
@@ -173,6 +179,9 @@ void DataViewTree::onContextMenu(const QPoint &pos)
 }
 
 
+/*
+ * Callback when user double-clicks on an item
+ */
 void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 {
     Q_UNUSED(col);
@@ -201,6 +210,9 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
 }
 
 
+/*
+ * Refresh (redraw) the tree, based on user filtering.
+ */
 int DataViewTree::refresh(QString filters)
 {
     setUpdatesEnabled(false);
@@ -225,7 +237,7 @@ int DataViewTree::refresh(QString filters)
         QTreeWidgetItem *item = new QTreeWidgetItem();
 
         item->setText(0, source_label);
-        item->setText(1, QString::number(labels.count()) + " series");
+//        item->setText(1, QString::number(labels.count()) + " series");
 
         int idx = topLevelItemCount();
 
@@ -251,8 +263,8 @@ int DataViewTree::refresh(QString filters)
             child->setText(0, series->getLabel());
             child->setToolTip(0, series->getLabel() + " (" + QString::number(series->size()) + " data points)");
 
-            child->setText(1, QString::number(series->size()));
-            child->setBackground(2, series->getColor());
+//            child->setText(1, QString::number(series->size()));
+            child->setBackground(1, series->getColor());
 
             item->addChild(child);
 
