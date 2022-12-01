@@ -14,6 +14,8 @@ class DataviewWidget : public QWidget
 public:
     DataviewWidget(QWidget *parent = nullptr);
 
+    DataViewTree *getTree() { return ui.treeWidget; }
+
 public slots:
     void refresh();
 

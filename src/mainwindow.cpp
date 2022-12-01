@@ -183,6 +183,12 @@ void MainWindow::initDocks()
  */
 void MainWindow::initSignalsSlots()
 {
+    DataViewTree *tree = dataView.getTree();
+
+    if (tree)
+    {
+        connect(tree, &DataViewTree::onSeriesRemoved, this, &MainWindow::seriesRemoved);
+    }
 
     // Plot widget signals
     connect(&plotView, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
@@ -420,6 +426,36 @@ void MainWindow::hideDockedWidget(QWidget *widget)
             dock->close();
             return;
         }
+    }
+}
+
+
+/*
+ * Returns a list of available plots.
+ */
+QList<PlotWidget*> MainWindow::plots()
+{
+   // Note: For now, only one plot widget is supported
+   QList<PlotWidget*> plotList;
+
+   plotList.append(&plotView);
+
+   return plotList;
+}
+
+
+/*
+ * Callback when a DataSeries is removed from the available graphs
+ */
+void MainWindow::seriesRemoved(QSharedPointer<DataSeries> series)
+{
+    if (series.isNull()) return;
+
+    for (auto plot : plots())
+    {
+        if (!plot) continue;
+
+        plot->removeSeries(series);
     }
 }
 

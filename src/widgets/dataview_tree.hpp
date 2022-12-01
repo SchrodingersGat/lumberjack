@@ -19,6 +19,9 @@ public slots:
     void onItemDoubleClicked(QTreeWidgetItem *item, int col);
     void onContextMenu(const QPoint &pos);
 
+signals:
+    void onSeriesRemoved(QSharedPointer<DataSeries> series);
+
 protected:
     virtual void startDrag(Qt::DropActions supported_actions) override;
 
