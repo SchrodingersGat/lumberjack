@@ -45,8 +45,6 @@ protected:
     void loadWorkspaceSettings(void);
     void saveWorkspaceSettings(void);
 
-    QList<PlotWidget*> plots();
-
     void closeEvent(QCloseEvent *event);
 
 protected slots:
@@ -61,6 +59,9 @@ protected slots:
     void toggleTimelineView(void);
     void toggleStatisticsView(void);
 
+    void addPlot();
+    void removePlot(QSharedPointer<PlotWidget> plot);
+
     void hideDockedWidget(QWidget *widget);
 
     void seriesRemoved(QSharedPointer<DataSeries> series);
@@ -68,11 +69,14 @@ protected slots:
 private:
     Ui::MainWindow *ui;
 
+    QList<QSharedPointer<PlotWidget>> plots;
+
+    QVBoxLayout plotLayout;
+
     QLabel t_pos;
     QLabel y1_pos;
     QLabel y2_pos;
 
-    PlotWidget plotView;
     DataviewWidget dataView;
     StatsWidget statsView;
     TimelineWidget timelineView;

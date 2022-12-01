@@ -26,13 +26,14 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="action_Import_Data"/>
     <addaction name="action_Preferences"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -52,15 +53,15 @@
     <addaction name="action_Timeline"/>
     <addaction name="action_Statistics"/>
    </widget>
-   <widget class="QMenu" name="menu_Data">
+   <widget class="QMenu" name="menu_Graph">
     <property name="title">
-     <string>&amp;Data</string>
+     <string>&amp;Graph</string>
     </property>
-    <addaction name="action_Import_Data"/>
+    <addaction name="action_Add_Graph"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Data"/>
    <addaction name="menu_View"/>
+   <addaction name="menu_Graph"/>
    <addaction name="menu_About"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -102,6 +103,11 @@
   <action name="action_Debug">
    <property name="text">
     <string>&amp;Debug</string>
+   </property>
+  </action>
+  <action name="action_Add_Graph">
+   <property name="text">
+    <string>&amp;Add Graph</string>
    </property>
   </action>
  </widget>
