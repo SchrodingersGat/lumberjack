@@ -25,9 +25,11 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
-    // Boolean option to add dummy data
+    // Command line options
+    QCommandLineOption loadFilesOption(QStringList() << "f" << "file", "Load data file", "file");
     QCommandLineOption dummyDataOption(QStringList() << "d" << "dummy", "Load dummy test data");
 
+    parser.addOption(loadFilesOption);
     parser.addOption(dummyDataOption);
 
     parser.process(a);
@@ -35,9 +37,16 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
+    // Load dummy data if required
     if (parser.isSet(dummyDataOption))
     {
         w.loadDummyData();
+    }
+
+    // Import data from specified files
+    for (auto file : parser.values(loadFilesOption))
+    {
+        w.loadDroppedFile(file);
     }
 
     return a.exec();
