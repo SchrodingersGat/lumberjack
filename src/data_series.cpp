@@ -38,12 +38,24 @@ bool operator> (const double timestamp, const DataPoint point)
 }
 
 
+DataSeries::~DataSeries()
+{
+    clearData(false);
+}
+
+
+/*
+ * Construct a new empty data series
+ */
 DataSeries::DataSeries()
 {
     clearData();
 }
 
 
+/*
+ * Construct a new empty data series with the specified label
+ */
 DataSeries::DataSeries(QString lbl) : DataSeries()
 {
     label = lbl;
@@ -57,7 +69,9 @@ DataSeries::DataSeries(QString grp, QString lbl) : DataSeries()
 }
 
 
-// Copy from another data series
+/*
+ * Construct a new DataSeries, and copy data from another DataSeries
+ */
 DataSeries::DataSeries(const DataSeries &other) : DataSeries()
 {
     label = other.getLabel();
@@ -71,7 +85,10 @@ DataSeries::DataSeries(const DataSeries &other) : DataSeries()
 }
 
 
-// Copy from another data series, within the specified time range
+/*
+ * Construct a DataSeries by copying from another DataSeries,
+ * within the specified time range
+ */
 DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, unsigned int expand) : DataSeries()
 {
     label = other.getLabel();
@@ -123,6 +140,9 @@ DataSeries::DataSeries(const DataSeries &other, int64_t t_min, int64_t t_max, un
 }
 
 
+/*
+ * Set the color of this DataSeries
+ */
 void DataSeries::setColor(QColor c)
 {
     color = c;
@@ -131,19 +151,19 @@ void DataSeries::setColor(QColor c)
 }
 
 
-DataSeries::~DataSeries()
-{
-//    qDebug() << "~DataSeries" << label;
-    clearData(false);
-}
-
-
+/*
+ * Return the size (number of samples) of this DataSeries
+ */
 size_t DataSeries::size() const
 {
     return data.size();
 }
 
 
+/*
+ * Calculate the bounds of this DataSeries.
+ * Returns a QRectF instance
+ */
 QRectF DataSeries::getBounds() const
 {
     if (size() == 0) return QRectF();
@@ -223,6 +243,15 @@ double DataSeries::getValue(uint64_t idx) const
 }
 
 
+/*
+ * Insert a new sample into this DataSeries.
+ *
+ * If the timestamp is "newer" than the most recent point in the series,
+ * the new sample is simply appended to the dataset.
+ * (This is a much more efficient operation).
+ *
+ * Otherwise, the sample is inserted into the series, which is more expensive.
+ */
 void DataSeries::addData(DataPoint point, bool do_update)
 {
     data_mutex.lock();

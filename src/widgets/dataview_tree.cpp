@@ -261,9 +261,8 @@ int DataViewTree::refresh(QString filters)
 
             // Series label
             child->setText(0, series->getLabel());
-            child->setToolTip(0, series->getLabel() + " (" + QString::number(series->size()) + " data points)");
+            child->setToolTip(0, source->getLabel() + ":" + series->getLabel() + " (" + QString::number(series->size()) + " samples)");
 
-//            child->setText(1, QString::number(series->size()));
             child->setBackground(1, series->getColor());
 
             item->addChild(child);
