@@ -49,6 +49,9 @@ void DebugWidget::debugPreferencesChanged()
     settings->saveSetting("debug", "showInfo", ui.showInfo->isChecked());
     settings->saveSetting("debug", "showDebug", ui.showDebug->isChecked());
 
+    ui.debugConsole->clear();
+    latestTimestamp = 0;
+
     updateDebugMessages();
 }
 

@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    // Install custom debug handler
+    registerLumberjackDebugHandler();
+
     // Configure application properties
     a.setApplicationName("lumberjack");
     a.setApplicationDisplayName("lumberjack");
@@ -35,8 +38,7 @@ int main(int argc, char *argv[])
 
     parser.process(a);
 
-    // Install custom debug handler
-    registerLumberjackDebugHandler();
+    qDebug() << "Starting lumberjack application:" << LUMBERJACK_VERSION_STRING;
 
     MainWindow w;
     w.show();
@@ -44,6 +46,7 @@ int main(int argc, char *argv[])
     // Load dummy data if required
     if (parser.isSet(dummyDataOption))
     {
+        qDebug() << "Loading dummy data";
         w.loadDummyData();
     }
 

@@ -315,8 +315,9 @@ void MainWindow::toggleDebugView()
  */
 void MainWindow::loadDroppedFile(QString filename)
 {
-    // Determine which loader plugin to use
+    qDebug() << "MainWindow::loadDroppedFile" << filename;
 
+    // Determine which loader plugin to use
     // Get list of available importers
 
     // TODO: In the future, push this off to a "plugin" module!!
@@ -341,6 +342,14 @@ void MainWindow::loadDroppedFile(QString filename)
         if (source->supportsFileType(extension))
         {
             bool result = source->loadData(filename, errors);
+
+            if (errors.length() > 0)
+            {
+                for (auto error : errors)
+                {
+                    qWarning() << error;
+                }
+            }
 
             if (result)
             {
