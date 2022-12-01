@@ -15,8 +15,8 @@ public:
 void lumberjackDebugHandler(QtMsgType msgType, const QMessageLogContext& context, const QString& message);
 
 
-QList<LumberjackDebugMessage> getDebugMessages();
-void clearDebugMessages();
+QList<LumberjackDebugMessage> getLumberjackDebugMessages();
+void clearLumberjackDebugMessages();
 
 
 #endif // LUMBERJACK_DEBUG_HPP

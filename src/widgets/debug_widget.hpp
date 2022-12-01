@@ -12,6 +12,12 @@ class DebugWidget : public QWidget
 public:
     DebugWidget(QWidget *parent = nullptr);
 
+public slots:
+    void debugPreferencesChanged();
+    void clearDebugMessages();
+
+    void updateDebugMessages();
+
 protected:
     Ui::debugForm ui;
 };

@@ -20,9 +20,16 @@
    <item row="0" column="1">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QCheckBox" name="showError">
+      <widget class="QCheckBox" name="showFatal">
        <property name="text">
-        <string>Show Error Messages</string>
+        <string>Show Fatal Messages</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showCritical">
+       <property name="text">
+        <string>Show Critical Messages</string>
        </property>
       </widget>
      </item>
@@ -41,7 +48,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="showDEbug">
+      <widget class="QCheckBox" name="showDebug">
        <property name="text">
         <string>Show Debug Messages</string>
        </property>

@@ -28,7 +28,7 @@ void lumberjackDebugHandler(QtMsgType msgType, const QMessageLogContext& context
 /*
  * Return a list of debug messages according to the user specified filter
  */
-QList<LumberjackDebugMessage> getDebugMessages()
+QList<LumberjackDebugMessage> getLumberjackDebugMessages()
 {
     auto *settings = LumberjackSettings().getInstance();
 
@@ -54,7 +54,7 @@ QList<LumberjackDebugMessage> getDebugMessages()
 }
 
 
-void clearDebugMessages()
+void clearLumberjackDebugMessages()
 {
     messageBuffer.clear();
 }
