@@ -29,6 +29,7 @@ SOURCES += \
     src/helpers.cpp \
     src/data_series.cpp \
     src/data_source.cpp \
+    src/lumberjack_debug.cpp \
     src/lumberjack_settings.cpp \
     src/plot_curve.cpp \
     src/plot_widget.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     src/helpers.hpp \
     src/data_series.hpp \
     src/data_source.hpp \
+    src/lumberjack_debug.hpp \
     src/lumberjack_settings.hpp \
     src/lumberjack_version.hpp \
     src/plot_curve.hpp \

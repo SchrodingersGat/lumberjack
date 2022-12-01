@@ -2,6 +2,7 @@
 #include <qcommandlineparser.h>
 #include <qcommandlineoption.h>
 
+#include "lumberjack_debug.hpp"
 #include "lumberjack_version.hpp"
 
 #include "mainwindow.h"
@@ -33,6 +34,9 @@ int main(int argc, char *argv[])
     parser.addOption(dummyDataOption);
 
     parser.process(a);
+
+    // Install custom debug handler
+    qInstallMessageHandler(lumberjackDebugHandler);
 
     MainWindow w;
     w.show();
