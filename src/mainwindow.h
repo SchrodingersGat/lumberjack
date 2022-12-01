@@ -24,6 +24,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void loadDummyData(void);
+
 public slots:
 
     void onTimescaleChanged(const QwtInterval &view);
