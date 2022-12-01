@@ -39,7 +39,13 @@ protected:
 
     void importData(void);
 
+    void loadWorkspaceSettings(void);
+    void saveWorkspaceSettings(void);
+
+    void closeEvent(QCloseEvent *event);
+
 protected slots:
+
     void showAboutInfo(void);
 
     void toggleDataView(void);
