@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     setAcceptDrops(true);
 
+    loadWorkspaceSettings();
+
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
 
@@ -107,6 +109,28 @@ MainWindow::~MainWindow()
 }
 
 
+/*
+ * Load workspace settings
+ */
+void MainWindow::loadWorkspaceSettings()
+{
+}
+
+
+/*
+ * Save workspace settings
+ */
+void MainWindow::saveWorkspaceSettings()
+{
+    auto *settings = LumberjackSettings::getInstance();
+
+    settings->saveSetting("mainwindow", "showDataView", dataView.isVisible());
+    settings->saveSetting("mainwindow", "showTimelineView", timelineView.isVisible());
+    settings->saveSetting("mainwindow", "showStatsView", statsView.isVisible());
+}
+
+
+
 /**
  * @brief MainWindow::initMenus initializes menus and menu actions
  */
@@ -152,9 +176,11 @@ void MainWindow::initDocks()
 }
 
 
+/*
+ * Configure SIGNAL/SLOT connections
+ */
 void MainWindow::initSignalsSlots()
 {
-    // TODO
 
     // Plot widget signals
     connect(&plotView, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
@@ -173,6 +199,9 @@ void MainWindow::initSignalsSlots()
 }
 
 
+/*
+ * Configure the status bar at the bottom of the window
+ */
 void MainWindow::initStatusBar()
 {
     ui->statusbar->showMessage("lumberjack");
@@ -185,6 +214,9 @@ void MainWindow::initStatusBar()
 }
 
 
+/*
+ * Callback when the timescale is adjusted.
+ */
 void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 {
     QList<QSharedPointer<DataSeries>> seriesList;
@@ -205,6 +237,15 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 }
 
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    Q_UNUSED(event)
+
+    saveWorkspaceSettings();
+}
+
+
+
 /**
  * @brief MainWindow::updateCursorPos - callback function when the cursor position changes
  * @param t
@@ -219,6 +260,9 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
 }
 
 
+/*
+ * Display the "About" dialog
+ */
 void MainWindow::showAboutInfo()
 {
     AboutDialog dlg;
@@ -227,6 +271,9 @@ void MainWindow::showAboutInfo()
 }
 
 
+/*
+ * Callback for loading a data file which is dropped into the window
+ */
 void MainWindow::loadDroppedFile(QString filename)
 {
     // Determine which loader plugin to use
@@ -265,6 +312,9 @@ void MainWindow::loadDroppedFile(QString filename)
 }
 
 
+/*
+ * Callback when the "import data" menu action is fired
+ */
 void MainWindow::importData()
 {
     // Get list of available importers
@@ -366,14 +416,11 @@ void MainWindow::toggleDataView(void)
 {
     ui->action_Data_View->setCheckable(true);
 
-    auto *settings = LumberjackSettings::getInstance();
-
     if (dataView.isVisible())
     {
         hideDockedWidget(&dataView);
 
         ui->action_Data_View->setChecked(false);
-        settings->saveSetting("mainwindow", "showDataView", false);
     }
     else
     {
@@ -384,7 +431,6 @@ void MainWindow::toggleDataView(void)
         addDockWidget(Qt::LeftDockWidgetArea, dock);
 
         ui->action_Data_View->setChecked(true);
-        settings->saveSetting("mainwindow", "showDataView", true);
     }
 }
 
@@ -394,8 +440,6 @@ void MainWindow::toggleDataView(void)
  */
 void MainWindow::toggleTimelineView(void)
 {
-    auto *settings = LumberjackSettings::getInstance();
-
     ui->action_Timeline->setCheckable(true);
 
     if (timelineView.isVisible())
@@ -403,7 +447,6 @@ void MainWindow::toggleTimelineView(void)
         hideDockedWidget(&timelineView);
 
         ui->action_Timeline->setChecked(false);
-        settings->saveSetting("mainwindow", "showTimelineView", false);
     }
     else
     {
@@ -414,7 +457,6 @@ void MainWindow::toggleTimelineView(void)
         addDockWidget(Qt::BottomDockWidgetArea, dock);
 
         ui->action_Timeline->setChecked(true);
-        settings->saveSetting("mainwindow", "showTimelineView", true);
     }
 }
 
@@ -424,8 +466,6 @@ void MainWindow::toggleTimelineView(void)
  */
 void MainWindow::toggleStatisticsView(void)
 {
-    auto *settings = LumberjackSettings::getInstance();
-
     ui->action_Statistics->setCheckable(true);
 
     if (statsView.isVisible())
@@ -433,7 +473,6 @@ void MainWindow::toggleStatisticsView(void)
         hideDockedWidget(&statsView);
 
         ui->action_Statistics->setChecked(false);
-        settings->saveSetting("mainwindow", "showStatsView", false);
     }
     else
     {
@@ -444,6 +483,5 @@ void MainWindow::toggleStatisticsView(void)
         addDockWidget(Qt::LeftDockWidgetArea, dock);
 
         ui->action_Statistics->setChecked(true);
-        settings->saveSetting("mainwindow", "showStatsView", true);
     }
 }
