@@ -44,6 +44,8 @@ protected:
     void loadWorkspaceSettings(void);
     void saveWorkspaceSettings(void);
 
+    QList<PlotWidget*> plots();
+
     void closeEvent(QCloseEvent *event);
 
 protected slots:
@@ -55,6 +57,8 @@ protected slots:
     void toggleStatisticsView(void);
 
     void hideDockedWidget(QWidget *widget);
+
+    void seriesRemoved(QSharedPointer<DataSeries> series);
 
 private:
     Ui::MainWindow *ui;

@@ -149,6 +149,7 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         }
         else if (action == deleteSeries)
         {
+            emit onSeriesRemoved(series);
             source->removeSeries(series);
         }
     }
@@ -173,6 +174,16 @@ void DataViewTree::onContextMenu(const QPoint &pos)
 
         if (action == deleteSource)
         {
+            // Emit "removed" signal for each data series
+            for (auto label : source->getSeriesLabels())
+            {
+                auto series = source->getSeriesByLabel(label);
+
+                if (series.isNull()) continue;
+
+                emit onSeriesRemoved(series);
+            }
+
             manager->removeSource(source);
         }
     }
