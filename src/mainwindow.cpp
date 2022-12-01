@@ -319,6 +319,8 @@ void MainWindow::loadDroppedFile(QString filename)
  */
 void MainWindow::importData()
 {
+    auto *settings = LumberjackSettings::getInstance();
+
     // Get list of available importers
 
     // TODO: In the future, push this off to a "plugin" module!!
@@ -355,6 +357,13 @@ void MainWindow::importData()
 
     dialog.setWindowTitle(tr("Import Data from File"));
 
+    QString lastDir = settings->loadSetting("import", "lastDirectory", QString()).toString();
+
+    if (!lastDir.isEmpty())
+    {
+        dialog.setDirectory(lastDir);
+    }
+
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setNameFilter(filePatterns.join(";;"));
     dialog.setViewMode(QFileDialog::Detail);
@@ -377,6 +386,10 @@ void MainWindow::importData()
     }
 
     QString filename = files.first();
+
+    // Record the directory this file was loaded from
+    QFileInfo fi(filename);
+    settings->saveSetting("import", "lastDirectory", fi.absoluteDir().absolutePath());
 
     for (auto source : sources)
     {
