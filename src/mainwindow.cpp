@@ -39,8 +39,13 @@ MainWindow::MainWindow(QWidget *parent)
     initStatusBar();
     initSignalsSlots();
 
-    plotView.setParent(this);
-    setCentralWidget(&plotView);
+    // Construct a central layout for displaying plot widgets
+    QWidget *central = new QWidget();
+    central->setLayout(&plotLayout);
+    setCentralWidget(central);
+
+    // Add an initial plot
+    addPlot();
 
     setAcceptDrops(true);
 
@@ -149,18 +154,21 @@ void MainWindow::saveWorkspaceSettings()
  */
 void MainWindow::initMenus()
 {
+    // File menu
+    connect(ui->action_Import_Data, &QAction::triggered, this, &MainWindow::importData);
     connect(ui->actionE_xit, &QAction::triggered, this, &QMainWindow::close);
 
-    connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
-    connect(ui->action_Debug, &QAction::triggered, this, &MainWindow::toggleDebugView);
-
+    // View menu
     connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
-
     connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
-
     connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
 
-    connect(ui->action_Import_Data, &QAction::triggered, this, &MainWindow::importData);
+    // Graphs menu
+    connect(ui->action_Add_Graph, &QAction::triggered, this, &MainWindow::addPlot);
+
+    // Help menu
+    connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
+    connect(ui->action_Debug, &QAction::triggered, this, &MainWindow::toggleDebugView);
 }
 
 
@@ -207,19 +215,10 @@ void MainWindow::initSignalsSlots()
         connect(tree, &DataViewTree::onSeriesRemoved, this, &MainWindow::seriesRemoved);
     }
 
-    // Plot widget signals
-    connect(&plotView, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
-    connect(&plotView, &PlotWidget::viewChanged, this, &MainWindow::onTimescaleChanged);
-    connect(&plotView, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
-    connect(&plotView, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
-
-    // File drops
-    connect(&plotView, &PlotWidget::fileDropped, this, &MainWindow::loadDroppedFile);
     connect(&dataView, &DataviewWidget::fileDropped, this, &MainWindow::loadDroppedFile);
 
-
     // Timeline view
-    connect(&timelineView, &TimelineWidget::timeUpdated, &plotView, &PlotWidget::setTimeInterval);
+    connect(&timelineView, &TimelineWidget::timeUpdated, this, &MainWindow::onTimescaleChanged);
 
 }
 
@@ -244,17 +243,30 @@ void MainWindow::initStatusBar()
  */
 void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 {
+    auto source = sender();
+
     QList<QSharedPointer<DataSeries>> seriesList;
 
-    auto curveList = plotView.getVisibleCurves();
-
-    for (auto curve : curveList)
+    // Update the timescale on other plots
+    for (auto plot : plots)
     {
-        auto series = curve->getDataSeries();
+        if (plot.isNull()) continue;
 
-        if (series.isNull()) continue;
+        auto curves = plot->getVisibleCurves();
 
-        seriesList.append(series);
+        for (auto curve : curves)
+        {
+            auto series = curve->getDataSeries();
+
+            if (series.isNull()) continue;
+
+            seriesList.append(series);
+        }
+
+        // Prevent updating of same plot
+        if (plot == source) continue;
+
+        plot->setTimeInterval(viewInterval);
     }
 
     // Update the "statistics" view
@@ -480,32 +492,51 @@ void MainWindow::hideDockedWidget(QWidget *widget)
 
 
 /*
- * Returns a list of available plots.
- */
-QList<PlotWidget*> MainWindow::plots()
-{
-   // Note: For now, only one plot widget is supported
-   QList<PlotWidget*> plotList;
-
-   plotList.append(&plotView);
-
-   return plotList;
-}
-
-
-/*
  * Callback when a DataSeries is removed from the available graphs
  */
 void MainWindow::seriesRemoved(QSharedPointer<DataSeries> series)
 {
     if (series.isNull()) return;
 
-    for (auto plot : plots())
+    for (auto plot : plots)
     {
-        if (!plot) continue;
+        if (plot.isNull()) continue;
 
         plot->removeSeries(series);
     }
+}
+
+
+/*
+ * Add a new plot widget to the display
+ */
+void MainWindow::addPlot()
+{
+    qDebug() << "MainWindow::addPlot()";
+
+    PlotWidget *plot = new PlotWidget();
+
+    plot->setParent(this);
+
+    plotLayout.addWidget(plot);
+
+    // Connect signals/slots for the new plot
+    connect(plot, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
+    connect(plot, &PlotWidget::viewChanged, this, &MainWindow::onTimescaleChanged);
+    connect(plot, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
+    connect(plot, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
+    connect(plot, &PlotWidget::fileDropped, this, &MainWindow::loadDroppedFile);
+
+    plots.append(QSharedPointer<PlotWidget>(plot));
+}
+
+
+/*
+ * Remove the specified plot from the display
+ */
+void MainWindow::removePlot(QSharedPointer<PlotWidget> plot)
+{
+   // TODO
 }
 
 
