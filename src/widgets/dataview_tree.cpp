@@ -326,7 +326,6 @@ void DataViewTree::startDrag(Qt::DropActions supported_actions)
     // Prevent top-level items from being dragged
     if (!parent)
     {
-        qDebug() << "parent!";
         return;
     }
 
