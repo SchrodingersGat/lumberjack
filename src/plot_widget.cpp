@@ -377,6 +377,10 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     // Plot submenu
     QMenu *plotMenu = new QMenu(tr("Plot"), &menu);
 
+    QAction *syncAction = plotMenu->addAction(tr("Sync Timescale"));
+    syncAction->setCheckable(true);
+    syncAction->setChecked(isTimescaleSynced());
+
     QAction *bgColor = plotMenu->addAction(tr("Set Color"));
 
     menu.addMenu(plotMenu);
@@ -445,6 +449,10 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     {
         removeAllMarkers();
     }
+    else if (action == syncAction)
+    {
+        setTimescaleSynced(!isTimescaleSynced());
+    }
     else if (action == bgColor)
     {
         selectBackgroundColor();
@@ -504,21 +512,16 @@ void PlotWidget::removeAllMarkers()
  */
 void PlotWidget::selectBackgroundColor()
 {
-    bool ok = false;
-
-    QColor c = QColorDialog::getRgba(this->canvasBackground().color().rgb(), &ok);
+    QColor c = QColorDialog::getColor(this->canvasBackground().color().rgb());
 
     c.setAlpha(255);
 
-    if (ok)
-    {
-        setBackgroundColor(c);
+    setBackgroundColor(c);
 
-        auto *settings = LumberjackSettings::getInstance();
+    auto *settings = LumberjackSettings::getInstance();
 
-        // Save the background color as 'default'
-        settings->saveSetting("graph", "defaultBackgroundColor", c.name());
-    }
+    // Save the background color as 'default'
+    settings->saveSetting("graph", "defaultBackgroundColor", c.name());
 }
 
 
@@ -622,7 +625,7 @@ void PlotWidget::dragEnterEvent(QDragEnterEvent *event)
  */
 void PlotWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-    // TODO
+    Q_UNUSED(event)
 }
 
 
@@ -776,13 +779,19 @@ void PlotWidget::updateLayout()
 
 void PlotWidget::updateCurrentView()
 {
-    emit viewChanged(axisInterval(QwtPlot::xBottom));
+    if (isTimescaleSynced())
+    {
+        emit viewChanged(axisInterval(QwtPlot::xBottom));
+    }
 }
 
 
 void PlotWidget::updateTimestampLimits()
 {
-    emit timestampLimitsChanged(QwtInterval(getOldestTimestamp(), getNewestTimestamp()));
+    if (isTimescaleSynced())
+    {
+        emit timestampLimitsChanged(QwtInterval(getOldestTimestamp(), getNewestTimestamp()));
+    }
 }
 
 

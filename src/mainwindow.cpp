@@ -250,7 +250,11 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
     // Update the timescale on other plots
     for (auto plot : plots)
     {
+        // Ignore null pointers
         if (plot.isNull()) continue;
+
+        // Ignore plots which are not synced
+        if (!plot->isTimescaleSynced()) continue;
 
         auto curves = plot->getVisibleCurves();
 
@@ -536,7 +540,8 @@ void MainWindow::addPlot()
  */
 void MainWindow::removePlot(QSharedPointer<PlotWidget> plot)
 {
-   // TODO
+    Q_UNUSED(plot)
+    // TODO
 }
 
 

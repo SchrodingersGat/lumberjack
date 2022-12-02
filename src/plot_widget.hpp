@@ -34,6 +34,9 @@ public:
 
     QList<QSharedPointer<PlotCurve>> getVisibleCurves(int axisId = yBoth);
 
+    bool isTimescaleSynced(void) const { return syncedTimescale; }
+    void setTimescaleSynced(bool sync) { syncedTimescale = sync; }
+
 signals:
     // Emitted whenever the view rect is changed
     void viewChanged(const QwtInterval &view);
@@ -144,6 +147,9 @@ protected:
 
     // Most recent mouse position, in canvas coordinates
     QPoint lastMousePosition;
+
+    // Is this graph synced to the global timescale?
+    bool syncedTimescale = true;
 };
 
 #endif // PLOT_WIDGET_HPP
