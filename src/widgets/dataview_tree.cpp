@@ -250,6 +250,11 @@ int DataViewTree::refresh(QString filters)
 
         item->setText(1, source_label);
 
+        // Embolden text for "source"
+        QFont font = item->font(1);
+        font.setBold(true);
+        item->setFont(1, font);
+
         int idx = topLevelItemCount();
 
         if (labels.isEmpty() && !filters.isEmpty())
@@ -273,6 +278,10 @@ int DataViewTree::refresh(QString filters)
             // Series label
             child->setText(1, series->getLabel());
             child->setToolTip(1, source->getLabel() + ":" + series->getLabel() + " (" + QString::number(series->size()) + " samples)");
+
+            QFont font = child->font(1);
+            font.setItalic(true);
+            child->setFont(1, font);
 
             child->setBackground(0, series->getColor());
 
