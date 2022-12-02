@@ -40,8 +40,8 @@ void DataViewTree::setupTree()
 
     setColumnCount(2);
 
-    labels.append(tr("Label"));
     labels.append("");
+    labels.append(tr("Label"));
 
     setHeaderLabels(labels);
 
@@ -54,9 +54,10 @@ void DataViewTree::setupTree()
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 
-    header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    header()->setSectionResizeMode(1, QHeaderView::Fixed);
-    header()->setStretchLastSection(false);
+    header()->setSectionResizeMode(0, QHeaderView::Fixed);
+    header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    header()->setStretchLastSection(true);
+    header()->resizeSection(0, 55);
 }
 
 
@@ -105,8 +106,8 @@ void DataViewTree::onContextMenu(const QPoint &pos)
     {
         // Right-clicked on a "DataSeries" object
 
-        QString source_label = parent->text(0);
-        QString series_label = item->text(0);
+        QString source_label = parent->text(1);
+        QString series_label = item->text(1);
 
         auto source = manager->getSourceByLabel(source_label);
 
@@ -156,7 +157,7 @@ void DataViewTree::onContextMenu(const QPoint &pos)
     else
     {
         // Right-clicked on a "DataSource" object
-        QString label = item->text(0);
+        QString label = item->text(1);
 
         auto source = manager->getSourceByLabel(label);
 
@@ -206,8 +207,8 @@ void DataViewTree::onItemDoubleClicked(QTreeWidgetItem *item, int col)
     // Double clicked on a DataSeries
     if (parent)
     {
-        QString source_label = parent->text(0);
-        QString series_label = item->text(0);
+        QString source_label = parent->text(1);
+        QString series_label = item->text(1);
 
         auto series = manager->findSeries(source_label, series_label);
 
@@ -247,8 +248,7 @@ int DataViewTree::refresh(QString filters)
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
 
-        item->setText(0, source_label);
-//        item->setText(1, QString::number(labels.count()) + " series");
+        item->setText(1, source_label);
 
         int idx = topLevelItemCount();
 
@@ -271,10 +271,10 @@ int DataViewTree::refresh(QString filters)
             QTreeWidgetItem *child = new QTreeWidgetItem();
 
             // Series label
-            child->setText(0, series->getLabel());
-            child->setToolTip(0, source->getLabel() + ":" + series->getLabel() + " (" + QString::number(series->size()) + " samples)");
+            child->setText(1, series->getLabel());
+            child->setToolTip(1, source->getLabel() + ":" + series->getLabel() + " (" + QString::number(series->size()) + " samples)");
 
-            child->setBackground(1, series->getColor());
+            child->setBackground(0, series->getColor());
 
             item->addChild(child);
 
@@ -324,8 +324,8 @@ void DataViewTree::startDrag(Qt::DropActions supported_actions)
     // Extract source / series information from the item being dragged
     // TODO : A better way of implementing this maybe?
 
-    QString series_label = item->text(0);
-    QString source_label = parent->text(0);
+    QString series_label = item->text(1);
+    QString source_label = parent->text(1);
 
     QDrag *dragger = new QDrag(this);
 
