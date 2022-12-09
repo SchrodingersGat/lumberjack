@@ -26,6 +26,7 @@ INCLUDEPATH += src \
                plugins/cobsr
 
 SOURCES += \
+    plugins/mavlink_importer.cpp \
     src/helpers.cpp \
     src/data_series.cpp \
     src/data_source.cpp \
@@ -56,6 +57,7 @@ SOURCES += \
     src/widgets/timeline_widget.cpp
 
 HEADERS += \
+    plugins/mavlink_importer.hpp \
     src/helpers.hpp \
     src/data_series.hpp \
     src/data_source.hpp \

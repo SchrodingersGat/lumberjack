@@ -24,6 +24,7 @@
 // TODO: In the future, replace these explicit includes with a "plugin" architecture
 #include "csv_importer.hpp"
 #include "cedat_importer.hpp"
+#include "mavlink_importer.hpp"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -357,6 +358,7 @@ QList<QSharedPointer<FileDataSource>> MainWindow::getFileImporters()
 
     sources.append(QSharedPointer<FileDataSource>(new CSVImporter()));
     sources.append(QSharedPointer<FileDataSource>(new CEDATImporter()));
+    sources.append(QSharedPointer<FileDataSource>(new MavlinkImporter()));
 
     return sources;
 }
