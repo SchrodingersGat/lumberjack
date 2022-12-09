@@ -185,7 +185,8 @@ bool MavlinkLogMessage::processByte(const char &byte)
     case MSG_DATA:
         data.append(byte);
 
-        if (data.length() >= msgLength)
+        // Note: message length includes header bytes
+        if (data.length() + 5 >= msgLength)
         {
             result = true;
 
