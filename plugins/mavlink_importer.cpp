@@ -4,6 +4,7 @@
 
 #include "mavlink_importer.hpp"
 
+
 MavlinkImporter::MavlinkImporter() : FileDataSource("Mavlink Importer")
 {
     // TODO
@@ -48,6 +49,12 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
 
     qint64 fileSize = getFileSize();
 
+    if (fileSize < 100)
+    {
+        errors.append(tr("File size is too small"));
+        return false;
+    }
+
     // Attempt to open the file
     if (!f.exists() || !f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable())
     {
@@ -70,8 +77,6 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
     progress.show();
 
     f.seek(0);
-
-    qDebug() << "reading" << fileSize << "bytes";
 
     QByteArray bytes;
 
@@ -109,6 +114,7 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
     }
 
     qDebug() << "Processed" << byteCount << "bytes from" << filename;
+    qDebug() << "Found" << messageCount << "messages";
 
     return true;
 }
@@ -119,5 +125,75 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
  */
 void MavlinkImporter::processChunk(const QByteArray &bytes)
 {
-    // TODO
+    // Iterate through each byte
+    for (const char byte : bytes)
+    {
+        if (message.processByte(byte))
+        {
+            messageCount++;
+            // TODO: Actually "do" something with the processes message
+        }
+    }
+}
+
+
+MavlinkLogMessage::MavlinkLogMessage()
+{
+    reset();
+}
+
+
+/*
+ * Reset the log message parser to an initial state
+ */
+void MavlinkLogMessage::reset()
+{
+    data.clear();
+    state = HEAD_1;
+}
+
+
+/*
+ * Process a single byte, and return true if a valid message was completed
+ */
+bool MavlinkLogMessage::processByte(const char &byte)
+{
+    bool result = false;
+
+    switch (state)
+    {
+    default:
+    case HEAD_1:
+        if (byte == HEAD_BYTE_1) state = HEAD_2;
+        break;
+    case HEAD_2:
+        if (byte == HEAD_BYTE_2) state = MSG_ID;
+        break;
+    case MSG_ID:
+        msgId = (uint8_t) byte;
+        state = MSG_TYPE;
+        break;
+    case MSG_TYPE:
+        msgType = (uint8_t) byte;
+        state = MSG_LENGTH;
+        break;
+    case MSG_LENGTH:
+        msgLength = (uint8_t) byte;
+        data.clear();
+        state = MSG_DATA;
+        break;
+    case MSG_DATA:
+        data.append(byte);
+
+        if (data.length() >= msgLength)
+        {
+            result = true;
+
+            // Reset state machine
+            state = HEAD_1;
+        }
+        break;
+    }
+
+    return result;
 }

@@ -15,12 +15,42 @@
 
 
 /*
- * Class representing a "format group" within the log structure.
- * Each "format group" has information about the data variables within that group.
+ * Generic message class
  */
-class MavlinkGroup
+class MavlinkLogMessage
 {
+public:
+    MavlinkLogMessage();
 
+    void reset();
+    bool processByte(const char& byte);
+
+    // Byte array containing data
+    QByteArray data;
+
+    uint8_t msgId = 0;
+    uint8_t msgType = 0;
+    uint8_t msgLength = 0;
+
+protected:
+
+    // Possible data states
+    enum FileParsingState
+    {
+        HEAD_1,
+        HEAD_2,
+        MSG_ID,
+        MSG_TYPE,
+        MSG_LENGTH,
+        MSG_DATA,
+    };
+
+    // Internal state variable
+    uint16_t state = HEAD_1;
+
+    // Expected header bytes (according to ArduPilot spec)
+    const char HEAD_BYTE_1 = 0xA3;
+    const char HEAD_BYTE_2 = 0x95;
 };
 
 
@@ -42,11 +72,9 @@ protected:
 
     void processChunk(const QByteArray &bytes);
 
-    enum FileParsingState
-    {
-        INIT = 0,       // Initially loading file
-    };
+    MavlinkLogMessage message;
 
+    int messageCount = 0;
 };
 
 
