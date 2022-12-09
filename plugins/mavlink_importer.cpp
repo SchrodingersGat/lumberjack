@@ -1,5 +1,6 @@
 #include <qprogressdialog.h>
 #include <qelapsedtimer.h>
+#include <qapplication.h>
 
 #include "mavlink_importer.hpp"
 
@@ -68,9 +69,55 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
     elapsed.restart();
     progress.show();
 
-    // TODO
+    f.seek(0);
 
-    progress.hide();
+    qDebug() << "reading" << fileSize << "bytes";
+
+    QByteArray bytes;
+
+    int64_t byteCount = 0;
+
+    while (!f.atEnd() && !progress.wasCanceled())
+    {
+        // Read a chunk of bytes
+        bytes = f.read(2048);
+
+        processChunk(bytes);
+
+        byteCount += bytes.length();
+
+        // Update the progress bar periodically
+        if (elapsed.elapsed() > 250)
+        {
+            progress.setValue(byteCount);
+            QApplication::processEvents();
+            elapsed.restart();
+        }
+    }
+
+    // Ensure the file is closed
+    f.close();
+
+    if (progress.wasCanceled())
+    {
+        errors.append(tr("File import was cancelled"));
+        return false;
+    }
+    else
+    {
+        progress.close();
+    }
+
+    qDebug() << "Processed" << byteCount << "bytes from" << filename;
 
     return true;
+}
+
+
+/*
+ * Process a chunk of data from the file
+ */
+void MavlinkImporter::processChunk(const QByteArray &bytes)
+{
+    // TODO
 }

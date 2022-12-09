@@ -14,6 +14,16 @@
 #include "data_source.hpp"
 
 
+/*
+ * Class representing a "format group" within the log structure.
+ * Each "format group" has information about the data variables within that group.
+ */
+class MavlinkGroup
+{
+
+};
+
+
 class MavlinkImporter: public FileDataSource
 {
     Q_OBJECT
@@ -29,6 +39,13 @@ public:
     virtual bool loadDataFromFile(QStringList& errors) override;
 
 protected:
+
+    void processChunk(const QByteArray &bytes);
+
+    enum FileParsingState
+    {
+        INIT = 0,       // Initially loading file
+    };
 
 };
 

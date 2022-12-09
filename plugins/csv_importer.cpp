@@ -174,8 +174,6 @@ bool CSVImporter::loadDataFromFile(QStringList &errors)
         progress.close();
     }
 
-    qDebug() << "read" << lineCount << "lines";
-
     return true;
 }
 
