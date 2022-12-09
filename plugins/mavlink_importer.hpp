@@ -6,6 +6,7 @@
  *
  * References:
  * - https://discuss.ardupilot.org/t/log-file-format/49089
+ * - https://github.com/ArduPilot/ardupilot/blob/master/libraries/AP_Logger/LogStructure.h
  */
 
 #ifndef MAVLINK_IMPORTER_HPP
