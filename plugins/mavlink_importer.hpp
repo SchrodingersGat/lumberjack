@@ -25,8 +25,8 @@ public:
     MavlinkFormatMessage(QByteArray bytes) : dataBytes(bytes) {}
 
     QString messageName();
-    QString messageFormat();
-    QString messageUnits();
+    QList<char> messageFormats();
+    QStringList messageLabels();
 
     uint8_t messageType();
     uint8_t messageLength();
@@ -53,6 +53,7 @@ public:
 protected:
 
     void processChunk(const QByteArray &bytes);
+    bool validateFormatMessage(MavlinkFormatMessage &format);
     void processData(MavlinkFormatMessage &format, QByteArray &bytes);
 
     int messageCount = 0;
