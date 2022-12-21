@@ -12,9 +12,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // Install custom debug handler
-    registerLumberjackDebugHandler();
-
     // Configure application properties
     a.setApplicationName("lumberjack");
     a.setApplicationDisplayName("lumberjack");
@@ -32,11 +29,19 @@ int main(int argc, char *argv[])
     // Command line options
     QCommandLineOption loadFilesOption(QStringList() << "f" << "file", "Load data file", "file");
     QCommandLineOption dummyDataOption(QStringList() << "d" << "dummy", "Load dummy test data");
+    QCommandLineOption debugCmdOption(QStringList() << "c" << "Debug to command line");
 
     parser.addOption(loadFilesOption);
     parser.addOption(dummyDataOption);
+    parser.addOption(debugCmdOption);
 
     parser.process(a);
+
+    if (!parser.isSet(debugCmdOption))
+    {
+        // Install custom debug handler
+        registerLumberjackDebugHandler();
+    }
 
     qDebug() << "Starting lumberjack application:" << LUMBERJACK_VERSION_STRING;
 
