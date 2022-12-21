@@ -16,6 +16,27 @@
 
 
 /*
+ * Class representing a "format" message
+ */
+class MavlinkFormatMessage
+{
+public:
+    MavlinkFormatMessage() {}
+    MavlinkFormatMessage(QByteArray bytes) : dataBytes(bytes) {}
+
+    QString messageName();
+    QString messageFormat();
+    QString messageUnits();
+
+    uint8_t messageType();
+    uint8_t messageLength();
+
+protected:
+    QByteArray dataBytes;
+};
+
+
+/*
  * Generic message class
  */
 class MavlinkLogMessage
@@ -30,8 +51,12 @@ public:
     QByteArray data;
 
     uint8_t msgId = 0;
-    uint8_t msgType = 0;
-    uint8_t msgLength = 0;
+
+    // Known message identifiers
+    enum
+    {
+        MSG_ID_FORMAT = 128,
+    };
 
 protected:
 
@@ -41,13 +66,13 @@ protected:
         HEAD_1,
         HEAD_2,
         MSG_ID,
-        MSG_TYPE,
-        MSG_LENGTH,
         MSG_DATA,
     };
 
     // Internal state variable
     uint16_t state = HEAD_1;
+
+    int expectedLength = 0;
 
     // Expected header bytes (according to ArduPilot spec)
     const char HEAD_BYTE_1 = 0xA3;
@@ -76,6 +101,8 @@ protected:
     MavlinkLogMessage message;
 
     int messageCount = 0;
+
+    QMap<int, MavlinkFormatMessage> messageFormats;
 };
 
 
