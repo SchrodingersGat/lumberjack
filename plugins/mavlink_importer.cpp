@@ -182,24 +182,25 @@ void MavlinkImporter::processChunk(const QByteArray &bytes)
     // Iterate through each byte
     for (const char byte : bytes)
     {
-        if (message.processByte(byte))
+        if (processByte(byte))
         {
             messageCount++;
 
-            int id = message.msgId;
-
-            switch (id)
+            switch (messageId)
             {
-            case MavlinkLogMessage::MSG_ID_FORMAT:
-                format = MavlinkFormatMessage(message.data);
+            case MavlinkImporter::MSG_ID_FORMAT:
+                format = MavlinkFormatMessage(data);
 
-                if (messageCount < 100)
-                {
-                    qDebug() << format.messageType() << format.messageLength() << format.messageName() << format.messageFormat() << format.messageUnits();
-                    qDebug() << message.data;
-                }
+                // Store this format message for later on
+                // Use the messageType identifier for lookup
+                messageFormats[format.messageType()] = format;
                 break;
             default:
+                // Check if we know about this message
+                if (messageFormats.contains(messageId))
+                {
+                    processData(messageFormats[messageId], data);
+                }
                 break;
             }
         }
@@ -207,16 +208,25 @@ void MavlinkImporter::processChunk(const QByteArray &bytes)
 }
 
 
-MavlinkLogMessage::MavlinkLogMessage()
+/*
+ * Decode a "data" packet, with a provided format
+ */
+void MavlinkImporter::processData(MavlinkFormatMessage &format, QByteArray &bytes)
 {
-    reset();
+    static int count = 0;
+
+    if (count++ < 25)
+    {
+        qDebug() << format.messageName() << format.messageFormat() << format.messageUnits();
+        qDebug() << bytes;
+    }
 }
 
 
 /*
  * Reset the log message parser to an initial state
  */
-void MavlinkLogMessage::reset()
+void MavlinkImporter::reset()
 {
     data.clear();
     state = HEAD_1;
@@ -226,7 +236,7 @@ void MavlinkLogMessage::reset()
 /*
  * Process a single byte, and return true if a valid message was completed
  */
-bool MavlinkLogMessage::processByte(const char &byte)
+bool MavlinkImporter::processByte(const char &byte)
 {
     bool result = false;
 
@@ -240,22 +250,30 @@ bool MavlinkLogMessage::processByte(const char &byte)
         if (byte == HEAD_BYTE_2) state = MSG_ID;
         break;
     case MSG_ID:
-        msgId = (uint8_t) byte;
+        messageId = (uint8_t) byte;
         state = MSG_DATA;
 
         data.clear();
 
         // Determine the "expected length" based on the msgId type
-        switch (msgId)
+        switch (messageId)
         {
-        case MavlinkLogMessage::MSG_ID_FORMAT:
+        case MavlinkImporter::MSG_ID_FORMAT:
             // Format message defines a "new packet format"
-            // Length = 1 + 1 + 4 + 16 + 64 =
+            // Length = 1 + 1 + 4 + 16 + 64
             expectedLength = 86;
             break;
         default:
-            // Unhandled message type
-            reset();
+            // Check if this message is one we have heard about
+            if (messageFormats.contains(messageId))
+            {
+                expectedLength = messageFormats[messageId].messageLength();
+            }
+            else
+            {
+                qWarning() << "Unknown message:" << messageId;
+                reset();
+            }
             break;
         }
 
