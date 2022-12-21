@@ -236,7 +236,7 @@ void MavlinkImporter::processChunk(const QByteArray &bytes)
                     // Check there is enough data
                     if (data.count() < format.messageLength())
                     {
-                        qDebug() << format.messageName() << "missing data:" << data.count() << format.messageLength();
+                        qWarning() << format.messageName() << "missing data:" << data.count() << format.messageLength();
                     }
                     else
                     {
@@ -292,10 +292,8 @@ bool MavlinkImporter::validateFormatMessage(MavlinkFormatMessage &format)
 /*
  * Decode a "data" packet, with a provided format
  */
-void MavlinkImporter::processData(MavlinkFormatMessage &format, QByteArray &bytes)
+void MavlinkImporter::processData(MavlinkFormatMessage &format, QByteArray bytes)
 {
-    // Check that the
-
     // Extract data from the message
     QStringList labels = format.messageLabels();
     QList<char> formats = format.messageFormats();
@@ -303,29 +301,103 @@ void MavlinkImporter::processData(MavlinkFormatMessage &format, QByteArray &byte
     QString msgName = format.messageName();
     QString graphName;
 
-    double timestamp;
-    double value;
+    double timestamp = 0;
+    double value = 0;
     QSharedPointer<DataSeries> series;
-
-    // Extract timestamp (64-bit, microsecond units)
-
 
     for (int idx = 0; idx < labels.count(); idx++)
     {
         graphName = msgName + ":" + labels.at(idx);
 
-        // Find graph matching each label
-        series = getSeriesByLabel(graphName);
+        char fmt = formats.at(idx);
 
-        if (series.isNull())
+        switch (fmt)
         {
-            addSeries(graphName);
-            series = getSeriesByLabel(graphName);
+        case 'a':   // int16_t[32]
+            // Currently unimplemented
+            continue;
+        case 'b':   // int8_t
+            value = extractInt8(bytes);
+            break;
+        case 'B':   // uint8_t
+            value = extractUInt8(bytes);
+            break;
+        case 'h':   // int16_t
+            value = extractInt16(bytes);
+            break;
+        case 'H':   // uint16_t
+            value = extractUInt16(bytes);
+            break;
+        case 'i':   // int32_t
+            value = extractInt32(bytes);
+            break;
+        case 'I':   // uint32_t
+            value = extractUInt32(bytes);
+            break;
+        case 'f':   // float
+            value = extractFloat(bytes);
+            break;
+        case 'd':   // double
+            value = extractDouble(bytes);
+            break;
+        case 'n':   // char[4]
+            // Currently unimplemented
+            continue;
+        case 'N':   // char[16]
+            // Currently unimplemented
+            continue;
+        case 'Z':   // char[16]
+            // Currently unimplemented
+            continue;
+        case 'c':   // int16_t * 100
+            value = (double) extractInt16(bytes) / 100;
+            break;
+        case 'C':   // uint16_t * 100
+            value = (double) extractUInt16(bytes) / 100;
+            break;
+        case 'e':   // int32_t * 100
+            value = (double) extractInt32(bytes) / 100;
+            break;
+        case 'E':   // uint32_t * 100
+            value = (double) extractUInt32(bytes) / 100;
+            break;
+        case 'L':   // int32_t lat/lng
+            // Currently unimplemented
+            continue;
+        case 'M':   // uint8_t flight mode
+            // Currently unimplemented
+            continue;
+        case 'q':   // int64_t
+            value = extractInt64(bytes);
+            break;
+        case 'Q':   // uint64_t
+            value = extractUInt64(bytes);
+            break;
+        default:
+            qWarning() << graphName << "invalid format:" << fmt;
+            return;
         }
 
-        char fmt = formats.at(idx);
-    }
+        // First element is always the timestamp
+        if (idx == 0x00)
+        {
+            // Convert from microseconds to seconds
+            timestamp = value / 1000 / 1000;
+        }
+        else
+        {
+            // Find graph matching each label
+            series = getSeriesByLabel(graphName);
 
+            if (series.isNull())
+            {
+                addSeries(graphName);
+                series = getSeriesByLabel(graphName);
+            }
+
+            series->addData(timestamp, value);
+        }
+    }
 }
 
 
@@ -399,4 +471,121 @@ bool MavlinkImporter::processByte(const char &byte)
     }
 
     return result;
+}
+
+
+/*
+ * Extract a 64-bit number from the front of the data array.
+ * Will remove the bytes from the array also
+ */
+uint64_t MavlinkImporter::extractUInt64(QByteArray &data, int byteCount)
+{
+    // Extract first bytes from data, and remove from original data
+    QByteArray bytes = data.mid(0, byteCount);
+    data.remove(0, byteCount);
+
+    uint64_t value = 0;
+
+    for (int idx = 0; idx < bytes.length() && idx < 8; idx++)
+    {
+        uint64_t v = bytes.at(idx) & 0xFF;
+        v <<= (idx * 8);
+
+        value += v;
+    }
+
+    return value;
+}
+
+
+/*
+ * Extract a signed 64 bit value from the data array
+ */
+int64_t MavlinkImporter::extractInt64(QByteArray &data)
+{
+    uint64_t v = extractUInt64(data);
+
+    return *(int64_t*)&v;
+}
+
+
+/*
+ * Extract an unsigned 32 bit value from the data array
+ */
+uint32_t MavlinkImporter::extractUInt32(QByteArray &data)
+{
+    return (uint32_t) extractUInt64(data, 4);
+}
+
+
+/*
+ * Extract a signed 32 bit value from the data array
+ */
+int32_t MavlinkImporter::extractInt32(QByteArray &data)
+{
+    uint32_t v = extractUInt32(data);
+
+    return *(int32_t*) &v;
+}
+
+
+/*
+ * Extract an unsigned 16 bit value from the data array
+ */
+uint16_t MavlinkImporter::extractUInt16(QByteArray &data)
+{
+    return (uint16_t) extractUInt64(data, 2);
+}
+
+
+/*
+ * Extract a signed 16 bit value from the data array
+ */
+int16_t MavlinkImporter::extractInt16(QByteArray &data)
+{
+    uint16_t v = extractUInt16(data);
+
+    return *(int16_t*) &v;
+}
+
+
+/*
+ * Extract an unsigned 8 bit value from the data array
+ */
+uint8_t MavlinkImporter::extractUInt8(QByteArray &data)
+{
+    return (uint8_t) extractUInt64(data, 1);
+}
+
+
+/*
+ * Extract a signed 8 bit value from the data array
+ */
+int8_t MavlinkImporter::extractInt8(QByteArray &data)
+{
+    uint8_t v = extractUInt8(data);
+
+    return *(int8_t*) &v;
+}
+
+
+/*
+ * Extract a float value from the data array
+ */
+float MavlinkImporter::extractFloat(QByteArray &data)
+{
+    uint32_t v = extractUInt32(data);
+
+    return *(float*) &v;
+}
+
+
+/*
+ * Extract a double value from the data array
+ */
+double MavlinkImporter::extractDouble(QByteArray &data)
+{
+    uint64_t v = extractUInt64(data);
+
+    return *(double*) &v;
 }

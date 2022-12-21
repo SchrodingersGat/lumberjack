@@ -54,7 +54,7 @@ protected:
 
     void processChunk(const QByteArray &bytes);
     bool validateFormatMessage(MavlinkFormatMessage &format);
-    void processData(MavlinkFormatMessage &format, QByteArray &bytes);
+    void processData(MavlinkFormatMessage &format, QByteArray bytes);
 
     int messageCount = 0;
 
@@ -91,6 +91,22 @@ protected:
     bool processByte(const char& byte);
 
     QMap<int, MavlinkFormatMessage> messageFormats;
+
+    // Helper functions for extracting packed data from the log
+    uint64_t extractUInt64(QByteArray &data, int byteCount=8);
+    int64_t extractInt64(QByteArray &data);
+
+    uint32_t extractUInt32(QByteArray &data);
+    int32_t extractInt32(QByteArray &data);
+
+    int16_t extractInt16(QByteArray &data);
+    uint16_t extractUInt16(QByteArray &data);
+
+    uint8_t extractUInt8(QByteArray &data);
+    int8_t extractInt8(QByteArray &data);
+
+    float extractFloat(QByteArray &data);
+    double extractDouble(QByteArray &data);
 };
 
 
