@@ -5,84 +5,38 @@
 #include "mavlink_importer.hpp"
 
 
-uint8_t MavlinkFormatMessage::messageType()
-{
-    if (dataBytes.length() > 0)
-    {
-        return dataBytes.at(0) & 0xFF;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
 /*
- * Return the expected data length for a particular message type
+ * Construct a MavlinkFormatMessage object from a series of bytes
  */
-uint8_t MavlinkFormatMessage::messageLength()
+MavlinkFormatMessage::MavlinkFormatMessage(QByteArray bytes)
 {
-   if (dataBytes.length() > 1)
-   {
-       return dataBytes.at(1) & 0xFF;
-   }
-   else
-   {
-       return 0;
-   }
-}
-
-
-/*
- * Return the "name" of the packet from a format message.
- * This is the first four bytes of the format payload
- */
-QString MavlinkFormatMessage::messageName()
-{
-   return QString(dataBytes.mid(2, 4));
-}
-
-
-/*
- * Return a list of message formats associated with this message format
- */
-QList<char> MavlinkFormatMessage::messageFormats()
-{
-    QList<char> formats;
-
-    for (auto byte : dataBytes.mid(6, 16))
+    // Extract message type
+    if (bytes.length() > 0)
     {
-        char fmt = (char) (byte & 0xFF);
-
-        if (fmt != 0x00)
-        {
-            formats.append(fmt);
-        }
+        type = bytes.at(0) & 0xFF;
     }
 
-    return formats;
-}
+    // Extract message length
+    if (bytes.length() > 1)
+    {
+        length = bytes.at(1) & 0xFF;
+    }
 
+    // Extract message name
+    name = QString(bytes.mid(2, 4));
 
-/*
- * Return a list of labels associated with this message format
- */
-QStringList MavlinkFormatMessage::messageLabels()
-{
-    QStringList labels;
+    // Extract message format specifier
+    formatString = QString(bytes.mid(6, 16));
 
-    for (auto label: QString(dataBytes.mid(22, 64)).split(","))
+    // Extract data labels
+    for (auto label : QString(bytes.mid(22, 64)).split(","))
     {
         if (!label.isEmpty())
         {
             labels.append(label);
         }
     }
-
-    return labels;
 }
-
 
 
 MavlinkImporter::MavlinkImporter() : FileDataSource("Mavlink Importer")
@@ -224,7 +178,7 @@ void MavlinkImporter::processChunk(const QByteArray &bytes)
                 {
                     // Store this format message for later on
                     // Use the messageType identifier for lookup
-                    messageFormats[format.messageType()] = format;
+                    messageFormats[format.type] = format;
                 }
                 break;
             default:
@@ -234,9 +188,9 @@ void MavlinkImporter::processChunk(const QByteArray &bytes)
                     format = messageFormats[messageId];
 
                     // Check there is enough data
-                    if (data.count() < format.messageLength())
+                    if (data.count() < format.length)
                     {
-                        qWarning() << format.messageName() << "missing data:" << data.count() << format.messageLength();
+                        qWarning() << format.name << "missing data:" << data.count() << format.length;
                     }
                     else
                     {
@@ -259,28 +213,28 @@ void MavlinkImporter::processChunk(const QByteArray &bytes)
  */
 bool MavlinkImporter::validateFormatMessage(MavlinkFormatMessage &format)
 {
-    if (format.messageName().length() == 0)
+    if (format.length == 0)
     {
         qWarning() << "Invalid format message - zero length name";
         return false;
     }
 
-    if (format.messageFormats().length() == 0)
+    if (format.formatString.length() == 0)
     {
-        qWarning() << format.messageName() << "Invalid format message - zero length format";
+        qWarning() << format.formatString << "Invalid format message - zero length format";
         return false;
     }
 
-    if (format.messageLabels().length() == 0)
+    if (format.labels.length() == 0)
     {
-        qWarning() << format.messageName() << "Invalid format message - zero length labels";
+        qWarning() << format.labels << "Invalid format message - zero length labels";
         return false;
     }
 
-    if (format.messageLabels().length() != format.messageFormats().length())
+    if (format.labels.length() != format.formatString.length())
     {
-        qWarning() << format.messageName() << "Invalid format message - mismatch between format and label length";
-        qDebug() << format.messageFormats() << format.messageLabels();
+        qWarning() << format.name << "Invalid format message - mismatch between format and label length";
+        qDebug() << format.formatString << format.labels;
 
         return false;
     }
@@ -294,22 +248,21 @@ bool MavlinkImporter::validateFormatMessage(MavlinkFormatMessage &format)
  */
 void MavlinkImporter::processData(MavlinkFormatMessage &format, QByteArray bytes)
 {
-    // Extract data from the message
-    QStringList labels = format.messageLabels();
-    QList<char> formats = format.messageFormats();
 
-    QString msgName = format.messageName();
     QString graphName;
 
     double timestamp = 0;
     double value = 0;
     QSharedPointer<DataSeries> series;
 
-    for (int idx = 0; idx < labels.count(); idx++)
+    int n = format.labels.count();
+
+    for (int idx = 0; idx < n; idx++)
     {
-        graphName = msgName + ":" + labels.at(idx);
+        graphName = format.name + ":" + format.labels.at(idx);
 
         char fmt = formats.at(idx);
+        char fmt = format.formatString.at(idx).toLatin1();
 
         switch (fmt)
         {
@@ -445,7 +398,7 @@ bool MavlinkImporter::processByte(const char &byte)
             // Check if this message is one we have heard about
             if (messageFormats.contains(messageId))
             {
-                expectedLength = messageFormats[messageId].messageLength();
+                expectedLength = messageFormats[messageId].length;
             }
             else
             {

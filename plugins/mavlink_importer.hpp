@@ -22,17 +22,14 @@ class MavlinkFormatMessage
 {
 public:
     MavlinkFormatMessage() {}
-    MavlinkFormatMessage(QByteArray bytes) : dataBytes(bytes) {}
+    MavlinkFormatMessage(QByteArray bytes);
 
-    QString messageName();
-    QList<char> messageFormats();
-    QStringList messageLabels();
+    QString name;
+    QString formatString;
+    QStringList labels;
 
-    uint8_t messageType();
-    uint8_t messageLength();
-
-protected:
-    QByteArray dataBytes;
+    uint8_t type = 0;
+    uint8_t length = 0;
 };
 
 
@@ -90,6 +87,7 @@ protected:
     void reset();
     bool processByte(const char& byte);
 
+    // Map message IDs to message formats
     QMap<int, MavlinkFormatMessage> messageFormats;
 
     // Helper functions for extracting packed data from the log
