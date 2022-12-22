@@ -98,7 +98,10 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
     }
 
     QElapsedTimer elapsed;
+    QElapsedTimer totalTime;
     QProgressDialog progress;
+
+    totalTime.restart();
 
     progress.setWindowTitle(tr("Reading file"));
     progress.setLabelText(tr("Reading data - ") + filename);
@@ -147,8 +150,7 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
         progress.close();
     }
 
-    qDebug() << "Processed" << byteCount << "bytes from" << filename;
-    qDebug() << "Found" << messageCount << "messages";
+    qDebug() << "Decoded" << messageCount << "messages from" << filename << "in" << QString::number((double) totalTime.elapsed() / 1000, 'f', 2) + "s";
 
     return true;
 }
@@ -246,9 +248,8 @@ bool MavlinkImporter::validateFormatMessage(MavlinkFormatMessage &format)
 /*
  * Decode a "data" packet, with a provided format
  */
-void MavlinkImporter::processData(MavlinkFormatMessage &format, QByteArray bytes)
+void MavlinkImporter::processData(const MavlinkFormatMessage &format, QByteArray &bytes)
 {
-
     QString graphName;
 
     double timestamp = 0;
@@ -259,10 +260,9 @@ void MavlinkImporter::processData(MavlinkFormatMessage &format, QByteArray bytes
 
     for (int idx = 0; idx < n; idx++)
     {
-        graphName = format.name + ":" + format.labels.at(idx);
+        graphName = format.name + ":" + format.labels[idx];
 
-        char fmt = formats.at(idx);
-        char fmt = format.formatString.at(idx).toLatin1();
+        char fmt = format.formatString[idx].toLatin1();
 
         switch (fmt)
         {
@@ -367,7 +367,7 @@ void MavlinkImporter::reset()
 /*
  * Process a single byte, and return true if a valid message was completed
  */
-bool MavlinkImporter::processByte(const char &byte)
+bool MavlinkImporter::processByte(const char byte)
 {
     bool result = false;
 
@@ -439,9 +439,11 @@ uint64_t MavlinkImporter::extractUInt64(QByteArray &data, int byteCount)
 
     uint64_t value = 0;
 
-    for (int idx = 0; idx < bytes.length() && idx < 8; idx++)
+    int n = bytes.length();
+
+    for (int idx = 0; idx < n && idx < 8; idx++)
     {
-        uint64_t v = bytes.at(idx) & 0xFF;
+        uint64_t v = bytes[idx] & 0xFF;
         v <<= (idx * 8);
 
         value += v;

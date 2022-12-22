@@ -51,7 +51,7 @@ protected:
 
     void processChunk(const QByteArray &bytes);
     bool validateFormatMessage(MavlinkFormatMessage &format);
-    void processData(MavlinkFormatMessage &format, QByteArray bytes);
+    void processData(const MavlinkFormatMessage &format, QByteArray &bytes);
 
     int messageCount = 0;
 
@@ -85,7 +85,7 @@ protected:
     QByteArray data;
 
     void reset();
-    bool processByte(const char& byte);
+    bool processByte(const char byte);
 
     // Map message IDs to message formats
     QMap<int, MavlinkFormatMessage> messageFormats;
