@@ -19,6 +19,11 @@ CONFIG (debug, debug|release) {
 
 INCLUDEPATH += ./qwt/src
 
+# Linking for PythonQt
+include(pythonqt/build/common.prf)
+include(pythonqt/build/PythonQt.prf)
+include(pythonqt/build/PythonQt_QtAll.prf)
+
 INCLUDEPATH += src \
                src/widgets \
                plugins \
