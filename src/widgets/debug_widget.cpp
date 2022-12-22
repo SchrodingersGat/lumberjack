@@ -109,13 +109,13 @@ void DebugWidget::addDebugMessage(QtMsgType type, QString &msg)
         color = "orange";
         break;
     case QtMsgType::QtWarningMsg:
-        color = "yellow";
-        break;
-    case QtMsgType::QtInfoMsg:
         color = "blue";
         break;
+    case QtMsgType::QtInfoMsg:
+        color = "black";
+        break;
     case QtMsgType::QtDebugMsg:
-        color = "green";
+        color = "black";
         break;
     default:
         break;

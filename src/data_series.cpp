@@ -277,6 +277,9 @@ void DataSeries::addData(DataPoint point, bool do_update)
 }
 
 
+/*
+ * Add a single data point to the series
+ */
 void DataSeries::addData(double t, float value, bool do_update)
 {
     addData(DataPoint(t, value), do_update);
