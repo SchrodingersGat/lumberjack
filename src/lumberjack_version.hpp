@@ -3,6 +3,6 @@
 
 #include <QString>
 
-const QString LUMBERJACK_VERSION_STRING = "0.0.1";
+const QString LUMBERJACK_VERSION_STRING = "0.1.0";
 
 #endif // LUMBERJACK_VERSION_HPP
