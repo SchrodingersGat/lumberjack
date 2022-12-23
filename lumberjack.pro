@@ -21,9 +21,11 @@ INCLUDEPATH += ./qwt/src
 
 DESTDIR = $$PWD/pythonqt/lib
 
+PYTHON_DIR = c:/Python39
+
 # Python
-win32: LIBS += $$PWD/python/python39.dll
-INCLUDEPATH += $$PWD/python/include
+win32: LIBS += $$PYTHON_DIR/python39.dll
+INCLUDEPATH += $$PYTHON_DIR/include
 
 include(./pythonqt/build/common.prf)
 

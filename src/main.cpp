@@ -59,15 +59,11 @@ int main(int argc, char *argv[])
     PythonQt::init();
     PythonQtObjectPtr context = PythonQt::self()->getMainModule();
 
-    /*
-    PythonQt::setEnableThreadSupport(true);
-    PythonQt_QtAll::init();
-
-
-    */
-
     QObject::connect(PythonQt::self(), &PythonQt::pythonStdOut, [](const QString &v){ qDebug() << v; });
     QObject::connect(PythonQt::self(), &PythonQt::pythonStdErr, [](const QString &v){ qCritical() << v; });
+
+    context.evalScript("print('Hello World!')");
+    context.evalScript("print(f'1 + 1 = {1 + 1}')");
 
     // Load dummy data if required
     if (parser.isSet(dummyDataOption))
