@@ -2,6 +2,8 @@
 #include <qcommandlineparser.h>
 #include <qcommandlineoption.h>
 
+#include "PythonQt.h"
+
 #include "lumberjack_debug.hpp"
 #include "lumberjack_version.hpp"
 
@@ -19,6 +21,10 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setApplicationName("Lumberjack");
     QCoreApplication::setApplicationVersion(LUMBERJACK_VERSION_STRING);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 
     // Command line parser
     QCommandLineParser parser;
@@ -47,6 +53,21 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     w.show();
+
+    qDebug() << "Initializing python modules";
+
+    PythonQt::init();
+    PythonQtObjectPtr context = PythonQt::self()->getMainModule();
+
+    /*
+    PythonQt::setEnableThreadSupport(true);
+    PythonQt_QtAll::init();
+
+
+    */
+
+    QObject::connect(PythonQt::self(), &PythonQt::pythonStdOut, [](const QString &v){ qDebug() << v; });
+    QObject::connect(PythonQt::self(), &PythonQt::pythonStdErr, [](const QString &v){ qCritical() << v; });
 
     // Load dummy data if required
     if (parser.isSet(dummyDataOption))

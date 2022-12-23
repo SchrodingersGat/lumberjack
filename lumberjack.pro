@@ -19,10 +19,20 @@ CONFIG (debug, debug|release) {
 
 INCLUDEPATH += ./qwt/src
 
-# Linking for PythonQt
-include(pythonqt/build/common.prf)
-include(pythonqt/build/PythonQt.prf)
-include(pythonqt/build/PythonQt_QtAll.prf)
+DESTDIR = $$PWD/pythonqt/lib
+
+# Python
+win32: LIBS += $$PWD/python/python39.dll
+INCLUDEPATH += $$PWD/python/include
+
+include(./pythonqt/build/common.prf)
+
+win32: LIBS += $$PWD/pythonqt/lib/libPythonQt-Qt5-Python39.a
+win32: LIBS += $$PWD/pythonqt/lib/libPythonQt_QtAll-Qt5-Python39.a
+
+INCLUDEPATH += pythonqt/lib \
+               pythonqt/src \
+               pythonqt/src/gui
 
 INCLUDEPATH += src \
                src/widgets \
