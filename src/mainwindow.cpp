@@ -76,8 +76,6 @@ void MainWindow::loadDummyData()
 
     manager->addSource(new DataSource("Source A"));
     manager->addSource(new DataSource("Source B"));
-    manager->addSource(new DataSource("Source C"));
-    manager->addSource(new DataSource("Source D"));
 
     auto src = manager->getSourceByLabel("Source B");
 
@@ -105,15 +103,23 @@ void MainWindow::loadDummyData()
 
     auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
     auto series_3 = QSharedPointer<DataSeries>(new DataSeries("Series 3"));
+    auto series_4 = QSharedPointer<DataSeries>(new DataSeries("Series 4"));
 
     for (double t = 0; t < 100; t += 0.0001)
     {
         series_2->addData(t, 10 * cos(1 * t));
         series_3->addData(t, 10 * sin(15 * t));
+
+        // Random time data wobble
+        double t_offset = (double) (rand() % 1000 - 500) / 1000;
+        t_offset *= 0.0001;
+
+        series_4->addData(t + t_offset, 15 * cos(5 * t));
     }
 
     src->addSeries(series_2);
     src->addSeries(series_3);
+    src->addSeries(series_4);
 }
 
 
