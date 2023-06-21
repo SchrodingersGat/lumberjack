@@ -430,7 +430,10 @@ void MainWindow::importData()
 {
     auto *settings = LumberjackSettings::getInstance();
 
+    qDebug() << "MainWindow::importData";
+
     auto sources = getFileImporters();
+
     // Assemble set of supported file types
     QStringList supportedFileTypes;
 

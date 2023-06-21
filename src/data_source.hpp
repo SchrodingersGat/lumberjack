@@ -99,7 +99,7 @@ public:
 
     bool supportsFileType(QString suffix) const
     {
-        return getSupportedFileTypes().contains(suffix);
+        return getSupportedFileTypes().contains(suffix.toLower());
     }
 
     // Function to set import options (called before loadDataFromFile)
