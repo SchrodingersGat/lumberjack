@@ -1,3 +1,4 @@
+#include <math.h>
 #include <algorithm>
 
 #include "data_series.hpp"
@@ -254,6 +255,12 @@ double DataSeries::getValue(uint64_t idx) const
  */
 void DataSeries::addData(DataPoint point, bool do_update)
 {
+    // Ignore NaN values
+    if (isnan(point.value)) return;
+
+    // Ignore inf values
+    if (isinf(point.value)) return;
+
     data_mutex.lock();
 
     // If the new datapoint is of equal or greater timestamp value, simply append!
