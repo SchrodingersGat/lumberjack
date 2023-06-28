@@ -286,6 +286,9 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
         // Data could not be converted to a number
         if (!result) continue;
 
+        // Ignore invalid or infinite values
+        if (isnan(value) || isinf(value)) continue;
+
         QString header = headers.at(ii);
 
         if (!columnMap.contains(header))
