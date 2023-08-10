@@ -84,6 +84,8 @@ public:
     FileDataSource(QString label);
     virtual ~FileDataSource();
 
+    QStringList getFileHead(QString filename, int nLines = 10);
+
     bool loadData(QString filename, QStringList& errors);
 
     QString getFilename(void) const { return filename; }

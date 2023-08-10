@@ -25,6 +25,18 @@
      <property name="title">
       <string>Data Preview</string>
      </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QTextBrowser" name="filePreview">
+        <property name="lineWrapMode">
+         <enum>QTextEdit::NoWrap</enum>
+        </property>
+        <property name="acceptRichText">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="1" column="0">
@@ -43,24 +55,38 @@
       <item row="0" column="2">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Set to 0 to use default column names</string>
+         <string>Set to -1 to use default column names</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QComboBox" name="columnDelimiter"/>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="dataUnitsRow"/>
+       <widget class="QSpinBox" name="dataUnitsRow">
+        <property name="minimum">
+         <number>-1</number>
+        </property>
+        <property name="value">
+         <number>-1</number>
+        </property>
+       </widget>
       </item>
-      <item row="5" column="2">
+      <item row="6" column="2">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>Rows starting with this text will be ignored</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="zeroInitialTimestamp">
+        <property name="text">
+         <string>Zero initial timestamp</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>Ignore rows starting with</string>
@@ -77,25 +103,25 @@
       <item row="1" column="2">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Set to 0 if units are not provided</string>
+         <string>Set to -1 if units are not provided</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QLabel" name="label_8">
         <property name="text">
          <string>Column Delimiter</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="label_9">
         <property name="text">
          <string>Timestamp Format</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -118,19 +144,36 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QLineEdit" name="ignoreStartWith"/>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QComboBox" name="timestampFormat"/>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="dataStartRow"/>
+       <widget class="QSpinBox" name="dataStartRow">
+        <property name="minimum">
+         <number>0</number>
+        </property>
+       </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="zeroInitialTimestamp">
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="timestampColumn">
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_10">
         <property name="text">
-         <string>Zero initial timestamp</string>
+         <string>Timestamp column</string>
         </property>
        </widget>
       </item>

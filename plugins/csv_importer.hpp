@@ -38,8 +38,10 @@ public:
     int timestampColumn = 0;
     int headerRow = 0;
     int unitsRow = -1;
-    TimestampFormat timestampFormat = TimestampFormat::SECONDS;
-    DelimiterType delimiter = DelimiterType::COMMA;
+    int timestampFormat = TimestampFormat::SECONDS;
+    int delimiter = DelimiterType::COMMA;
+
+    QString ignoreRowsStartingWith;
 
     QString getDelimiter() const;
     double getTimestampScaler() const;
@@ -52,7 +54,7 @@ class CSVImportOptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    CSVImportOptionsDialog(QString filename, QWidget *parent = nullptr);
+    CSVImportOptionsDialog(QString filename, QStringList head, QWidget *parent = nullptr);
     ~CSVImportOptionsDialog();
 
     CSVImportOptions options;
@@ -67,8 +69,6 @@ protected:
 
     // Preview of the first lines of the file
     QStringList fileHead;
-
-    bool getFilePreview();
 
 };
 

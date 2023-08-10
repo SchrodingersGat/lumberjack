@@ -59,7 +59,10 @@ double CSVImportOptions::getTimestampScaler() const
 }
 
 
-CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent) : QDialog(parent), filename(filename)
+CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QStringList head, QWidget *parent) :
+    QDialog(parent),
+    filename(filename),
+    fileHead(head)
 {
     ui.setupUi(this);
     setWindowModality(Qt::ApplicationModal);
@@ -67,24 +70,6 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
     setWindowTitle(tr("CSV Data Import Options"));
 
     /* Initialize import options */
-
-    // Data label row selection
-    ui.dataLabelRow->setMinimum(0);
-    ui.dataLabelRow->setMaximum(100);
-    ui.dataLabelRow->setValue(1);
-
-    // Data units row selection
-    ui.dataUnitsRow->setMinimum(0);
-    ui.dataUnitsRow->setMaximum(100);
-    ui.dataUnitsRow->setValue(0);
-
-    // Data start row selection
-    ui.dataStartRow->setMinimum(1);
-    ui.dataStartRow->setMaximum(100);
-    ui.dataStartRow->setValue(2);
-
-    // Ignore rows starting with
-    ui.ignoreStartWith->clear();
 
     // Column delimiter
     ui.columnDelimiter->addItem(tr("Comma") + " - ','");
@@ -103,12 +88,10 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
     connect(ui.cancelButton, &QPushButton::released, this, &QDialog::reject);
     connect(ui.importButton, &QPushButton::released, this, &CSVImportOptionsDialog::importData);
 
-    // Load file preview
-    if (!getFilePreview()) {
-        qCritical() << "Could not read file:" << filename;
-        reject();
-        close();
+    for (QString line : fileHead) {
+        ui.filePreview->append(line.trimmed());
     }
+
 }
 
 CSVImportOptionsDialog::~CSVImportOptionsDialog()
@@ -118,32 +101,16 @@ CSVImportOptionsDialog::~CSVImportOptionsDialog()
 
 
 
-/*
- * Load a preview (first few lines) of the file to be imported.
- * Returns false if there is an error opening the file
- */
-bool CSVImportOptionsDialog::getFilePreview()
-{
-    QFile f(filename);
-
-    if (!f.open(QIODevice::ReadOnly) || f.isOpen() || !f.isReadable()) {
-        return false;
-    }
-
-    f.seek(0);
-    fileHead.clear();
-
-    while (!f.atEnd() && fileHead.count() < 10) {
-        fileHead.append(f.readLine());
-    }
-
-    return true;
-}
-
-
 void CSVImportOptionsDialog::importData()
 {
-    // TODO: Copy across settings!
+    // Copy across settings!
+    options.zeroInitialTimestamp = ui.zeroInitialTimestamp->isChecked();
+    options.timestampColumn = ui.timestampColumn->value();
+    options.headerRow = ui.dataLabelRow->value();
+    options.unitsRow = ui.dataUnitsRow->value();
+    options.timestampFormat = ui.timestampFormat->currentIndex();
+    options.delimiter = ui.columnDelimiter->currentIndex();
+    options.ignoreRowsStartingWith = ui.ignoreStartWith->text().trimmed();
 
     accept();
 }
@@ -181,7 +148,14 @@ QStringList CSVImporter::getSupportedFileTypes() const
 bool CSVImporter::setImportOptions()
 {
 
-    auto *dlg = new CSVImportOptionsDialog(filename);
+    QStringList head = getFileHead(filename);
+
+    if (head.count() == 0) {
+        qCritical() << "Could not extract header from" << filename;
+        return false;
+    }
+
+    auto *dlg = new CSVImportOptionsDialog(filename, head);
 
     dlg->setAttribute(Qt::WA_DeleteOnClose, false);
 
@@ -249,6 +223,11 @@ bool CSVImporter::loadDataFromFile(QStringList &errors)
         QString line(bytes);
 
         line = line.trimmed();
+
+        // Ignore lines which start with prohibited characters
+        if (!importOptions.ignoreRowsStartingWith.isEmpty() && line.startsWith(importOptions.ignoreRowsStartingWith)) {
+            continue;
+        }
 
         QString delimiter = importOptions.getDelimiter();
 
