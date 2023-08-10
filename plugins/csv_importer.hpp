@@ -13,6 +13,40 @@
 #include "ui_csv_import_options.h"
 
 
+class CSVImportOptions
+{
+public:
+    CSVImportOptions();
+    ~CSVImportOptions();
+
+    enum TimestampFormat {
+        SECONDS = 0,
+        MILLISECONDS = 1,
+        HHMMSS = 2,
+    };
+
+    enum DelimiterType {
+        COMMA,
+        TAB,
+        COLON,
+        SEMICOLON,
+        PIPE,
+        SPACE,
+    };
+
+    bool zeroInitialTimestamp = false;
+    int timestampColumn = 0;
+    int headerRow = 0;
+    int unitsRow = -1;
+    TimestampFormat timestampFormat = TimestampFormat::SECONDS;
+    DelimiterType delimiter = DelimiterType::COMMA;
+
+    QString getDelimiter() const;
+    double getTimestampScaler() const;
+
+};
+
+
 class CSVImportOptionsDialog : public QDialog
 {
     Q_OBJECT
@@ -21,10 +55,21 @@ public:
     CSVImportOptionsDialog(QString filename, QWidget *parent = nullptr);
     ~CSVImportOptionsDialog();
 
+    CSVImportOptions options;
+
+public slots:
+    void importData();
+
 protected:
     Ui::csvImportOptionsDialog ui;
 
     QString filename;
+
+    // Preview of the first lines of the file
+    QStringList fileHead;
+
+    bool getFilePreview();
+
 };
 
 
@@ -43,21 +88,8 @@ public:
     virtual bool setImportOptions() override;
     virtual bool loadDataFromFile(QStringList& errors) override;
 
-    enum TimestampFormat
-    {
-        SECONDS = 0,
-        MILLISECONDS = 1,
-        HHMMSS = 2,
-    };
-
 protected:
-    // Import configuration options
-    int timestampColumn = 0;
-    int headerRow = 0;
-    int unitsRow = -1;
-    double timestampScaler = 0.001;     // Convert from ms to s
-
-    QString delimiter = ",";
+    CSVImportOptions importOptions;
 
     QStringList headers;
 
