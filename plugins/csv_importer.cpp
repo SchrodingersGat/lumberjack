@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include <qfile.h>
+#include <qdebug.h>
 #include <qelapsedtimer.h>
 #include <qprogressdialog.h>
 #include <qapplication.h>
@@ -8,7 +9,60 @@
 #include "csv_importer.hpp"
 
 
-CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent) : QDialog(parent), filename(filename)
+CSVImportOptions::CSVImportOptions()
+{
+}
+
+
+CSVImportOptions::~CSVImportOptions()
+{
+
+}
+
+
+/*
+ * Return the delimiter string based on the selected option
+ */
+QString CSVImportOptions::getDelimiter() const
+{
+    switch (delimiter) {
+    case DelimiterType::COMMA:
+    default:
+        return ",";
+    case DelimiterType::TAB:
+        return "\t";
+    case DelimiterType::COLON:
+        return ":";
+    case DelimiterType::SEMICOLON:
+        return ";";
+    case DelimiterType::PIPE:
+        return "|";
+    case DelimiterType::SPACE:
+        return " ";
+    }
+}
+
+
+/*
+ * Return the timestamp scaler value based on the selected option
+ */
+double CSVImportOptions::getTimestampScaler() const
+{
+    switch (timestampFormat) {
+    case TimestampFormat::MILLISECONDS:
+        return 0.001;
+    case TimestampFormat::SECONDS:
+    case TimestampFormat::HHMMSS:
+    default:
+        return 1.0;
+    }
+}
+
+
+CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QStringList head, QWidget *parent) :
+    QDialog(parent),
+    filename(filename),
+    fileHead(head)
 {
     ui.setupUi(this);
     setWindowModality(Qt::ApplicationModal);
@@ -17,24 +71,6 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
 
     /* Initialize import options */
 
-    // Data label row selection
-    ui.dataLabelRow->setMinimum(0);
-    ui.dataLabelRow->setMaximum(100);
-    ui.dataLabelRow->setValue(1);
-
-    // Data units row selection
-    ui.dataUnitsRow->setMinimum(0);
-    ui.dataUnitsRow->setMaximum(100);
-    ui.dataUnitsRow->setValue(0);
-
-    // Data start row selection
-    ui.dataStartRow->setMinimum(1);
-    ui.dataStartRow->setMaximum(100);
-    ui.dataStartRow->setValue(2);
-
-    // Ignore rows starting with
-    ui.ignoreStartWith->clear();
-
     // Column delimiter
     ui.columnDelimiter->addItem(tr("Comma") + " - ','");
     ui.columnDelimiter->addItem(tr("Tab") + " - '\\t'");
@@ -42,17 +78,41 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
     ui.columnDelimiter->addItem(tr("Semicolon") + " - ';'");
     ui.columnDelimiter->addItem(tr("Pipe") + " - '|'");
     ui.columnDelimiter->addItem(tr("Space") + " - ''");
-    ui.columnDelimiter->addItem(tr("Whitespace"));
 
     // Timestamp format
-    ui.timestampFormat->addItem(tr("Seconds"), CSVImporter::SECONDS);
-    ui.timestampFormat->addItem(tr("Milliseconds"), CSVImporter::MILLISECONDS);
-    ui.timestampFormat->addItem(tr("hh:mm::ss"), CSVImporter::HHMMSS);
+    ui.timestampFormat->addItem(tr("Seconds"), CSVImportOptions::TimestampFormat::SECONDS);
+    ui.timestampFormat->addItem(tr("Milliseconds"), CSVImportOptions::TimestampFormat::MILLISECONDS);
+    ui.timestampFormat->addItem(tr("hh:mm::ss"), CSVImportOptions::TimestampFormat::HHMMSS);
+
+    // Connect signals / slots
+    connect(ui.cancelButton, &QPushButton::released, this, &QDialog::reject);
+    connect(ui.importButton, &QPushButton::released, this, &CSVImportOptionsDialog::importData);
+
+    for (QString line : fileHead) {
+        ui.filePreview->append(line.trimmed());
+    }
+
 }
 
 CSVImportOptionsDialog::~CSVImportOptionsDialog()
 {
     // TODO
+}
+
+
+
+void CSVImportOptionsDialog::importData()
+{
+    // Copy across settings!
+    options.zeroInitialTimestamp = ui.zeroInitialTimestamp->isChecked();
+    options.timestampColumn = ui.timestampColumn->value();
+    options.headerRow = ui.dataLabelRow->value();
+    options.unitsRow = ui.dataUnitsRow->value();
+    options.timestampFormat = ui.timestampFormat->currentIndex();
+    options.delimiter = ui.columnDelimiter->currentIndex();
+    options.ignoreRowsStartingWith = ui.ignoreStartWith->text().trimmed();
+
+    accept();
 }
 
 
@@ -81,19 +141,34 @@ QStringList CSVImporter::getSupportedFileTypes() const
 }
 
 
+/*
+ * Select import options.
+ * Opens a dialog box to specify options for importing data
+ */
 bool CSVImporter::setImportOptions()
 {
-    return true;
 
-    // TODO - Set CSV import options
+    QStringList head = getFileHead(filename);
 
-    auto *dlg = new CSVImportOptionsDialog(filename);
+    if (head.count() == 0) {
+        qCritical() << "Could not extract header from" << filename;
+        return false;
+    }
 
-    int result = dlg->exec();
+    auto *dlg = new CSVImportOptionsDialog(filename, head);
+
+    dlg->setAttribute(Qt::WA_DeleteOnClose, false);
+
+    bool result = dlg->exec() == QDialog::Accepted;
+
+    if (result) {
+        // Copy across import options
+        importOptions = dlg->options;
+    }
 
     dlg->deleteLater();
+    return result;
 
-    return result == QDialog::Accepted;
 }
 
 
@@ -149,6 +224,13 @@ bool CSVImporter::loadDataFromFile(QStringList &errors)
 
         line = line.trimmed();
 
+        // Ignore lines which start with prohibited characters
+        if (!importOptions.ignoreRowsStartingWith.isEmpty() && line.startsWith(importOptions.ignoreRowsStartingWith)) {
+            continue;
+        }
+
+        QString delimiter = importOptions.getDelimiter();
+
         QStringList row = line.split(delimiter);
 
         if (!processRow(lineCount, row, errors))
@@ -180,11 +262,11 @@ bool CSVImporter::loadDataFromFile(QStringList &errors)
 
 bool CSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& errors)
 {
-    if (rowIndex == headerRow)
+    if (rowIndex == importOptions.headerRow)
     {
         return extractHeaders(rowIndex, row, errors);
     }
-    else if (rowIndex == unitsRow)
+    else if (rowIndex == importOptions.unitsRow)
     {
         // TODO - Extract units data
 
@@ -200,8 +282,6 @@ bool CSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& 
 bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringList &errors)
 {
     Q_UNUSED(rowIndex);
-
-    qDebug() << "extractHeaders";
 
     headers.clear();
 
@@ -220,7 +300,7 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
         headers.append(header);
 
         // Ignore timestamp column
-        if (ii == timestampColumn)
+        if (ii == importOptions.timestampColumn)
         {
             continue;
         }
@@ -230,7 +310,6 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
 
         while (!getSeriesByLabel(header).isNull())
         {
-            // TODO: Do something about duplicate headers!
             qWarning() << "Found duplicate header:" << header;
             header += "_2";
         }
@@ -259,10 +338,19 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
         return false;
     }
 
+    if (!initialTimestampSeen) {
+        initialTimestampSeen = true;
+        initialTimetamp = timestamp;
+    }
+
+    if (importOptions.zeroInitialTimestamp) {
+        timestamp -= initialTimetamp;
+    }
+
     for (int ii = 0; ii < row.length(); ii++)
     {
         // Ignore the timestamp column
-        if (ii == timestampColumn)
+        if (ii == importOptions.timestampColumn)
         {
             continue;
         }
@@ -308,15 +396,17 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
 
 bool CSVImporter::extractTimestamp(int rowIndex, const QStringList &row, double &timestamp)
 {
-    if (row.length() <= timestampColumn)
+    if (row.length() <= importOptions.timestampColumn)
     {
         qWarning() << "Line" << rowIndex << "missing timestamp column";
         return false;
     }
 
-    QString ts = row.at(timestampColumn);
+    QString ts = row.at(importOptions.timestampColumn);
 
     bool result = false;
+
+    double timestampScaler = importOptions.getTimestampScaler();
 
     // Convert from hh:mm::ss
     if (ts.contains(":"))

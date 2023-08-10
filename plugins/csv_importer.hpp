@@ -13,18 +13,63 @@
 #include "ui_csv_import_options.h"
 
 
+class CSVImportOptions
+{
+public:
+    CSVImportOptions();
+    ~CSVImportOptions();
+
+    enum TimestampFormat {
+        SECONDS = 0,
+        MILLISECONDS = 1,
+        HHMMSS = 2,
+    };
+
+    enum DelimiterType {
+        COMMA,
+        TAB,
+        COLON,
+        SEMICOLON,
+        PIPE,
+        SPACE,
+    };
+
+    bool zeroInitialTimestamp = false;
+    int timestampColumn = 0;
+    int headerRow = 0;
+    int unitsRow = -1;
+    int timestampFormat = TimestampFormat::SECONDS;
+    int delimiter = DelimiterType::COMMA;
+
+    QString ignoreRowsStartingWith;
+
+    QString getDelimiter() const;
+    double getTimestampScaler() const;
+
+};
+
+
 class CSVImportOptionsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    CSVImportOptionsDialog(QString filename, QWidget *parent = nullptr);
+    CSVImportOptionsDialog(QString filename, QStringList head, QWidget *parent = nullptr);
     ~CSVImportOptionsDialog();
+
+    CSVImportOptions options;
+
+public slots:
+    void importData();
 
 protected:
     Ui::csvImportOptionsDialog ui;
 
     QString filename;
+
+    // Preview of the first lines of the file
+    QStringList fileHead;
+
 };
 
 
@@ -43,21 +88,8 @@ public:
     virtual bool setImportOptions() override;
     virtual bool loadDataFromFile(QStringList& errors) override;
 
-    enum TimestampFormat
-    {
-        SECONDS = 0,
-        MILLISECONDS = 1,
-        HHMMSS = 2,
-    };
-
 protected:
-    // Import configuration options
-    int timestampColumn = 0;
-    int headerRow = 0;
-    int unitsRow = -1;
-    double timestampScaler = 0.001;     // Convert from ms to s
-
-    QString delimiter = ",";
+    CSVImportOptions importOptions;
 
     QStringList headers;
 
@@ -65,8 +97,13 @@ protected:
     bool extractHeaders(int rowIndex, const QStringList &row, QStringList &errors);
     bool extractData(int rowIndex, const QStringList &row, QStringList &errors);
     bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
+
     // Keep track of data columns while loading
     QHash<QString, QSharedPointer<DataSeries>> columnMap;
+
+    // Keep track of first timestamp value
+    double initialTimetamp = 0;
+    bool initialTimestampSeen = false;
 };
 
 

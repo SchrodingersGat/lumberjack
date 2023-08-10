@@ -324,6 +324,9 @@ QString FileDataSource::getFilePattern() const
 }
 
 
+
+
+
 bool FileDataSource::loadData(QString filename, QStringList &errors)
 {
     // Run file validation
@@ -377,6 +380,10 @@ bool FileDataSource::validateFile(QString filename, QStringList& errorList)
         errors.append(tr("File is not readable"));
     }
 
+    if (info.size() == 0) {
+        errors.append(tr("File is empty"));
+    }
+
     if (errors.isEmpty())
     {
         return true;
@@ -401,6 +408,41 @@ qint64 FileDataSource::getFileSize()
     {
         return 0;
     }
+}
+
+
+/*
+ * Read the first <n> lines of the file
+ */
+QStringList FileDataSource::getFileHead(QString filename, int nLines)
+{
+    QStringList lines;
+    QStringList errors;
+
+    if (!validateFile(filename, errors)) {
+        qCritical() << "Could not read file head for" << filename;
+
+        for (QString err : errors) {
+            qInfo() << "error message:" << err;
+        }
+
+        return lines;
+    }
+
+    QFile f(filename);
+
+    if (!f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable()) {
+        qCritical() << "Error opening file:" << filename;
+        return lines;
+    }
+
+    f.seek(0);
+
+    while (!f.atEnd() && lines.count() < nLines) {
+        lines.append(f.readLine());
+    }
+
+    return lines;
 }
 
 
