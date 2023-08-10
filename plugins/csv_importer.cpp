@@ -338,6 +338,15 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
         return false;
     }
 
+    if (!initialTimestampSeen) {
+        initialTimestampSeen = true;
+        initialTimetamp = timestamp;
+    }
+
+    if (importOptions.zeroInitialTimestamp) {
+        timestamp -= initialTimetamp;
+    }
+
     for (int ii = 0; ii < row.length(); ii++)
     {
         // Ignore the timestamp column

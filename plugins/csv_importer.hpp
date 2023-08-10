@@ -97,8 +97,13 @@ protected:
     bool extractHeaders(int rowIndex, const QStringList &row, QStringList &errors);
     bool extractData(int rowIndex, const QStringList &row, QStringList &errors);
     bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
+
     // Keep track of data columns while loading
     QHash<QString, QSharedPointer<DataSeries>> columnMap;
+
+    // Keep track of first timestamp value
+    double initialTimetamp = 0;
+    bool initialTimestampSeen = false;
 };
 
 
