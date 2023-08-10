@@ -377,6 +377,10 @@ bool FileDataSource::validateFile(QString filename, QStringList& errorList)
         errors.append(tr("File is not readable"));
     }
 
+    if (info.size() == 0) {
+        errors.append(tr("File is empty"));
+    }
+
     if (errors.isEmpty())
     {
         return true;
