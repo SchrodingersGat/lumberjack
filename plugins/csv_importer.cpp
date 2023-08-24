@@ -369,7 +369,22 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
             continue;
         }
 
-        value = text.toDouble(&result);
+        text = text.toLower();
+
+        if (text == "true" || text == "on" || text == "yes" || text == "y")
+        {
+            value = 1;
+            result = true;
+        }
+        else if (text == "false" || text == "off" || text == "no" || text == "n")
+        {
+            value = 0;
+            result = true;
+        }
+        else
+        {
+            value = text.toDouble(&result);
+        }
 
         // Data could not be converted to a number
         if (!result) continue;
