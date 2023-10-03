@@ -105,12 +105,18 @@ void CSVImportOptionsDialog::importData()
 {
     // Copy across settings!
     options.zeroInitialTimestamp = ui.zeroInitialTimestamp->isChecked();
-    options.timestampColumn = ui.timestampColumn->value();
     options.headerRow = ui.dataLabelRow->value();
     options.unitsRow = ui.dataUnitsRow->value();
     options.timestampFormat = ui.timestampFormat->currentIndex();
     options.delimiter = ui.columnDelimiter->currentIndex();
     options.ignoreRowsStartingWith = ui.ignoreStartWith->text().trimmed();
+
+    // Allow for data files which do not have a timestamp column
+    if (ui.missingTimestampColumn->isChecked()) {
+        options.timestampColumn = -1;
+    } else {
+        options.timestampColumn = ui.timestampColumn->value();
+    }
 
     accept();
 }
@@ -325,14 +331,26 @@ bool CSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringLi
 
 bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList &errors)
 {
-
     double timestamp = 0;
 
     QString text;
     double value = 0;
     bool result = false;
 
-    if (!extractTimestamp(rowIndex, row, timestamp))
+    if (importOptions.timestampColumn == -1) {
+
+        switch (importOptions.timestampFormat) {
+        case CSVImportOptions::TimestampFormat::SECONDS:
+        default:
+            timestamp = (incrementingTimestamp += 1.0f);
+            break;
+        case CSVImportOptions::MILLISECONDS:
+            timestamp = (incrementingTimestamp += 0.001f);
+            break;
+        }
+
+        timestamp = incrementingTimestamp++;
+    } else if (!extractTimestamp(rowIndex, row, timestamp))
     {
         qWarning() << "Line" << rowIndex << "does not contain valid timestamp";
         return false;
@@ -343,7 +361,7 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
         initialTimetamp = timestamp;
     }
 
-    if (importOptions.zeroInitialTimestamp) {
+    if (importOptions.timestampColumn >= 0 && importOptions.zeroInitialTimestamp) {
         timestamp -= initialTimetamp;
     }
 
