@@ -338,6 +338,17 @@ bool CSVImporter::extractData(int rowIndex, const QStringList &row, QStringList 
     bool result = false;
 
     if (importOptions.timestampColumn == -1) {
+
+        switch (importOptions.timestampFormat) {
+        case CSVImportOptions::TimestampFormat::SECONDS:
+        default:
+            timestamp = (incrementingTimestamp += 1.0f);
+            break;
+        case CSVImportOptions::MILLISECONDS:
+            timestamp = (incrementingTimestamp += 0.001f);
+            break;
+        }
+
         timestamp = incrementingTimestamp++;
     } else if (!extractTimestamp(rowIndex, row, timestamp))
     {
