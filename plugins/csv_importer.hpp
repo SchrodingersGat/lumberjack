@@ -104,6 +104,9 @@ protected:
     // Keep track of first timestamp value
     double initialTimetamp = 0;
     bool initialTimestampSeen = false;
+
+    // Internal timestamp which is used if not available in imported file
+    double incrementingTimestamp = 0;
 };
 
 

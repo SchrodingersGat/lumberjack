@@ -711,7 +711,7 @@ void PlotWidget::initLegend()
 
     legend->setDefaultItemMode(QwtLegendData::Clickable);
 
-    insertLegend(legend, QwtPlot::TopLegend);
+    insertLegend(legend, QwtPlot::LeftLegend);
 
     connect(legend, SIGNAL(clicked(const QVariant, int)), this, SLOT(legendClicked(const QVariant, int)));
 }
