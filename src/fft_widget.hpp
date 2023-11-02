@@ -2,11 +2,16 @@
 #define FFT_WIDGET_HPP
 
 #include <qwt_plot.h>
+#include <qwt_plot_zoomer.h>
+
+#include "plot_widget.hpp"
 
 #include "fft/include/simple_fft/fft_settings.h"
 #include "fft/include/simple_fft/fft.h"
 
-class FFTWidget : public QwtPlot
+#include "plot_panner.hpp"
+
+class FFTWidget : public PlotWidget
 {
     Q_OBJECT
 
@@ -19,8 +24,7 @@ signals:
 public slots:
 
 protected:
-    void initAxes(void);
-
+    virtual bool isCurveTrackingEnabled(void) const override { return false; }
 };
 
 #endif // FFT_WIDGET_HPP

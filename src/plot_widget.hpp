@@ -117,6 +117,7 @@ protected:
     void updateTimestampLimits();
 
     // Curve tracking
+    virtual bool isCurveTrackingEnabled(void) const { return true; }
     bool isCurveTracked(void);
     bool isCurveTracked(QSharedPointer<PlotCurve> curve);
     void trackCurve(QSharedPointer<PlotCurve> curve);

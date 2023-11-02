@@ -20,6 +20,7 @@
 
 PlotWidget::PlotWidget() : QwtPlot()
 {
+
     // Enable secondary axis
     enableAxis(QwtPlot::yRight, true);
 
@@ -1121,12 +1122,17 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     x = invTransform(QwtPlot::xBottom, x);
 
+    if (!crosshair)
+    {
+        initCrosshairs();
+    }
+
     auto pen = crosshair->linePen();
 
     bool tracking = false;
 
     // Are we tracking a curve?
-    if (!tracking_curve.isNull())
+    if (isCurveTrackingEnabled() && !tracking_curve.isNull())
     {
         auto series = tracking_curve->getDataSeries();
 

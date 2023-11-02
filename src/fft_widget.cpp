@@ -1,6 +1,10 @@
 #include <QDebug>
 
+#include <qpen.h>
+#include <qmath.h>
+
 #include <qwt_text.h>
+#include <qwt_plot_curve.h>
 
 #include "fft_widget.hpp"
 
@@ -16,20 +20,104 @@ typedef std::vector<complex_type> ComplexArray1D;
 
 
 
-FFTWidget::FFTWidget() : QwtPlot()
+FFTWidget::FFTWidget() : PlotWidget()
 {
+    /*
+    return;
+
     initAxes();
 
     const char* error;
 
     const int N = 8192;
 
+    RealArray1D time(N);
+
     RealArray1D data_in(N);
     ComplexArray1D data_out(N);
 
+    RealArray1D real_out(N);
+    RealArray1D im_out(N);
+
+    for (int ii = 0; ii < N; ii++)
+    {
+        double t = ii * 0.001;
+        double d = (double) qSin(t) + 2 * qCos(5 * t) + 100 * qCos(50 * t);
+
+        time[ii] = t;
+        data_in[ii] = d;
+    }
+
     bool res = simple_fft::FFT<RealArray1D, ComplexArray1D>(data_in, data_out, N, error);
 
-    qDebug() << "FFT:" << N << res;
+    double f_max = 0;
+
+    for (int ii = 0; ii < N; ii++)
+    {
+        real_out[ii] = data_out[ii].real();
+
+        f_max = qMax(f_max, qAbs(real_out[ii]));
+
+        im_out[ii] = data_out[ii].imag();
+    }
+
+    qDebug() << "FFT:" << N << res << error;
+
+    QwtPlotCurve *curve = new QwtPlotCurve("input");
+    QwtPlotCurve *freq = new QwtPlotCurve("freq");
+    QwtPlotCurve *im = new QwtPlotCurve("im");
+
+    QVector<double> t_data = QVector<double>::fromStdVector(time);
+    QVector<double> y_data = QVector<double>::fromStdVector(data_in);
+
+    QVector<double> t_scaled = QVector<double>(N);
+    QVector<double> f_data = QVector<double>(N);
+//    QVector<double> i_data = QVector<double>::fromStdVector(im_out);
+
+
+    double t_scaler = 1000.0f;
+
+    for (int ii = 0; ii < N; ii++)
+    {
+        f_data[ii] = qAbs(real_out[ii]) / f_max;
+        t_scaled[ii] = t_data[ii] * t_scaler;
+    }
+
+    curve->setSamples(t_data, y_data);
+    curve->attach(this);
+
+    freq->setSamples(t_scaled, f_data);
+    freq->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
+    freq->attach(this);
+
+    QPen pen = freq->pen();
+    pen.setColor(QColor(50, 50, 250));
+
+    freq->setPen(pen);
+
+//    im->setSamples(t_data, i_data);
+//    im->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
+//    im->attach(this);
+
+
+    zoomer = new QwtPlotZoomer(canvas(), true);
+
+    zoomer->setMaxStackDepth(-1);
+    zoomer->setTrackerMode(QwtPicker::AlwaysOff);
+    zoomer->setZoomBase();
+
+    // Configure mouse actions
+    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect2, Qt::MouseButton::NoButton);
+    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect3, Qt::MouseButton::NoButton);
+    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect4, Qt::MouseButton::NoButton);
+    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect5, Qt::MouseButton::NoButton);
+    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect6, Qt::MouseButton::NoButton);
+
+    zoomer->setZoomBase();
+
+    panner = new PlotPanner(canvas());
+    panner->setMouseButton(Qt::MiddleButton);
+    */
 }
 
 
@@ -38,16 +126,3 @@ FFTWidget::~FFTWidget()
     // TODO
 }
 
-
-void FFTWidget::initAxes()
-{
-    QwtText title = axisTitle(QwtPlot::xBottom);
-
-    auto font = title.font();
-    font.setPointSize(8);
-    title.setFont(font);
-
-    title.setText("Frequency [Hz]");
-
-    setAxisTitle(QwtPlot::xBottom, title);
-}
