@@ -169,6 +169,7 @@ void MainWindow::initMenus()
     connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
     connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
     connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
+    connect(ui->action_FFT, &QAction::triggered, this, &MainWindow::toggleFftView);
 
     // Graphs menu
     connect(ui->action_Add_Graph, &QAction::triggered, this, &MainWindow::addPlot);
@@ -553,6 +554,28 @@ void MainWindow::removePlot(QSharedPointer<PlotWidget> plot)
 {
     Q_UNUSED(plot)
     // TODO
+}
+
+
+void MainWindow::toggleFftView(void)
+{
+    ui->action_FFT->setCheckable(true);
+
+    if (fftView.isVisible())
+    {
+        hideDockedWidget(&fftView);
+        ui->action_FFT->setChecked(false);
+    }
+    else
+    {
+        QDockWidget* dock = new QDockWidget(tr("FFT View"), this);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setWidget(&fftView);
+
+        addDockWidget(Qt::LeftDockWidgetArea, dock);
+
+        ui->action_Data_View->setChecked(true);
+    }
 }
 
 

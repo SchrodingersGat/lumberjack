@@ -19,6 +19,8 @@ signals:
 public slots:
 
 protected:
+    void initAxes(void);
+
 };
 
 #endif // FFT_WIDGET_HPP
