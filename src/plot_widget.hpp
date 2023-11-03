@@ -111,7 +111,7 @@ protected:
 
     virtual PlotCurveUpdater* generateNewWorker(QSharedPointer<DataSeries> series);
 
-    void resampleCurves(int axis_id = yBoth);
+    virtual void resampleCurves(int axis_id = yBoth);
 
     void updateCursorShape(QMouseEvent *event = nullptr);
 

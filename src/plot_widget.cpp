@@ -1320,8 +1320,6 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     PlotCurveUpdater* worker = generateNewWorker(series);
     PlotCurve *curve = new PlotCurve(series, worker);
 
-    qDebug() << "created new curve:" << series << worker;
-
     curve->attach(this);
     curve->setYAxis(axis_id);
 

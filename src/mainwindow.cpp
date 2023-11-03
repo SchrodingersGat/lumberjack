@@ -106,8 +106,9 @@ void MainWindow::loadDummyData()
     auto series_4 = QSharedPointer<DataSeries>(new DataSeries("Series 4"));
 
     for (double t = 0; t < 100; t += 0.0001)
-    {
-        series_2->addData(t, 10 * cos(1 * t));
+    {        
+        // 5Hz, 20Hz, 50Hz
+        series_2->addData(t, 10 * cos(5 * 2 * M_PI * t) + 5 * sin(20 * 2 * M_PI * t) + 15 * sin(50 * 2 * M_PI * t));
         series_3->addData(t, 10 * sin(15 * t));
 
         // Random time data wobble
@@ -283,6 +284,9 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 
     // Update the "statistics" view
     statsView.updateStats(seriesList, viewInterval);
+
+    // Update the "fft" view
+    fftView.updateInterval(viewInterval);
 }
 
 

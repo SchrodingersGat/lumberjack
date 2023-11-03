@@ -1,3 +1,7 @@
+#include <qmath.h>
+#include <qglobal.h>
+#include <qelapsedtimer.h>
+
 #include "fft_sampler.hpp"
 
 #define __USE_SQUARE_BRACKETS_FOR_ELEMENT_ACCESS_OPERATOR
@@ -22,119 +26,107 @@ FFTCurveUpdater::FFTCurveUpdater(DataSeries &data_series) : PlotCurveUpdater(dat
  */
 void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned int n_pixels)
 {
+    Q_UNUSED(n_pixels);
 
-    // TODO: Custom update function here
-    PlotCurveUpdater::updateCurveSamples(t_min, t_max, n_pixels);
+    // Initialize empty arrays
+    QVector<double> x_data;
+    QVector<double> y_data;
 
-    return;
+    if (series.size() == 0)
+    {
+        emit sampleComplete(x_data, y_data);
+        return;
+    }
 
     // If the arguments are the same as last time, ignore
-    if (t_min == t_min_latest && t_max == t_max_latest && n_pixels == n_pixels_latest)
+    if (t_min == t_min_latest && t_max == t_max_latest)
     {
         return;
     }
 
     t_min_latest = t_min;
     t_max_latest = t_max;
-    n_pixels_latest = n_pixels;
-
-    // TODO: Calculate the FFT of the sample
 
 
-    /*
-    return;
+    // Extract *all* data between the required points
+    auto idx_min = series.getIndexForTimestamp(t_min);
+    auto idx_max = series.getIndexForTimestamp(t_max);
 
-    initAxes();
+    auto n_samples = idx_max - idx_min;
 
-    const char* error;
+    // TODO: Implement a data-pruning algorithm when there are too many samples
+    const uint64_t MAX_FFT_SAMPLES = 0x10000;
+    const uint64_t MIN_FFT_SAMPLES = 0x80;
 
-    const int N = 8192;
+    if (n_samples < MIN_FFT_SAMPLES)
+    {
+        emit sampleComplete(x_data, y_data);
+        return;
+    }
 
-    RealArray1D time(N);
+    // For the FFT to work, we assume that the samples are at fixed frequency
+    double timespan = qAbs<double>(t_max - t_min);
+    double dt = timespan / n_samples;
+
+    // Calculate the "maximum" frequency we can measure
+    double f_max = 0.5 / dt;
+
+    uint64_t N = 2;
+
+    // Calculate a "power of 2" sample size
+    while (N < n_samples && N < MAX_FFT_SAMPLES)
+    {
+        N <<= 1;
+    }
 
     RealArray1D data_in(N);
     ComplexArray1D data_out(N);
 
+    // Copy across the data
+    for (uint64_t ii = 0; ii < N; ii++)
+    {
+        uint64_t wrapped_idx = ii % n_samples;
+
+        // If we have to pad out the data, wrap it around on itself
+        data_in[ii] = series.getDataPoint(idx_min + wrapped_idx).value;
+    }
+
+    const char* error;
+
+    bool result = simple_fft::FFT<RealArray1D, ComplexArray1D>(data_in, data_out, N, error);
+
+
+    if (!result)
+    {
+        qWarning() << "Error calculating FFT data:" << QString(error);
+        emit sampleComplete(x_data, y_data);
+        return;
+    }
+
+    double y_max = 0;
+
     RealArray1D real_out(N);
-    RealArray1D im_out(N);
 
-    for (int ii = 0; ii < N; ii++)
+    x_data.reserve(N);
+    y_data.reserve(N);
+
+    // Calculate max values to normalize
+    for (uint64_t ii = 0; ii < N; ii++)
     {
-        double t = ii * 0.001;
-        double d = (double) qSin(t) + 2 * qCos(5 * t) + 100 * qCos(50 * t);
-
-        time[ii] = t;
-        data_in[ii] = d;
+        real_out[ii] = qAbs(data_out[ii].real());
+        y_max = qMax<double>(y_max, real_out[ii]);
     }
 
-    bool res = simple_fft::FFT<RealArray1D, ComplexArray1D>(data_in, data_out, N, error);
-
-    double f_max = 0;
-
-    for (int ii = 0; ii < N; ii++)
+    for (uint64_t jj = 0; jj < N/2; jj++)
     {
-        real_out[ii] = data_out[ii].real();
+        double f = jj * dt / N * 1e8;
 
-        f_max = qMax(f_max, qAbs(real_out[ii]));
+        if (f > f_max) break;
 
-        im_out[ii] = data_out[ii].imag();
+        x_data.append(f);
+        y_data.append(real_out[jj] / y_max);
     }
 
-    qDebug() << "FFT:" << N << res << error;
+    emit sampleComplete(x_data, y_data);
 
-    QwtPlotCurve *curve = new QwtPlotCurve("input");
-    QwtPlotCurve *freq = new QwtPlotCurve("freq");
-    QwtPlotCurve *im = new QwtPlotCurve("im");
-
-    QVector<double> t_data = QVector<double>::fromStdVector(time);
-    QVector<double> y_data = QVector<double>::fromStdVector(data_in);
-
-    QVector<double> t_scaled = QVector<double>(N);
-    QVector<double> f_data = QVector<double>(N);
-//    QVector<double> i_data = QVector<double>::fromStdVector(im_out);
-
-
-    double t_scaler = 1000.0f;
-
-    for (int ii = 0; ii < N; ii++)
-    {
-        f_data[ii] = qAbs(real_out[ii]) / f_max;
-        t_scaled[ii] = t_data[ii] * t_scaler;
-    }
-
-    curve->setSamples(t_data, y_data);
-    curve->attach(this);
-
-    freq->setSamples(t_scaled, f_data);
-    freq->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
-    freq->attach(this);
-
-    QPen pen = freq->pen();
-    pen.setColor(QColor(50, 50, 250));
-
-    freq->setPen(pen);
-
-//    im->setSamples(t_data, i_data);
-//    im->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
-//    im->attach(this);
-
-
-    zoomer = new QwtPlotZoomer(canvas(), true);
-
-    zoomer->setMaxStackDepth(-1);
-    zoomer->setTrackerMode(QwtPicker::AlwaysOff);
-    zoomer->setZoomBase();
-
-    // Configure mouse actions
-    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect2, Qt::MouseButton::NoButton);
-    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect3, Qt::MouseButton::NoButton);
-    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect4, Qt::MouseButton::NoButton);
-    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect5, Qt::MouseButton::NoButton);
-    zoomer->setMousePattern(QwtPlotZoomer::MouseSelect6, Qt::MouseButton::NoButton);
-
-    zoomer->setZoomBase();
-
-    panner = new PlotPanner(canvas());
-    panner->setMouseButton(Qt::MiddleButton);
-    */
 }

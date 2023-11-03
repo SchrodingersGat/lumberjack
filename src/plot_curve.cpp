@@ -74,7 +74,9 @@ void PlotCurve::resampleData(double t_min, double t_max, unsigned int n_pixels)
     else if (series.isNull())
     {
         qDebug() << "resampleData:" << "series is null";
-    } else if (worker == nullptr) {
+    }
+    else if (worker == nullptr)
+    {
         qDebug() << "resampleData:" << "worker is null";
     }
 }
