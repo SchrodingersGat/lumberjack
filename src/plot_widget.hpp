@@ -109,6 +109,8 @@ protected:
     void initCrosshairs(void);
     void initGrid(void);
 
+    virtual PlotCurveUpdater* generateNewWorker(QSharedPointer<DataSeries> series);
+
     void resampleCurves(int axis_id = yBoth);
 
     void updateCursorShape(QMouseEvent *event = nullptr);

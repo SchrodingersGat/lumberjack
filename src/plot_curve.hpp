@@ -2,40 +2,12 @@
 #define PLOT_CURVE_H
 
 #include <qthread.h>
-
 #include <qwt_plot_curve.h>
 
 #include "data_series.hpp"
+#include "plot_sampler.hpp"
 
 class PlotCurve;
-
-class PlotCurveUpdater : public QObject
-{
-    Q_OBJECT
-
-public:
-    PlotCurveUpdater(DataSeries &data_series);
-
-public slots:
-
-    void updateCurveSamples(double t_min, double t_max, unsigned int n_pixels);
-
-signals:
-    // Sampled data is returned
-    void sampleComplete(const QVector<double>&, const QVector<double>&);
-
-protected:
-    DataSeries &series;
-
-    //! Mutex to prevent simultaneous sampling
-    mutable QMutex mutex;
-
-    bool is_sampling = false;
-
-    double t_min_latest = -1;
-    double t_max_latest = -1;
-    unsigned int n_pixels_latest = 0;
-};
 
 /*
  * An extension of the QwtPlotCurve class,
@@ -52,8 +24,8 @@ class PlotCurve : public QObject, public QwtPlotCurve
    Q_OBJECT
 
 public:
-    PlotCurve(QSharedPointer<DataSeries> series);
-    PlotCurve(DataSeries* series) : PlotCurve(QSharedPointer<DataSeries>(series)) {}
+    PlotCurve(QSharedPointer<DataSeries> series, PlotCurveUpdater* updater);
+    PlotCurve(DataSeries* series, PlotCurveUpdater *updater) : PlotCurve(QSharedPointer<DataSeries>(series), updater) {}
 
     QSharedPointer<DataSeries> getDataSeries(void) { return series; }
 
@@ -72,7 +44,7 @@ protected slots:
 protected:
     QSharedPointer<DataSeries> series;
 
-    PlotCurveUpdater worker;
+    PlotCurveUpdater *worker = nullptr;
 
     //! Thread for re-sampling curve data
     QThread workerThread;

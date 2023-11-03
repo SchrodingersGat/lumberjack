@@ -18,6 +18,37 @@ typedef std::vector<real_type> RealArray1D;
 typedef std::vector<complex_type> ComplexArray1D;
 
 
+FFTCurveUpdater::FFTCurveUpdater(DataSeries &data_series) : PlotCurveUpdater(data_series)
+{
+
+}
+
+
+
+/*
+ * Custom curve updater method which calculates the FFT for the provided data.
+ */
+void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned int n_pixels)
+{
+
+    // TODO: Custom update function here
+    PlotCurveUpdater::updateCurveSamples(t_min, t_max, n_pixels);
+
+    return;
+
+    // If the arguments are the same as last time, ignore
+    if (t_min == t_min_latest && t_max == t_max_latest && n_pixels == n_pixels_latest)
+    {
+        return;
+    }
+
+    t_min_latest = t_min;
+    t_max_latest = t_max;
+    n_pixels_latest = n_pixels;
+
+    // TODO: Calculate the FFT of the sample
+}
+
 
 
 FFTWidget::FFTWidget() : PlotWidget()
@@ -126,3 +157,13 @@ FFTWidget::~FFTWidget()
     // TODO
 }
 
+
+/**
+ * @brief PlotWidget::generateNewWorker - Create a new curve sampling worker
+ * @return
+ */
+PlotCurveUpdater* FFTWidget::generateNewWorker(QSharedPointer<DataSeries> series)
+{
+    qDebug() << "generating new fft worker";
+    return new FFTCurveUpdater(*series);
+}
