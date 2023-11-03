@@ -28,6 +28,9 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
 {
     Q_UNUSED(n_pixels);
 
+    QElapsedTimer fft_timer;
+    fft_timer.restart();
+
     // Initialize empty arrays
     QVector<double> x_data;
     QVector<double> y_data;
@@ -51,6 +54,13 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
     // Extract *all* data between the required points
     auto idx_min = series.getIndexForTimestamp(t_min);
     auto idx_max = series.getIndexForTimestamp(t_max);
+
+    if (idx_min < 0) idx_min = 0;
+    if (idx_max >= series.size()) idx_max = series.size() - 1;
+
+    // Recalculate endpoint timestamps
+    t_min = series.getDataPoint(idx_min).timestamp;
+    t_max = series.getDataPoint(idx_max).timestamp;
 
     auto n_samples = idx_max - idx_min;
 
@@ -113,20 +123,32 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
     // Calculate max values to normalize
     for (uint64_t ii = 0; ii < N; ii++)
     {
-        real_out[ii] = qAbs(data_out[ii].real());
-        y_max = qMax<double>(y_max, real_out[ii]);
+        double real = data_out[ii].real();
+        double imag = data_out[ii].imag();
+
+        double out = qSqrt(real*real + imag*imag);
+
+        real_out[ii] = out;
+
+        // Prevent the DC value from swamping the overall data
+        if (ii > 0)
+        {
+            y_max = qMax<double>(y_max, out);
+        }
     }
 
     for (uint64_t jj = 0; jj < N/2; jj++)
     {
         double f = jj * dt / N * 1e8;
 
-        if (f > f_max) break;
+//        if (f > f_max) break;
 
         x_data.append(f);
         y_data.append(real_out[jj] / y_max);
     }
 
     emit sampleComplete(x_data, y_data);
+
+    qDebug() << "Completed FFT for" << N << "samples in" << QString::number(fft_timer.elapsed(), 'f', 3) << "ms";
 
 }
