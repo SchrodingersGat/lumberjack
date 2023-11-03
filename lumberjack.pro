@@ -28,6 +28,7 @@ INCLUDEPATH += src \
 
 SOURCES += \
     plugins/mavlink_importer.cpp \
+    src/fft_sampler.cpp \
     src/fft_widget.cpp \
     src/helpers.cpp \
     src/data_series.cpp \
@@ -61,6 +62,7 @@ SOURCES += \
 
 HEADERS += \
     plugins/mavlink_importer.hpp \
+    src/fft_sampler.hpp \
     src/fft_widget.hpp \
     src/helpers.hpp \
     src/data_series.hpp \
