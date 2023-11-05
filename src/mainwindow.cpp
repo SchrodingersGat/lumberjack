@@ -109,7 +109,7 @@ void MainWindow::loadDummyData()
     {        
         // 5Hz, 20Hz, 50Hz
         series_2->addData(t, 10 * cos(5 * 2 * M_PI * t) + 5 * sin(20 * 2 * M_PI * t) + 15 * sin(50 * 2 * M_PI * t));
-        series_3->addData(t, 10 * sin(15 * t));
+        series_3->addData(2 * t, 10 * sin(15 * t));
 
         // Random time data wobble
         double t_offset = (double) (rand() % 1000 - 500) / 1000;

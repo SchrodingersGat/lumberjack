@@ -139,9 +139,7 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
 
     for (uint64_t jj = 0; jj < N/2; jj++)
     {
-        double f = jj * dt / N * 1e8;
-
-//        if (f > f_max) break;
+        double f = jj / dt / N;
 
         x_data.append(f);
         y_data.append(real_out[jj] / y_max);
@@ -149,6 +147,6 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
 
     emit sampleComplete(x_data, y_data);
 
-    qDebug() << "Completed FFT for" << N << "samples in" << QString::number(fft_timer.elapsed(), 'f', 3) << "ms";
+    // qDebug() << "Completed FFT for" << N << "samples in" << QString::number(fft_timer.elapsed(), 'f', 3) << "ms";
 
 }
