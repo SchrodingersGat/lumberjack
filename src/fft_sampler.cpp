@@ -141,6 +141,9 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
     {
         double f = jj / dt / N;
 
+        // Ignore frequencies above the nyquist frequency
+        if (f > f_max) break;
+
         x_data.append(f);
         y_data.append(real_out[jj] / y_max);
     }
