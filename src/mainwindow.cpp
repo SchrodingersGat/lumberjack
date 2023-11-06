@@ -104,10 +104,14 @@ void MainWindow::loadDummyData()
     auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
     auto series_3 = QSharedPointer<DataSeries>(new DataSeries("Series 3"));
     auto series_4 = QSharedPointer<DataSeries>(new DataSeries("Series 4"));
+    auto series_5 = QSharedPointer<DataSeries>(new DataSeries("Series 5"));
+    auto series_6 = QSharedPointer<DataSeries>(new DataSeries("Series 6"));
+    auto series_7 = QSharedPointer<DataSeries>(new DataSeries("Series 7"));
 
     for (double t = 0; t < 100; t += 0.0001)
-    {
-        series_2->addData(t, 10 * cos(1 * t));
+    {        
+        // 5Hz, 20Hz, 50Hz
+        series_2->addData(t, 10 * cos(5 * 2 * M_PI * t) + 5 * sin(20 * 2 * M_PI * t) + 15 * sin(50 * 2 * M_PI * t));
         series_3->addData(t, 10 * sin(15 * t));
 
         // Random time data wobble
@@ -115,11 +119,25 @@ void MainWindow::loadDummyData()
         t_offset *= 0.0001;
 
         series_4->addData(t + t_offset, 15 * cos(5 * t));
+
+        // Series 5, 6, 7 have the same frequency data, but at different sampling period
+        // This ensures that the FFT calculations are correct
+
+        // FFT should have peak at 123.45Hz
+        const double f_base = 123.45 * 2 * M_PI;
+
+        series_5->addData(0.1 * t, 10 * cos(0.1 * t * f_base));
+        series_6->addData(1.0 * t, 10 * cos(1.0 * t * f_base));
+        series_7->addData(10  * t, 10 * cos(10  * t * f_base));
     }
 
     src->addSeries(series_2);
     src->addSeries(series_3);
     src->addSeries(series_4);
+    src->addSeries(series_5);
+    src->addSeries(series_6);
+    src->addSeries(series_7);
+
 }
 
 
@@ -169,6 +187,7 @@ void MainWindow::initMenus()
     connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
     connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
     connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
+    connect(ui->action_FFT, &QAction::triggered, this, &MainWindow::toggleFftView);
 
     // Graphs menu
     connect(ui->action_Add_Graph, &QAction::triggered, this, &MainWindow::addPlot);
@@ -282,6 +301,9 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 
     // Update the "statistics" view
     statsView.updateStats(seriesList, viewInterval);
+
+    // Update the "fft" view
+    fftView.updateInterval(viewInterval);
 }
 
 
@@ -553,6 +575,28 @@ void MainWindow::removePlot(QSharedPointer<PlotWidget> plot)
 {
     Q_UNUSED(plot)
     // TODO
+}
+
+
+void MainWindow::toggleFftView(void)
+{
+    ui->action_FFT->setCheckable(true);
+
+    if (fftView.isVisible())
+    {
+        hideDockedWidget(&fftView);
+        ui->action_FFT->setChecked(false);
+    }
+    else
+    {
+        QDockWidget* dock = new QDockWidget(tr("FFT View"), this);
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setWidget(&fftView);
+
+        addDockWidget(Qt::LeftDockWidgetArea, dock);
+
+        ui->action_Data_View->setChecked(true);
+    }
 }
 
 

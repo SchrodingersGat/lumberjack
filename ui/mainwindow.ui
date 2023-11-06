@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -50,6 +50,7 @@
      <string>&amp;View</string>
     </property>
     <addaction name="action_Data_View"/>
+    <addaction name="action_FFT"/>
     <addaction name="action_Timeline"/>
     <addaction name="action_Statistics"/>
    </widget>
@@ -58,6 +59,7 @@
      <string>&amp;Graph</string>
     </property>
     <addaction name="action_Add_Graph"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -108,6 +110,11 @@
   <action name="action_Add_Graph">
    <property name="text">
     <string>&amp;Add Graph</string>
+   </property>
+  </action>
+  <action name="action_FFT">
+   <property name="text">
+    <string>&amp;FFT</string>
    </property>
   </action>
  </widget>

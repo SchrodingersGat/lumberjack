@@ -109,7 +109,9 @@ protected:
     void initCrosshairs(void);
     void initGrid(void);
 
-    void resampleCurves(int axis_id = yBoth);
+    virtual PlotCurveUpdater* generateNewWorker(QSharedPointer<DataSeries> series);
+
+    virtual void resampleCurves(int axis_id = yBoth);
 
     void updateCursorShape(QMouseEvent *event = nullptr);
 
@@ -117,6 +119,7 @@ protected:
     void updateTimestampLimits();
 
     // Curve tracking
+    virtual bool isCurveTrackingEnabled(void) const { return true; }
     bool isCurveTracked(void);
     bool isCurveTracked(QSharedPointer<PlotCurve> curve);
     void trackCurve(QSharedPointer<PlotCurve> curve);

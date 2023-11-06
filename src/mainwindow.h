@@ -9,6 +9,7 @@
 
 #include "debug_widget.hpp"
 #include "plot_widget.hpp"
+#include "fft_widget.hpp"
 #include "stats_widget.hpp"
 #include "dataview_widget.hpp"
 #include "timeline_widget.hpp"
@@ -56,6 +57,7 @@ protected slots:
 
     void toggleDebugView(void);
     void toggleDataView(void);
+    void toggleFftView(void);
     void toggleTimelineView(void);
     void toggleStatisticsView(void);
 
@@ -80,6 +82,7 @@ private:
     DataviewWidget dataView;
     StatsWidget statsView;
     TimelineWidget timelineView;
+    FFTWidget fftView;
 
     DebugWidget debugWidget;
 

@@ -20,6 +20,7 @@
 
 PlotWidget::PlotWidget() : QwtPlot()
 {
+
     // Enable secondary axis
     enableAxis(QwtPlot::yRight, true);
 
@@ -1121,12 +1122,17 @@ void PlotWidget::mouseMoveEvent(QMouseEvent *event)
 
     x = invTransform(QwtPlot::xBottom, x);
 
+    if (!crosshair)
+    {
+        initCrosshairs();
+    }
+
     auto pen = crosshair->linePen();
 
     bool tracking = false;
 
     // Are we tracking a curve?
-    if (!tracking_curve.isNull())
+    if (isCurveTrackingEnabled() && !tracking_curve.isNull())
     {
         auto series = tracking_curve->getDataSeries();
 
@@ -1311,7 +1317,8 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     }
 
     // Create a new PlotCurve for the DataSeries
-    PlotCurve *curve = new PlotCurve(series);
+    PlotCurveUpdater* worker = generateNewWorker(series);
+    PlotCurve *curve = new PlotCurve(series, worker);
 
     curve->attach(this);
     curve->setYAxis(axis_id);
@@ -1569,4 +1576,14 @@ void PlotWidget::editAxisScale(QwtPlot::Axis axisId)
 int PlotWidget::getHorizontalPixels() const
 {
     return width();
+}
+
+
+/**
+ * @brief PlotWidget::generateNewWorker - Create a new curve sampling worker
+ * @return
+ */
+PlotCurveUpdater* PlotWidget::generateNewWorker(QSharedPointer<DataSeries> series)
+{
+    return new PlotCurveUpdater(*series);
 }

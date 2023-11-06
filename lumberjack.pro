@@ -21,12 +21,15 @@ INCLUDEPATH += ./qwt/src
 
 INCLUDEPATH += src \
                src/widgets \
+               fft/include/simple_fft \
                plugins \
                plugins/cedat_protocol \
                plugins/cobsr
 
 SOURCES += \
     plugins/mavlink_importer.cpp \
+    src/fft_sampler.cpp \
+    src/fft_widget.cpp \
     src/helpers.cpp \
     src/data_series.cpp \
     src/data_source.cpp \
@@ -52,12 +55,15 @@ SOURCES += \
     src/widgets/dataview_tree.cpp \
     src/widgets/dataview_widget.cpp \
     src/widgets/debug_widget.cpp \
+    src/widgets/plot_sampler.cpp \
     src/widgets/series_editor_dialog.cpp \
     src/widgets/stats_widget.cpp \
     src/widgets/timeline_widget.cpp
 
 HEADERS += \
     plugins/mavlink_importer.hpp \
+    src/fft_sampler.hpp \
+    src/fft_widget.hpp \
     src/helpers.hpp \
     src/data_series.hpp \
     src/data_source.hpp \
@@ -84,9 +90,20 @@ HEADERS += \
     src/widgets/dataview_tree.hpp \
     src/widgets/dataview_widget.hpp \
     src/widgets/debug_widget.hpp \
+    src/widgets/plot_sampler.hpp \
     src/widgets/series_editor_dialog.hpp \
     src/widgets/stats_widget.hpp \
-    src/widgets/timeline_widget.hpp
+    src/widgets/timeline_widget.hpp \
+
+# simple-fft includes
+HEADERS += \
+    fft/include/simple_fft/check_fft.hpp \
+    fft/include/simple_fft/copy_array.hpp \
+    fft/include/simple_fft/error_handling.hpp \
+    fft/include/simple_fft/fft.h \
+    fft/include/simple_fft/fft.hpp \
+    fft/include/simple_fft/fft_impl.hpp \
+    fft/include/simple_fft/fft_settings.h
 
 FORMS += \
     ui/about_dialog.ui \
