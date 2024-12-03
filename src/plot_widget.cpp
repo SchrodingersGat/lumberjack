@@ -60,6 +60,10 @@ PlotWidget::PlotWidget() : QwtPlot()
     {
         setBackgroundColor(QColor(bgColor));
     }
+
+    // Initially set an empty axis title
+    setAxisTitle(QwtPlot::yLeft, " ");
+    setAxisTitle(QwtPlot::yRight, " ");
 }
 
 PlotWidget::~PlotWidget()
