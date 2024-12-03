@@ -12,12 +12,16 @@
 #include <qwt_text.h>
 
 #include "axis_edit_dialog.hpp"
+#include "series_editor_dialog.hpp"
 
 #include "data_source.hpp"
 #include "plot_widget.hpp"
 #include "lumberjack_settings.hpp"
 
 
+/**
+ * @brief PlotWidget::PlotWidget - Custom plot widget which provides core graphing support
+ */
 PlotWidget::PlotWidget() : QwtPlot()
 {
 
@@ -34,6 +38,7 @@ PlotWidget::PlotWidget() : QwtPlot()
     policy.setVerticalStretch(1);
     setSizePolicy(policy);
 
+    // Setup custom graph interactions
     initZoomer();
     initPanner();
     initLegend();
@@ -56,6 +61,10 @@ PlotWidget::PlotWidget() : QwtPlot()
     {
         setBackgroundColor(QColor(bgColor));
     }
+
+    // Initially set an empty axis title
+    setAxisTitle(QwtPlot::yLeft, " ");
+    setAxisTitle(QwtPlot::yRight, " ");
 }
 
 PlotWidget::~PlotWidget()
@@ -637,7 +646,6 @@ void PlotWidget::dragMoveEvent(QDragMoveEvent *event)
 void PlotWidget::dropEvent(QDropEvent *event)
 {
     auto *mime = event->mimeData();
-
     auto *manager = DataSourceManager::getInstance();
 
     // DataSeries is dropped onto this PlotWidget
@@ -654,7 +662,8 @@ void PlotWidget::dropEvent(QDropEvent *event)
             return;
         }
 
-        addSeries(series);
+        addSeries(series, QwtPlot::yLeft);
+
         event->accept();
     }
     else
@@ -712,13 +721,15 @@ void PlotWidget::initPanner()
  */
 void PlotWidget::initLegend()
 {
-    legend = new QwtLegend();
+    // Initialize left axis legend
+    leftLegend = new PlotLegend(this);
+    leftLegend->attach(this);
+    leftLegend->setAxisAlignment(QwtPlot::yLeft);
 
-    legend->setDefaultItemMode(QwtLegendData::Clickable);
-
-    insertLegend(legend, QwtPlot::LeftLegend);
-
-    connect(legend, SIGNAL(clicked(const QVariant, int)), this, SLOT(legendClicked(const QVariant, int)));
+    // Initialize right axis legend
+    rightLegend = new PlotLegend(this);
+    rightLegend->attach(this);
+    rightLegend->setAxisAlignment(QwtPlot::yRight);
 }
 
 
@@ -835,13 +846,14 @@ void PlotWidget::resampleCurves(int axis_id)
 }
 
 
-void PlotWidget::legendClicked(const QVariant &item_info, int index)
+/**
+ * @brief PlotWidget::legendClicked - Callback when a legend item is clicked
+ * @param item
+ */
+void PlotWidget::legendClicked(const QwtPlotItem *item)
 {
-    Q_UNUSED(index);
-
+    if (!item) return;
     auto modifiers = QApplication::keyboardModifiers();
-
-    QwtPlotItem* item = qvariant_cast<QwtPlotItem*>(item_info);
 
     for (auto curve : curves)
     {
@@ -849,7 +861,7 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
         {
             auto series = curve->getDataSeries();
 
-            if (series.isNull()) continue;
+            if (series.isNull()) break;
 
             if (modifiers == Qt::ShiftModifier)
             {
@@ -866,19 +878,56 @@ void PlotWidget::legendClicked(const QVariant &item_info, int index)
             else if (modifiers == Qt::AltModifier)
             {
                 // Switch curve to the other axis
-                int axis = curve->yAxis();
-
-                curve->setYAxis(axis == QwtPlot::yLeft ? QwtPlot::yRight : QwtPlot::yLeft);
+                curve->detach();
+                curve->setYAxis(curve->yAxis() == QwtPlot::yLeft ? QwtPlot::yRight : QwtPlot::yLeft);
+                curve->attach(this);
             }
             else
             {
                 trackCurve(curve);
             }
+
+            // Exit once we have processed the matching item
+            break;
         }
     }
 
     setAutoReplot(false);
     replot();
+}
+
+
+/**
+ * @brief PlotWidget::legendDoubleClicked - Callback when a legend item is double clicked
+ * @param item
+ */
+void PlotWidget::legendDoubleClicked(const QwtPlotItem *item)
+{
+    if (!item) return;
+
+    SeriesEditorDialog *dlg = nullptr;
+
+    for (auto curve : curves)
+    {
+        if (!curve.isNull() && (QwtPlotItem*) &(*curve) == item)
+        {
+            auto series = curve->getDataSeries();
+
+            if (series.isNull()) break;
+
+            dlg = new SeriesEditorDialog(series);
+
+            // Exit once we have processed the matching item
+            break;
+        }
+    }
+
+    if (dlg)
+    {
+        dlg->exec();
+        replot();
+        dlg->deleteLater();
+    }
 }
 
 
@@ -942,6 +991,46 @@ void PlotWidget::untrackCurve()
 }
 
 
+/**
+ * @brief PlotWidget::eventFilter
+ * @param target
+ * @param event
+ * @return
+ */
+bool PlotWidget::eventFilter(QObject *target, QEvent *event)
+{
+    if (target && event)
+    {
+        switch (event->type())
+        {
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonDblClick:
+        {
+            // Hand the event off to each legend
+            const QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
+
+            if (mouseEvent)
+            {
+                if (leftLegend->handleMousePressEvent(mouseEvent)) return true;
+                if (rightLegend->handleMousePressEvent(mouseEvent)) return true;
+            }
+
+            break;
+        }
+        default:
+            break;
+        }
+
+    }
+
+    return QwtPlot::eventFilter(target, event);
+}
+
+
+/**
+ * @brief PlotWidget::wheelEvent - Respond to a mouse wheel event
+ * @param event
+ */
 void PlotWidget::wheelEvent(QWheelEvent *event)
 {
     int delta = event->delta();
@@ -1324,8 +1413,8 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     PlotCurveUpdater* worker = generateNewWorker(series);
     PlotCurve *curve = new PlotCurve(series, worker);
 
-    curve->attach(this);
     curve->setYAxis(axis_id);
+    curve->attach(this);
 
     curves.push_back(QSharedPointer<PlotCurve>(curve));
 
