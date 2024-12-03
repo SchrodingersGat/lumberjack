@@ -713,12 +713,12 @@ void PlotWidget::initPanner()
 void PlotWidget::initLegend()
 {
     // Initialize left axis legend
-    leftLegend = new PlotLegend();
+    leftLegend = new PlotLegend(this);
     leftLegend->attach(this);
     leftLegend->setAxisAlignment(QwtPlot::yLeft);
 
     // Initialize right axis legend
-    rightLegend = new PlotLegend();
+    rightLegend = new PlotLegend(this);
     rightLegend->attach(this);
     rightLegend->setAxisAlignment(QwtPlot::yRight);
 }
@@ -944,6 +944,35 @@ void PlotWidget::untrackCurve()
 }
 
 
+/**
+ * @brief PlotWidget::eventFilter
+ * @param target
+ * @param event
+ * @return
+ */
+bool PlotWidget::eventFilter(QObject *target, QEvent *event)
+{
+    if (target && event && event->type() == QEvent::Type::MouseButtonPress)
+    {
+        // Hand the event off to each legend
+        const QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
+
+        if (mouseEvent)
+        {
+            if (leftLegend->handleMousePressEvent(mouseEvent)) return true;
+            if (rightLegend->handleMousePressEvent(mouseEvent)) return true;
+        }
+
+    }
+
+    return QwtPlot::eventFilter(target, event);
+}
+
+
+/**
+ * @brief PlotWidget::wheelEvent - Respond to a mouse wheel event
+ * @param event
+ */
 void PlotWidget::wheelEvent(QWheelEvent *event)
 {
     int delta = event->delta();

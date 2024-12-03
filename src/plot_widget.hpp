@@ -90,6 +90,9 @@ protected slots:
     void legendClicked(const QVariant &item_info, int index);
 
 protected:
+
+    virtual bool eventFilter(QObject *target, QEvent *event) override;
+
     // Mouse actions
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;

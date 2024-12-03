@@ -6,12 +6,14 @@
 
 
 class PlotLegend;
+class PlotWidget;
 
-
-class PlotLegend : public QwtPlotLegendItem
+class PlotLegend : public QObject, public QwtPlotLegendItem
 {
+    Q_OBJECT
+
 public:
-    PlotLegend();
+    PlotLegend(PlotWidget *plot);
 
     void setLineColor(const QColor &color);
     void setFillColor(const QColor &color);
@@ -19,6 +21,11 @@ public:
     void setAxisAlignment(QwtAxisId axis);
 
     virtual void updateLegend( const QwtPlotItem *item, const QList<QwtLegendData> &data) QWT_OVERRIDE;
+
+    bool handleMousePressEvent(const QMouseEvent *event);
+
+protected:
+    PlotWidget *plot = nullptr;
 };
 
 #endif // PLOT_LEGEND_HPP
