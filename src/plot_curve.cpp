@@ -101,12 +101,10 @@ void PlotCurve::updateLabel()
     if (isVisible())
     {
         font.setItalic(false);
-        label.setColor(QColor(0x30, 0x30, 0x30));
     }
     else
     {
         font.setItalic(true);
-        label.setColor(QColor(0xA0, 0xA0, 0xA0));
     }
 
     label.setFont(font);

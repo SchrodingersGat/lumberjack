@@ -26,6 +26,11 @@ public:
 
 protected:
     PlotWidget *plot = nullptr;
+
+    int fontSize = 10;
+    QColor lineColor = Qt::white;
+    QColor fillColor = Qt::gray;
+
 };
 
 #endif // PLOT_LEGEND_HPP

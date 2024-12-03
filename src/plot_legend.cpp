@@ -6,6 +6,7 @@
 #include <qwt_plot.h>
 #include <qwt_text.h>
 #include <qwt_legend_data.h>
+#include <qwt_plot_item.h>
 #include <qwt_plot_curve.h>
 
 #include "plot_legend.hpp"
@@ -16,9 +17,9 @@ PlotLegend::PlotLegend(PlotWidget *plot) : plot(plot)
 {
     // Initial rendering options
     setRenderHint(QwtPlotItem::RenderAntialiased);
-    setLineColor(Qt::white);
-    setFillColor(Qt::gray);
-    setFontSize(12);
+    setLineColor(lineColor);
+    setFillColor(fillColor);
+    setFontSize(fontSize);
 
     setMaxColumns(1);
     setBackgroundMode(QwtPlotLegendItem::BackgroundMode::LegendBackground);
@@ -31,6 +32,8 @@ PlotLegend::PlotLegend(PlotWidget *plot) : plot(plot)
 
 void PlotLegend::setLineColor(const QColor &color)
 {
+    lineColor = color;
+
     setTextPen(color);
     setBorderPen(color);
 }
@@ -41,6 +44,8 @@ void PlotLegend::setFillColor(const QColor &color)
     QColor c = color;
     c.setAlpha(150);
 
+    fillColor = c;
+
     setBackgroundBrush(c);
 }
 
@@ -50,6 +55,8 @@ void PlotLegend::setFontSize(int size)
     QFont f = font();
     f.setPointSize(size);
     setFont(f);
+
+    fontSize = size;
 }
 
 
@@ -155,10 +162,25 @@ bool PlotLegend::handleMousePressEvent(const QMouseEvent *event)
         break;
     }
 
+    bool result = true;
+
+    // A valid item has been detected - handle the event
     if (clickedItem)
     {
-        plot->legendClicked(clickedItem);
+        switch (event->type())
+        {
+        case QEvent::MouseButtonDblClick:
+            // TODO
+            break;
+        case QEvent::MouseButtonPress:
+            plot->legendClicked(clickedItem);
+            break;
+        default:
+            // Unhandled event type
+            result = false;
+            break;
+        }
     }
 
-    return true;
+    return result;
 }

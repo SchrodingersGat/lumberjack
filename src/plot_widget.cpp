@@ -874,7 +874,9 @@ void PlotWidget::legendClicked(const QwtPlotItem *item)
                 // Switch curve to the other axis
                 int axis = curve->yAxis();
 
+                curve->detach();
                 curve->setYAxis(axis == QwtPlot::yLeft ? QwtPlot::yRight : QwtPlot::yLeft);
+                curve->attach(this);
             }
             else
             {
