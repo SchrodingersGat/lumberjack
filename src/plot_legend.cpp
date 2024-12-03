@@ -126,7 +126,7 @@ bool PlotLegend::handleMousePressEvent(const QMouseEvent *event)
     if (!plot) return false;
     if (!event) return false;
 
-    QRect rect = geometry(plot->rect());
+    QRect rect = geometry(plot->canvas()->rect());
 
     // Ignore if the legend is not displayed
     if (rect.width() < 0 || rect.height() < 0) return false;
