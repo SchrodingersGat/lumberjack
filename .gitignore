@@ -3,6 +3,7 @@
 build-*
 qwt-6.1.4/
 *.pro.user
+.qtc_clangd/
 
 Makefile
 Makefile.debug
