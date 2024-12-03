@@ -109,12 +109,17 @@ void PlotLegend::updateLegend(const QwtPlotItem *item, const QList<QwtLegendData
 }
 
 
+/**
+ * @brief PlotLegend::handleMousePressEvent - Process a mouse event within the legend area
+ * @param event
+ * @return
+ */
 bool PlotLegend::handleMousePressEvent(const QMouseEvent *event)
 {
     if (!plot) return false;
     if (!event) return false;
 
-    QRect rect = geometry(plot->geometry());
+    QRect rect = geometry(plot->rect());
 
     // Ignore if the legend is not displayed
     if (rect.width() < 0 || rect.height() < 0) return false;

@@ -956,15 +956,26 @@ void PlotWidget::untrackCurve()
  */
 bool PlotWidget::eventFilter(QObject *target, QEvent *event)
 {
-    if (target && event && event->type() == QEvent::Type::MouseButtonPress)
+    if (target && event)
     {
-        // Hand the event off to each legend
-        const QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
-
-        if (mouseEvent)
+        switch (event->type())
         {
-            if (leftLegend->handleMousePressEvent(mouseEvent)) return true;
-            if (rightLegend->handleMousePressEvent(mouseEvent)) return true;
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonDblClick:
+        {
+            // Hand the event off to each legend
+            const QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
+
+            if (mouseEvent)
+            {
+                if (leftLegend->handleMousePressEvent(mouseEvent)) return true;
+                if (rightLegend->handleMousePressEvent(mouseEvent)) return true;
+            }
+
+            break;
+        }
+        default:
+            break;
         }
 
     }
