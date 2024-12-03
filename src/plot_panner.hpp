@@ -24,7 +24,7 @@ public:
         {
             QMouseEvent *me = static_cast<QMouseEvent*>(event);
 
-            if (me->buttons() & Qt::MiddleButton)
+            if (me && me->buttons() & Qt::MiddleButton)
             {
                 widgetMouseMoveEvent(me);
                 widgetMouseReleaseEvent(me);

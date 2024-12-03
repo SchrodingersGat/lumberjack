@@ -18,6 +18,9 @@
 #include "lumberjack_settings.hpp"
 
 
+/**
+ * @brief PlotWidget::PlotWidget - Custom plot widget which provides core graphing support
+ */
 PlotWidget::PlotWidget() : QwtPlot()
 {
 
@@ -34,6 +37,7 @@ PlotWidget::PlotWidget() : QwtPlot()
     policy.setVerticalStretch(1);
     setSizePolicy(policy);
 
+    // Setup custom graph interactions
     initZoomer();
     initPanner();
     initLegend();
@@ -708,13 +712,15 @@ void PlotWidget::initPanner()
  */
 void PlotWidget::initLegend()
 {
-    legend = new QwtLegend();
+    // Initialize left axis legend
+    leftLegend = new PlotLegend();
+    leftLegend->attach(this);
+    leftLegend->setAxisAlignment(QwtPlot::yLeft);
 
-    legend->setDefaultItemMode(QwtLegendData::Clickable);
-
-    insertLegend(legend, QwtPlot::LeftLegend);
-
-    connect(legend, SIGNAL(clicked(const QVariant, int)), this, SLOT(legendClicked(const QVariant, int)));
+    // Initialize right axis legend
+    rightLegend = new PlotLegend();
+    rightLegend->attach(this);
+    rightLegend->setAxisAlignment(QwtPlot::yRight);
 }
 
 

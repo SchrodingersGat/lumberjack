@@ -12,6 +12,7 @@
 #include <qwt_plot_grid.h>
 #include <qwt_plot_marker.h>
 
+#include "plot_legend.hpp"
 #include "plot_panner.hpp"
 #include "plot_curve.hpp"
 
@@ -126,13 +127,15 @@ protected:
     void trackCurve(int index);
     void untrackCurve(void);
 
-    QwtPlotZoomer *zoomer;
-    PlotPanner *panner;
-    QwtLegend *legend;
-    QwtPlotGrid *grid;
+    QwtPlotZoomer *zoomer = nullptr;
+    PlotPanner *panner = nullptr;
+    QwtPlotGrid *grid = nullptr;
 
-    QwtPlotMarker *crosshair;
-    QwtPlotMarker *curveTracker;
+    PlotLegend *leftLegend = nullptr;
+    PlotLegend *rightLegend = nullptr;
+
+    QwtPlotMarker *crosshair = nullptr;
+    QwtPlotMarker *curveTracker = nullptr;
 
     // List of curves attached to this widget
     QList<QSharedPointer<PlotCurve>> curves;
