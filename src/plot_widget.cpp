@@ -655,7 +655,11 @@ void PlotWidget::dropEvent(QDropEvent *event)
 
         auto series = manager->findSeries(source_lbl, series_lbl);
 
-        if (series.isNull()) return;
+        if (series.isNull())
+        {
+            qCritical() << "Could not find graph matching" << source_lbl << ":" << series_lbl;
+            return;
+        }
 
         addSeries(series, QwtPlot::yLeft);
 
