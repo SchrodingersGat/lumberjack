@@ -1,6 +1,10 @@
 #include <QPen>
 
+
+#include <qdebug.h>
 #include <qwt_plot.h>
+#include <qwt_text.h>
+#include <qwt_legend_data.h>
 
 #include "plot_legend.hpp"
 
@@ -67,4 +71,15 @@ void PlotLegend::setAxisAlignment(QwtAxisId yAxis)
 
     setAlignmentInCanvas(Qt::Alignment(alignment));
     setAxes(QwtPlot::xBottom, yAxis);
+}
+
+
+/**
+ * @brief PlotLegend::updateLegend - Called when an item is updated in the legend
+ */
+void PlotLegend::updateLegend(const QwtPlotItem *item, const QList<QwtLegendData> &data)
+{
+    // Prevent item addition if the yAxisId values do not match
+    if (!item || item->yAxis() != yAxis()) return;
+    QwtPlotLegendItem::updateLegend(item, data);
 }

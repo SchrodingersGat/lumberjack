@@ -17,6 +17,8 @@ public:
     void setFillColor(const QColor &color);
     void setFontSize(int size);
     void setAxisAlignment(QwtAxisId axis);
+
+    virtual void updateLegend( const QwtPlotItem *item, const QList<QwtLegendData> &data) QWT_OVERRIDE;
 };
 
 #endif // PLOT_LEGEND_HPP
