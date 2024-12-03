@@ -641,7 +641,6 @@ void PlotWidget::dragMoveEvent(QDragMoveEvent *event)
 void PlotWidget::dropEvent(QDropEvent *event)
 {
     auto *mime = event->mimeData();
-
     auto *manager = DataSourceManager::getInstance();
 
     // DataSeries is dropped onto this PlotWidget
@@ -654,7 +653,8 @@ void PlotWidget::dropEvent(QDropEvent *event)
 
         if (series.isNull()) return;
 
-        addSeries(series);
+        addSeries(series, QwtPlot::yLeft);
+
         event->accept();
     }
     else
@@ -1326,8 +1326,8 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
     PlotCurveUpdater* worker = generateNewWorker(series);
     PlotCurve *curve = new PlotCurve(series, worker);
 
-    curve->attach(this);
     curve->setYAxis(axis_id);
+    curve->attach(this);
 
     curves.push_back(QSharedPointer<PlotCurve>(curve));
 

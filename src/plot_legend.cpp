@@ -5,6 +5,7 @@
 #include <qwt_plot.h>
 #include <qwt_text.h>
 #include <qwt_legend_data.h>
+#include <qwt_plot_curve.h>
 
 #include "plot_legend.hpp"
 
@@ -79,7 +80,16 @@ void PlotLegend::setAxisAlignment(QwtAxisId yAxis)
  */
 void PlotLegend::updateLegend(const QwtPlotItem *item, const QList<QwtLegendData> &data)
 {
-    // Prevent item addition if the yAxisId values do not match
-    if (!item || item->yAxis() != yAxis()) return;
+    const QwtPlotCurve *curve = dynamic_cast<const QwtPlotCurve*>(item);
+
+    if (curve && curve != nullptr)
+    {
+        if (curve->yAxis() != yAxis())
+        {
+            // Prevent item addition if the yAxisId values do not match
+            return;
+        }
+    }
+
     QwtPlotLegendItem::updateLegend(item, data);
 }
