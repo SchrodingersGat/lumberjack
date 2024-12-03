@@ -73,8 +73,6 @@ private:
 
     QList<QSharedPointer<PlotWidget>> plots;
 
-    QVBoxLayout plotLayout;
-
     QLabel t_pos;
     QLabel y1_pos;
     QLabel y2_pos;
