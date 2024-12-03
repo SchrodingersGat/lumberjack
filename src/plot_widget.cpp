@@ -12,6 +12,7 @@
 #include <qwt_text.h>
 
 #include "axis_edit_dialog.hpp"
+#include "series_editor_dialog.hpp"
 
 #include "data_source.hpp"
 #include "plot_widget.hpp"
@@ -845,8 +846,13 @@ void PlotWidget::resampleCurves(int axis_id)
 }
 
 
+/**
+ * @brief PlotWidget::legendClicked - Callback when a legend item is clicked
+ * @param item
+ */
 void PlotWidget::legendClicked(const QwtPlotItem *item)
 {
+    if (!item) return;
     auto modifiers = QApplication::keyboardModifiers();
 
     for (auto curve : curves)
@@ -855,7 +861,7 @@ void PlotWidget::legendClicked(const QwtPlotItem *item)
         {
             auto series = curve->getDataSeries();
 
-            if (series.isNull()) continue;
+            if (series.isNull()) break;
 
             if (modifiers == Qt::ShiftModifier)
             {
@@ -880,11 +886,48 @@ void PlotWidget::legendClicked(const QwtPlotItem *item)
             {
                 trackCurve(curve);
             }
+
+            // Exit once we have processed the matching item
+            break;
         }
     }
 
     setAutoReplot(false);
     replot();
+}
+
+
+/**
+ * @brief PlotWidget::legendDoubleClicked - Callback when a legend item is double clicked
+ * @param item
+ */
+void PlotWidget::legendDoubleClicked(const QwtPlotItem *item)
+{
+    if (!item) return;
+
+    SeriesEditorDialog *dlg = nullptr;
+
+    for (auto curve : curves)
+    {
+        if (!curve.isNull() && (QwtPlotItem*) &(*curve) == item)
+        {
+            auto series = curve->getDataSeries();
+
+            if (series.isNull()) break;
+
+            dlg = new SeriesEditorDialog(series);
+
+            // Exit once we have processed the matching item
+            break;
+        }
+    }
+
+    if (dlg)
+    {
+        dlg->exec();
+        replot();
+        dlg->deleteLater();
+    }
 }
 
 

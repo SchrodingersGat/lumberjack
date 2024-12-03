@@ -170,7 +170,7 @@ bool PlotLegend::handleMousePressEvent(const QMouseEvent *event)
         switch (event->type())
         {
         case QEvent::MouseButtonDblClick:
-            // TODO
+            plot->legendDoubleClicked(clickedItem);
             break;
         case QEvent::MouseButtonPress:
             plot->legendClicked(clickedItem);

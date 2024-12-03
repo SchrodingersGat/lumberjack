@@ -84,6 +84,7 @@ public slots:
 
     void setTimeInterval(const QwtInterval &interval);
     void legendClicked(const QwtPlotItem *item);
+    void legendDoubleClicked(const QwtPlotItem *item);
 
 protected slots:
 
