@@ -837,13 +837,9 @@ void PlotWidget::resampleCurves(int axis_id)
 }
 
 
-void PlotWidget::legendClicked(const QVariant &item_info, int index)
+void PlotWidget::legendClicked(const QwtPlotItem *item)
 {
-    Q_UNUSED(index);
-
     auto modifiers = QApplication::keyboardModifiers();
-
-    QwtPlotItem* item = qvariant_cast<QwtPlotItem*>(item_info);
 
     for (auto curve : curves)
     {

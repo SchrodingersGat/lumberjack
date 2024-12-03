@@ -83,11 +83,11 @@ public slots:
     void saveImageToFile();
 
     void setTimeInterval(const QwtInterval &interval);
+    void legendClicked(const QwtPlotItem *item);
 
 protected slots:
 
     void editAxisScale(QwtPlot::Axis axisId);
-    void legendClicked(const QVariant &item_info, int index);
 
 protected:
 

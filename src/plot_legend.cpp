@@ -87,8 +87,21 @@ void PlotLegend::updateLegend(const QwtPlotItem *item, const QList<QwtLegendData
     {
         if (curve->yAxis() != yAxis())
         {
+            // Check if the item already exists in this legend
+            bool foundMatch = false;
+            for (auto *plotItem : plotItems())
+            {
+                if (plotItem == item)
+                {
+                    foundMatch = true;
+                }
+            }
+
             // Prevent item addition if the yAxisId values do not match
-            return;
+            if (!foundMatch)
+            {
+                return;
+            }
         }
     }
 
@@ -139,8 +152,7 @@ bool PlotLegend::handleMousePressEvent(const QMouseEvent *event)
 
     if (clickedItem)
     {
-        // TODO: Handle click event
-        qDebug() << "clk:" << clickedItem->title().text();
+        plot->legendClicked(clickedItem);
     }
 
     return true;
