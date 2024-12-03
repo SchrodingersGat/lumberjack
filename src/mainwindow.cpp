@@ -40,10 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
     initStatusBar();
     initSignalsSlots();
 
-    // Construct a central layout for displaying plot widgets
-    QWidget *central = new QWidget();
-    central->setLayout(&plotLayout);
-    setCentralWidget(central);
+    // Set a null central widget - required to allow fullscreen docks
+    setCentralWidget(NULL);
 
     // Add an initial plot
     addPlot();
@@ -203,7 +201,7 @@ void MainWindow::initMenus()
  */
 void MainWindow::initDocks()
 {
-    this->setDockOptions(AnimatedDocks | AllowNestedDocks);
+    this->setDockOptions(AnimatedDocks | AllowNestedDocks | AllowTabbedDocks);
 
     auto *settings = LumberjackSettings::getInstance();
 
@@ -549,13 +547,21 @@ void MainWindow::seriesRemoved(QSharedPointer<DataSeries> series)
  */
 void MainWindow::addPlot()
 {
+    static int plotIndex = 1;
+
     qDebug() << "MainWindow::addPlot()";
 
     PlotWidget *plot = new PlotWidget();
 
-    plot->setParent(this);
+    QDockWidget *dock = new QDockWidget(tr("Plot") + QString(" ") + QString::number(plotIndex), this);
+    dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    plot->setParent(dock);
+    dock->setWidget(plot);
 
-    plotLayout.addWidget(plot);
+    // Ensure a sensible minimum size
+    plot->setMinimumSize(200, 100);
+
+    addDockWidget(Qt::TopDockWidgetArea, dock, Qt::Vertical);
 
     // Connect signals/slots for the new plot
     connect(plot, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
@@ -565,6 +571,8 @@ void MainWindow::addPlot()
     connect(plot, &PlotWidget::fileDropped, this, &MainWindow::loadDroppedFile);
 
     plots.append(QSharedPointer<PlotWidget>(plot));
+
+    plotIndex++;
 }
 
 
