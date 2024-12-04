@@ -6,7 +6,7 @@ The build guide assumes that you have the following installed:
 
 - [Qt](https://www.qt.io/)
 - [Qt Creator](https://www.qt.io/product/development-tools)
-- A compatible C++ compiler and build system (e.g. [MinGW](http://www.mingw.org/), [MSVC](https://visualstudio.microsoft.com/), [GCC](https://gcc.gnu.org/))
+- A compatible C++ compiler and build system (e.g. [MinGW](https://www.mingw-w64.org/), [MSVC](https://visualstudio.microsoft.com/), [GCC](https://gcc.gnu.org/))
 
 Ensure that all these tools are installed, and the required paths are added to your system's PATH environment variable.
 
