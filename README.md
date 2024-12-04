@@ -13,24 +13,42 @@ Designed around a configurable plugin system, Lumberjack is designed to be exten
 
 Written in C++ and supported by the Qt / Qwt ecosystem, Lumberjack is blazingly fast, allowing rapid exploration of large data sets.
 
+### Plugins
+
+TODO: Plugin support
+
 ### Scripting
 
 An integrated Python scripting console provides access to loaded data, allowing easy hacking and adjusting of data as required.
+
+## Installing
+
+### Windows
+
+TODO: Windows installer
+
+### Linux
+
+TODO: Linux package
+
+### MacOS
+
+TODO: MacOS package
 
 ## Dependencies
 
 ### Qt
 
-Qt 5.12.2
+Lumberjack is built using the [Qt framework](https://www.qt.io/). To compile the Lumberjack program you will first need to download and install the Qt framework from the [Qt download page](https://www.qt.io/download).
 
 ### Qwt
 
 Lumberjack makes use of the [Qt Widgets for Technical Applications (QWT) framework](https://qwt.sourceforge.io/).
 
-To compile the Lumberjack program you will need to download [qwt-6.1.4](https://sourceforge.net/projects/qwt/files/qwt/6.1.4/) from the [qwt download page](https://sourceforge.net/projects/qwt/files/qwt/).
+### Simple-FFT
 
-Extract the qwt source files into the top level Lumberjack directory (e.g. ~/lumberjack/qwt-6.1.4).
+We integrate the [Simple-FFT](https://github.com/d1vanov/Simple-FFT) library for fast Fourier transform (FFT) support.
 
-## Unit Testing
+### Python
 
-Unit testing uses the [QTestLib framework](https://doc.qt.io/qt-5/qtest-overview.html).
+Lumberjack uses Python for scripting. A Python interpreter is embedded in the Lumberjack application.
