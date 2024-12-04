@@ -4,6 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 CONFIG += file_copies
+CONFIG -= debug_and_release
 
 QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
 QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
@@ -136,9 +137,17 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 # Specify output directory
 CONFIG(debug, debug|release) {
+    CONFIG += debug
     DESTDIR = build/debug
+    RCC_DIR = build/debug
+    OBJECTS_DIR = build/debug
+    MOC_DIR = build/debug/moc
 } else {
+    CONFIG += release
     DESTDIR = build/release
+    RCC_DIR = build/release
+    OBJECTS_DIR = build/release
+    MOC_DIR = build/release/moc
 }
 
 dllFiles.path = $$DESTDIR
@@ -146,22 +155,36 @@ dllFiles.path = $$DESTDIR
 COPIES += dllFiles
 
 # Copy required .dll files across
-win32 {
-    dllFiles.files += \
-        qwt/lib/qwt.dll \
-        qwt/lib/qwtd.dll
-
+CONFIG(debug, debug|release) {
+    win32 {
+        dllFiles.files += \
+            qwt/lib/qwtd.dll
+    } else {
+        dllFiles.files += \
+            qwt/lib/libqwtd.a
+    }
 } else {
-    dllFiles.files += \
-        qwt/lib/libqwt.a \
-        qwt/lib/libqwtd.a
+    win32 {
+        dllFiles.files += \
+            qwt/lib/qwt.dll
+    } else {
+        dllFiles.files += \
+            qwt/lib/libqwt.a
+    }
 }
 
 COPIES += dllFiles
 
-win32 {
-    # Copy required .DLL files
-    QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force --verbose 2 -gui -core $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+CONFIG(debug, debug | release) {
+    win32 {
+        # Copy required .DLL files
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --force --verbose 2 -gui -core $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+    }
+} else {
+    win32 {
+        # Copy required .DLL files
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force --verbose 2 -gui -core $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+    }
 }
 
 RESOURCES += \
