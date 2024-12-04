@@ -3,6 +3,7 @@ QT       += core gui opengl
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
+CONFIG += file_copies
 
 QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
 QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
@@ -133,21 +134,34 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-# Copy required files across
+# Specify output directory
+CONFIG(debug, debug|release) {
+    DESTDIR = build/debug
+} else {
+    DESTDIR = build/release
+}
+
+dllFiles.path = $$DESTDIR
+
+COPIES += dllFiles
+
+# Copy required .dll files across
 win32 {
-    CONFIG(release, debug|release) {
+    dllFiles.files += \
+        qwt/lib/qwt.dll \
+        qwt/lib/qwtd.dll
 
-        WININSTALL = $$PWD\wininstall
+} else {
+    dllFiles.files += \
+        qwt/lib/libqwt.a \
+        qwt/lib/libqwtd.a
+}
 
-        # Copy executable file
-        QMAKE_POST_LINK += $$QMAKE_COPY $$shell_path($$PWD)\release\lumberjack.exe $$shell_path($$quote($$WININSTALL)) $$escape_expand(\n\t)
+COPIES += dllFiles
 
-        # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force --verbose 2 -gui -core $$shell_path($$quote($$WININSTALL))\lumberjack.exe $$escape_expand(\n\t)
-
-        # Copy qwt .DLL
-        QMAKE_POST_LINK += $$QMAKE_COPY $$shell_path($$PWD)\qwt\lib\qwt.dll $$shell_path($$quote($$WININSTALL)) $$escape_expand(\n\t)
-    }
+win32 {
+    # Copy required .DLL files
+    QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force --verbose 2 -gui -core $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
 }
 
 RESOURCES += \
