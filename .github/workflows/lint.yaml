@@ -11,17 +11,21 @@ on:
       - master
 
 jobs:
-  lint:
+  clang-tidy:
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+    - uses: cpp-linter/cpp-linter-action@v2
+      id: linter
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        submodules: recursive
-    - name: Run clang-tidy
-      uses: HorstBaerbel/action-clang-tidy@1.2
-      with:
-        scandir: 'src'
-        builddir: 'build'
+        ignore: "build|plugins|qwt|ui_tmp|unit_test|pythonqt"
+        ignore-format: "build|plugins|qwt|ui_tmp|unit_test|pythonqt"
+        thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+    - name: Failure
+      if: steps.linter.outputs.checks-failed > 0
+      run: exit 1
