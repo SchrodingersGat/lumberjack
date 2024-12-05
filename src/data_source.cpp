@@ -8,7 +8,7 @@
 DataSource::DataSource(QString lbl) :
     label(lbl)
 {
-    // TODO
+    // TODO - anything to do here?
 }
 
 
