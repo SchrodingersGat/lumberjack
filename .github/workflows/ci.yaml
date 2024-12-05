@@ -1,6 +1,6 @@
 # Run code style tests
 
-name: Code Style
+name: Code Checks
 
 on:
   push:
@@ -11,13 +11,24 @@ on:
       - master
 
 jobs:
-  clang-tidy:
+  checks:
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install Qt 
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: 5.13.2
+    - name: Build qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        make
     - uses: cpp-linter/cpp-linter-action@v2
       id: linter
       env:
