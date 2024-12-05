@@ -4,11 +4,15 @@
 
 The build guide assumes that you have the following installed:
 
-- [Qt](https://www.qt.io/)
+- [Qt 6](https://www.qt.io/)
 - [Qt Creator](https://www.qt.io/product/development-tools)
 - A compatible C++ compiler and build system (e.g. [MinGW](https://www.mingw-w64.org/), [MSVC](https://visualstudio.microsoft.com/), [GCC](https://gcc.gnu.org/))
 
 Ensure that all these tools are installed, and the required paths are added to your system's PATH environment variable.
+
+### Qt Version
+
+The project is built using Qt 6. Ensure that you have a compatible version of Qt installed on your system.
 
 ### Submodules
 
@@ -43,9 +47,13 @@ Skip to the *Build and installation* section, and follow the instructions for yo
 
 Note: You must ensure that you build the Qwt library with the same compiler you will be using to build Lumberjack! Otherwise, the library will not be compatible.
 
+Note: You may need to substitute `qmake` with `qmake6` in the qwt build instructions, e.g. `qmake6 qwt.pro`.
+
 ## Open Project
 
 You should now be able to simply open the `lumberjack.pro` file in Qt Creator, configure a build kit, and build the project.
+
+Note: Make sure you configure the project build kit to use the same compiler you used to build Qwt!
 
 ## Build Issues
 
