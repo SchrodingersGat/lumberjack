@@ -1033,9 +1033,10 @@ bool PlotWidget::eventFilter(QObject *target, QEvent *event)
  */
 void PlotWidget::wheelEvent(QWheelEvent *event)
 {
-    int delta = event->delta();
+    QPoint delta = event->angleDelta();
 
-    if (delta == 0) return;
+    // Ignore null events
+    if (delta.isNull() || delta.y() == 0) return;
 
     // Prevent accidental zoom in-out while panning
     if (event->buttons() & Qt::MiddleButton) return;
@@ -1056,14 +1057,14 @@ void PlotWidget::wheelEvent(QWheelEvent *event)
 
     double factor = 1.25;
 
-    if (delta > 0)
+    if (delta.y() > 0)
     {
         factor = 1 / factor;
     }
 
     // Map the mouse position to the underlying canvas,
     // otherwise the size of the displayed axes causes offset issues
-    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->pos()));
+    QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(event->position().toPoint()));
 
     // List of axes we can zoom
     QList<int> axes;

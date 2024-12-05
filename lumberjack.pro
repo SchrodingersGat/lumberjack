@@ -1,6 +1,8 @@
-QT       += core gui opengl
+QT       += core gui opengl svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+DEFINES += QT_DISABLE_DEPRECATED_UP_TO=0x050F00
 
 CONFIG += c++11
 CONFIG += file_copies
@@ -178,12 +180,12 @@ COPIES += dllFiles
 CONFIG(debug, debug | release) {
     win32 {
         # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --force --verbose 2 -gui -core $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
     }
 } else {
     win32 {
         # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force --verbose 2 -gui -core $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
     }
 }
 
