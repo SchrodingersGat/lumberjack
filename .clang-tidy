@@ -1,0 +1,5 @@
+---
+Checks:
+  - '*' # Enable all checks
+  - '-clang-diagnostic-error'
+  - '-modernize-use-trailing-return-type'

@@ -1,0 +1,43 @@
+# Run code style tests
+
+name: Code Checks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  checks:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install Qt 
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: 5.13.2
+    - name: Build qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        make
+    - uses: cpp-linter/cpp-linter-action@v2
+      id: linter
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tidy-checks: ''  # Refer to .clang-tidy file for checks
+        ignore: "build|plugins|fft|qwt|ui_tmp|unit_test|pythonqt"
+        ignore-format: "build|plugins|fft|qwt|ui_tmp|unit_test|pythonqt"
+        thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+    - name: Failure
+      if: steps.linter.outputs.checks-failed > 0
+      run: exit 1

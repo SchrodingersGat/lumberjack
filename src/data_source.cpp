@@ -1,14 +1,13 @@
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qdir.h>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
 
 #include "data_source.hpp"
 
 
-DataSource::DataSource(QString lbl) :
-    label(lbl)
+DataSource::DataSource(QString lbl) : label(lbl)
 {
-    // TODO
+    // TODO - anything to do here?
 }
 
 
