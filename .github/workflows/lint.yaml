@@ -23,6 +23,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        tidy-checks: ''  # Refer to .clang-tidy file for checks
         ignore: "build|plugins|fft|qwt|ui_tmp|unit_test|pythonqt"
         ignore-format: "build|plugins|fft|qwt|ui_tmp|unit_test|pythonqt"
         thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
