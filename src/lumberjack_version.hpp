@@ -3,6 +3,7 @@
 
 #include <QString>
 
-const QString LUMBERJACK_VERSION_STRING = "0.4.0";
+// TODO: Move this into external .ini file
+const QString LUMBERJACK_VERSION_STRING = "0.5.0";
 
 #endif // LUMBERJACK_VERSION_HPP

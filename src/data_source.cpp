@@ -1,6 +1,7 @@
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qdir.h>
+#include <QRegularExpression>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
 
 #include "data_source.hpp"
 
@@ -72,7 +73,7 @@ QStringList DataSource::getSeriesLabels(QString filter_string) const
 {
     QStringList labels;
 
-    QList<QRegExp> patterns;
+    QList<QRegularExpression> patterns;
 
     for (QString pattern : filter_string.trimmed().split(" "))
     {
@@ -86,7 +87,9 @@ QStringList DataSource::getSeriesLabels(QString filter_string) const
             pattern.append("*");
         }
 
-        patterns.append(QRegExp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard));
+        // Convert from wildcard to regular expression
+        QString re_pattern = QRegularExpression::wildcardToRegularExpression(pattern);
+        patterns.append(QRegularExpression(re_pattern, QRegularExpression::CaseInsensitiveOption));
     }
 
     for (auto series : data_series)
@@ -103,7 +106,7 @@ QStringList DataSource::getSeriesLabels(QString filter_string) const
 
         for (auto pattern : patterns)
         {
-            if (!pattern.exactMatch(label))
+            if (!pattern.match(label).hasMatch())
             {
                 matches_all = false;
                 break;

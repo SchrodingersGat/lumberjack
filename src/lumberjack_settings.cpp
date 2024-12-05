@@ -16,7 +16,7 @@ LumberjackSettings::LumberjackSettings() : settings(getSettingsFile(), QSettings
 
 QString LumberjackSettings::getSettingsDirectory()
 {
-    auto dirs = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    auto dirs = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
 
     if (dirs.count() > 0)
     {
