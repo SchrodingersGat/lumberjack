@@ -3,13 +3,12 @@
 name: Code Style
 
 on:
-  pull_request:
-    branches: [main, master]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '*.pro']
   push:
-    branches: [main, master]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '*.pro']
-
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   clang-tidy:
