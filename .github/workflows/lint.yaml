@@ -3,7 +3,6 @@
 name: Code Style
 
 on:
-on:
   pull_request:
     branches: [main, master]
     paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '*.pro']
