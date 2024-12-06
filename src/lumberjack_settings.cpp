@@ -27,6 +27,18 @@ QString LumberjackSettings::getSettingsDirectory()
 }
 
 
+QString LumberjackSettings::getSettingsSubdirectory(QString subdir)
+{
+    return LumberjackSettings::getSettingsDirectory() + QDir::separator() + subdir;
+}
+
+
+QString LumberjackSettings::getPluginsDirectory()
+{
+    return LumberjackSettings::getSettingsSubdirectory("plugins");
+}
+
+
 QString LumberjackSettings::getSettingsFile()
 {
     return getSettingsDirectory() + QDir::separator() + "settings.ini";
@@ -42,6 +54,7 @@ void LumberjackSettings::createDirectories()
     QStringList dirs;
 
     dirs.append(getSettingsDirectory());
+    dirs.append(getPluginsDirectory());
 
     for (auto dir : dirs)
     {
