@@ -90,6 +90,8 @@ HEADERS += \
     plugins/cobsr/cobs.h \
     plugins/cobsr/cobsr.h \
     plugins/csv_importer.hpp \
+    src/plugins/plugin_base.hpp \
+    src/plugins/plugin_importer.hpp \
     src/widgets/about_dialog.hpp \
     src/widgets/axis_edit_dialog.hpp \
     src/widgets/datatable_widget.hpp \
