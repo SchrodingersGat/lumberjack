@@ -58,11 +58,6 @@ int main(int argc, char *argv[])
 
     qDebug() << "Starting lumberjack application:" << LUMBERJACK_VERSION_STRING;
 
-    for (auto p : QCoreApplication::libraryPaths())
-    {
-        qDebug() << "lib path:" << p;
-    }
-
     MainWindow w;
     w.show();
 

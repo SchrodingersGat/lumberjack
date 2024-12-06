@@ -24,11 +24,12 @@ CONFIG (debug, debug|release) {
 INCLUDEPATH += ./qwt/src
 
 INCLUDEPATH += src \
-               src/widgets \
-               fft/include/simple_fft \
-               plugins \
-               plugins/cedat_protocol \
-               plugins/cobsr
+    src/plugins \
+    src/widgets \
+    fft/include/simple_fft \
+    plugins \
+    plugins/cedat_protocol \
+    plugins/cobsr
 
 SOURCES += \
     plugins/mavlink_importer.cpp \
@@ -54,6 +55,7 @@ SOURCES += \
     plugins/cobsr/cobs.c \
     plugins/cobsr/cobsr.c \
     plugins/csv_importer.cpp \
+    src/plugins/plugin_registry.cpp \
     src/widgets/about_dialog.cpp \
     src/widgets/axis_edit_dialog.cpp \
     src/widgets/datatable_widget.cpp \
@@ -92,6 +94,7 @@ HEADERS += \
     plugins/csv_importer.hpp \
     src/plugins/plugin_base.hpp \
     src/plugins/plugin_importer.hpp \
+    src/plugins/plugin_registry.hpp \
     src/widgets/about_dialog.hpp \
     src/widgets/axis_edit_dialog.hpp \
     src/widgets/datatable_widget.hpp \

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 
+namespace Lumberjack {
 
 /**
  * @brief The PluginBase class forms the basis of any Lumberjack plugin
@@ -24,5 +25,6 @@ public:
     virtual QString pluginVersion(void) const= 0;
 };
 
+}
 
 #endif // PLUGIN_BASE_HPP

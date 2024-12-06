@@ -5,6 +5,10 @@
 
 #include "plugin_base.hpp"
 
+#define ImporterInterface_iid "org.lumberjack.plugins.ImporterInterface/1.0"
+
+namespace Lumberjack {
+
 class ImporterInterface : public PluginBase
 {
     Q_OBJECT
@@ -21,9 +25,8 @@ public:
     // virtual DataSource data(void) const;
 };
 
+};
 
-#define ImporterInterface_iid "org.lumberjack.plugins.ImporterInterface/1.0"
-
-Q_DECLARE_INTERFACE(ImporterInterface, ImporterInterface_iid)
+Q_DECLARE_INTERFACE(Lumberjack::ImporterInterface, ImporterInterface_iid)
 
 #endif // PLUGIN_IMPORTER_HPP
