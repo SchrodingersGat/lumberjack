@@ -8,8 +8,12 @@
 
 class ImporterInterface : public PluginBase
 {
+    Q_OBJECT
 public:
     virtual ~ImporterInterface() = default;
+
+    // Return a list of support file types, e.g. ['csv', 'tsv']
+    virtual QStringList supportedFileTypes(void) const = 0;
 };
 
 
