@@ -8,8 +8,8 @@
 #include <qmutex.h>
 #include <QRectF>
 #include <QColor>
-#include <qwt_symbol.h>
 
+#include <qwt_symbol.h>
 #include <qwt_series_data.h>
 
 

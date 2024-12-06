@@ -1,4 +1,4 @@
-QT -= gui
+QT += gui
 
 TEMPLATE = lib
 DEFINES += CSV_IMPORTER_LIBRARY
@@ -8,17 +8,18 @@ CONFIG -= debug_and_release
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += \
-    lumberjack_csv_importer.cpp
-
 INCLUDEPATH += \
-    ../../src/plugins/
+    ../../src \
+    ../../src/plugins
 
 HEADERS += \
     csv_importer_global.h \
     lumberjack_csv_importer.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_importer.hpp \
+
+SOURCES += \
+    lumberjack_csv_importer.cpp
 
 # Default rules for deployment.
 unix {

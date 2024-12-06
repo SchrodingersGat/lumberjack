@@ -5,7 +5,6 @@
 
 #include "plugin_base.hpp"
 
-
 class ImporterInterface : public PluginBase
 {
     Q_OBJECT
@@ -14,6 +13,12 @@ public:
 
     // Return a list of support file types, e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
+
+    // Load data from the provided filename
+    virtual bool loadDataFile(const QString &filename, QStringList &errors) = 0;
+
+    // Return the loaded data
+    // virtual DataSource data(void) const;
 };
 
 

@@ -19,6 +19,7 @@ public:
 
     // Importer plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
+    virtual bool loadDataFile(const QString &filename, QStringList &errors) override;
 
 protected:
     const QString m_name = "CSV Importer";
