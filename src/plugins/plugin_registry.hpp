@@ -20,12 +20,14 @@ public:
     void loadPlugins(void);
     void clearRegistry(void);
 
+    const ImporterPluginList& importerPlugins(void) { return m_importerPlugins; }
+
 protected:
 
     bool loadImporterPlugin(QObject *instance);
 
     // Registry of each plugin "type"
-    QList<QSharedPointer<ImporterPlugin>> importerPlugins;
+    ImporterPluginList m_importerPlugins;
 
 };
 

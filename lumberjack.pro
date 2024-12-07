@@ -63,6 +63,7 @@ SOURCES += \
     src/widgets/dataview_widget.cpp \
     src/widgets/debug_widget.cpp \
     src/widgets/plot_sampler.cpp \
+    src/widgets/plugins_dialog.cpp \
     src/widgets/series_editor_dialog.cpp \
     src/widgets/stats_widget.cpp \
     src/widgets/timeline_widget.cpp
@@ -102,6 +103,7 @@ HEADERS += \
     src/widgets/dataview_widget.hpp \
     src/widgets/debug_widget.hpp \
     src/widgets/plot_sampler.hpp \
+    src/widgets/plugins_dialog.hpp \
     src/widgets/series_editor_dialog.hpp \
     src/widgets/stats_widget.hpp \
     src/widgets/timeline_widget.hpp \
@@ -124,6 +126,7 @@ FORMS += \
     ui/dataview_widget.ui \
     ui/debug_widget.ui \
     ui/mainwindow.ui \
+    ui/plugins_dialog.ui \
     ui/stats_view.ui
 
 # Application icon

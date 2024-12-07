@@ -34,6 +34,8 @@ public:
     }
 };
 
+typedef QList<QSharedPointer<ImporterPlugin>> ImporterPluginList;
+
 };
 
 Q_DECLARE_INTERFACE(Lumberjack::ImporterPlugin, ImporterInterface_iid)

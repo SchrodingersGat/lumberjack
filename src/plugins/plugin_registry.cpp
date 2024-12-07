@@ -52,13 +52,13 @@ void PluginRegistry::loadPlugins()
     }
 
     qDebug() << "Loading plugins:";
-    qDebug() << "Importer:" << importerPlugins.count();
+    qDebug() << "Importer:" << m_importerPlugins.count();
 }
 
 
 void PluginRegistry::clearRegistry()
 {
-    importerPlugins.clear();
+    m_importerPlugins.clear();
 }
 
 
@@ -73,7 +73,7 @@ bool PluginRegistry::loadImporterPlugin(QObject *instance)
 
     if (plugin)
     {
-        importerPlugins.append(QSharedPointer<ImporterPlugin>(plugin));
+        m_importerPlugins.append(QSharedPointer<ImporterPlugin>(plugin));
         return true;
     }
 

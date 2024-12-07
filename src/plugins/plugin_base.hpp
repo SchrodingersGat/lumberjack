@@ -28,6 +28,8 @@ public:
     virtual QString pluginIID(void) const = 0;
 };
 
+typedef QList<QSharedPointer<PluginBase>> PluginList;
+
 }
 
 #endif // PLUGIN_BASE_HPP

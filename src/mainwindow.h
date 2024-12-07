@@ -50,6 +50,7 @@ protected:
 protected slots:
 
     void showAboutInfo(void);
+    void showPluginsInfo(void);
 
     void importData(void);
     void loadDroppedFile(QString filename);

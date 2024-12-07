@@ -19,6 +19,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "plugins_dialog.hpp"
 #include "about_dialog.hpp"
 
 // TODO: In the future, replace these explicit includes with a "plugin" architecture
@@ -200,6 +201,7 @@ void MainWindow::initMenus()
 
     // Help menu
     connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
+    connect(ui->action_Plugins, &QAction::triggered, this, &MainWindow::showPluginsInfo);
     connect(ui->action_Debug, &QAction::triggered, this, &MainWindow::toggleDebugView);
 }
 
@@ -337,11 +339,21 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
 
 
 /*
+ * Display the "Plugins" dialog
+ */
+void MainWindow::showPluginsInfo(void)
+{
+    PluginsDialog dlg(pluginRegistry, this);
+    dlg.exec();
+}
+
+
+/*
  * Display the "About" dialog
  */
 void MainWindow::showAboutInfo()
 {
-    AboutDialog dlg;
+    AboutDialog dlg(this);
 
     dlg.exec();
 }
