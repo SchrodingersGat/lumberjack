@@ -9,11 +9,14 @@
 
 namespace Lumberjack {
 
-class ImporterInterface : public PluginBase
+class ImporterPlugin : public PluginBase
 {
     Q_OBJECT
 public:
-    virtual ~ImporterInterface() = default;
+    virtual ~ImporterPlugin() = default;
+
+    // Generate a new ImporterInterface instance
+    virtual ImporterPlugin* newInstance(void) const = 0;
 
     // Return a list of support file types, e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
@@ -33,6 +36,6 @@ public:
 
 };
 
-Q_DECLARE_INTERFACE(Lumberjack::ImporterInterface, ImporterInterface_iid)
+Q_DECLARE_INTERFACE(Lumberjack::ImporterPlugin, ImporterInterface_iid)
 
 #endif // PLUGIN_IMPORTER_HPP

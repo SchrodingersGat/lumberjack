@@ -69,16 +69,15 @@ void PluginRegistry::clearRegistry()
  */
 bool PluginRegistry::loadImporterPlugin(QObject *instance)
 {
-    ImporterInterface *plugin = qobject_cast<ImporterInterface*>(instance);
+    ImporterPlugin *plugin = qobject_cast<ImporterPlugin*>(instance);
 
     if (plugin)
     {
-        importerPlugins.append(QSharedPointer<ImporterInterface>(plugin));
+        importerPlugins.append(QSharedPointer<ImporterPlugin>(plugin));
         return true;
     }
 
     return false;
 }
-
 
 };

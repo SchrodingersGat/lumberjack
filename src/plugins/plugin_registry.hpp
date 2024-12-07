@@ -3,7 +3,6 @@
 
 #include <QObject>
 
-#include "plugin_base.hpp"
 #include "plugin_importer.hpp"
 
 namespace Lumberjack {
@@ -26,7 +25,7 @@ protected:
     bool loadImporterPlugin(QObject *instance);
 
     // Registry of each plugin "type"
-    QList<QSharedPointer<ImporterInterface>> importerPlugins;
+    QList<QSharedPointer<ImporterPlugin>> importerPlugins;
 
 };
 

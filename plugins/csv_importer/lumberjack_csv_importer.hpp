@@ -5,13 +5,19 @@
 #include "plugin_importer.hpp"
 
 
-class CSV_IMPORTER_EXPORT LumberjackCSVImporter : public Lumberjack::ImporterInterface
+class CSV_IMPORTER_EXPORT LumberjackCSVImporter : public Lumberjack::ImporterPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID ImporterInterface_iid)
-    Q_INTERFACES(Lumberjack::ImporterInterface)
+    Q_INTERFACES(Lumberjack::ImporterPlugin)
 public:
     LumberjackCSVImporter();
+
+    // Generate a new instance of this importer
+    virtual ImporterPlugin* newInstance(void) const override
+    {
+        return new LumberjackCSVImporter();
+    }
 
     // Base plugin functionality
     virtual QString pluginName(void) const override { return m_name; }
