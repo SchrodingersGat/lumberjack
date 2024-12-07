@@ -23,6 +23,12 @@ public:
 
     // Return the loaded data
     // virtual DataSource data(void) const;
+
+    // Return the IID string
+    virtual QString pluginIID(void) const override
+    {
+        return QString(ImporterInterface_iid);
+    }
 };
 
 };

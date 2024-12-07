@@ -23,6 +23,9 @@ public:
 
     // Return the version of this plugin
     virtual QString pluginVersion(void) const= 0;
+
+    // Return the IID string associated with this plugin
+    virtual QString pluginIID(void) const = 0;
 };
 
 }

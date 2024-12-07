@@ -10,7 +10,6 @@ LumberjackSettings *LumberjackSettings::instance = 0;
 
 LumberjackSettings::LumberjackSettings() : settings(getSettingsFile(), QSettings::IniFormat)
 {
-//    loadSettings();
 }
 
 

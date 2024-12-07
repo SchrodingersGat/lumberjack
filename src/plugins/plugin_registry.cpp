@@ -25,16 +25,13 @@ PluginRegistry::~PluginRegistry()
  */
 void PluginRegistry::loadPlugins()
 {
-    QList<QObject*> pluginInstances;
+    QList<PluginBase*> pluginInstances;
 
     for (QString libPath : QApplication::libraryPaths())
     {
         QDir libDir(libPath);
 
         if (!libDir.exists()) continue;
-
-        qDebug() << "Checking plugin dir:" << libPath;
-
 
         for (QString libFile : libDir.entryList(QDir::Files))
         {
@@ -44,23 +41,43 @@ void PluginRegistry::loadPlugins()
 
             QObject *instance = loader.instance();
 
-            if (instance)
+            // Try to load against each type of plugin interface
+            if (loadImporterPlugin(instance)) {}
+            else
             {
-                qDebug() << "- Found plugin:" << libFile;
-
-                pluginInstances.append(instance);
+                // No match for the plugin
+                delete instance;
             }
         }
     }
 
-    // TODO: Actually.. "do" something with these
-    qDeleteAll(pluginInstances);
+    qDebug() << "Loading plugins:";
+    qDebug() << "Importer:" << importerPlugins.count();
 }
 
 
 void PluginRegistry::clearRegistry()
 {
     importerPlugins.clear();
+}
+
+
+/**
+ * @brief PluginRegistry::loadImporterPlugin - Attempt to load an importer plugin
+ * @param instance
+ * @return
+ */
+bool PluginRegistry::loadImporterPlugin(QObject *instance)
+{
+    ImporterInterface *plugin = qobject_cast<ImporterInterface*>(instance);
+
+    if (plugin)
+    {
+        importerPlugins.append(QSharedPointer<ImporterInterface>(plugin));
+        return true;
+    }
+
+    return false;
 }
 
 

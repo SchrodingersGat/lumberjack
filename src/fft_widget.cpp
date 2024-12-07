@@ -7,6 +7,8 @@
 #include <qwt_text_label.h>
 #include <qwt_plot_curve.h>
 
+#include "plot_curve.hpp"
+#include "fft_sampler.hpp"
 #include "fft_widget.hpp"
 
 

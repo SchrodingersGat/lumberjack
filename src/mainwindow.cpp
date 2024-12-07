@@ -26,6 +26,12 @@
 #include "cedat_importer.hpp"
 #include "mavlink_importer.hpp"
 
+#include "plugin_registry.hpp"
+
+#include <QCoreApplication>
+#include <QDir>
+#include <QPluginLoader>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent)
     setAcceptDrops(true);
 
     loadWorkspaceSettings();
+
+    pluginRegistry.loadPlugins();
 }
 
 

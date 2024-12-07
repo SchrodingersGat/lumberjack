@@ -23,8 +23,11 @@ public:
 
 protected:
 
+    bool loadImporterPlugin(QObject *instance);
+
     // Registry of each plugin "type"
-    QList<QSharedPointer<ImporterInterface*>> importerPlugins;
+    QList<QSharedPointer<ImporterInterface>> importerPlugins;
+
 };
 
 };
