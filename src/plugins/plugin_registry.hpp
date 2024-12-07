@@ -19,17 +19,17 @@ public:
     void loadPlugins(void);
     void clearRegistry(void);
 
-    const ImporterPluginList& importerPlugins(void) { return m_importerPlugins; }
-    const ExporterPluginList& exporterPlugins(void) { return m_exporterPlugins; }
+    const ImportPluginList& ImportPlugins(void) { return m_ImportPlugins; }
+    const ExportPluginList& ExportPlugins(void) { return m_ExportPlugins; }
 
 protected:
 
-    bool loadImporterPlugin(QObject *instance);
-    bool loadExporterPlugin(QObject *instance);
+    bool loadImportPlugin(QObject *instance);
+    bool loadExportPlugin(QObject *instance);
 
     // Registry of each plugin "type"
-    ImporterPluginList m_importerPlugins;
-    ExporterPluginList m_exporterPlugins;
+    ImportPluginList m_ImportPlugins;
+    ExportPluginList m_ExportPlugins;
 
 };
 

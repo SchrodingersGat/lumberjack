@@ -1,7 +1,7 @@
 #include "plugins_dialog.hpp"
 
 
-PluginsDialog::PluginsDialog(Lumberjack::PluginRegistry &r, QWidget *parent) : QDialog(parent), registry(r)
+PluginsDialog::PluginsDialog(PluginRegistry &r, QWidget *parent) : QDialog(parent), registry(r)
 {
     ui.setupUi(this);
 
@@ -42,7 +42,7 @@ void PluginsDialog::initPluginsTable(void)
 }
 
 
-void PluginsDialog::loadPluginsTable(const Lumberjack::PluginList &plugins)
+void PluginsDialog::loadPluginsTable(const PluginList &plugins)
 {
     QTableWidget *table = ui.plugin_table;
 
@@ -67,18 +67,18 @@ void PluginsDialog::loadPluginsTable(const Lumberjack::PluginList &plugins)
 
 void PluginsDialog::selectPluginType(int idx)
 {
-    Lumberjack::PluginList plugins;
+    PluginList plugins;
 
     switch (idx)
     {
     case 1:  // Importer plugins
-        for (auto plugin : registry.importerPlugins())
+        for (auto plugin : registry.ImportPlugins())
         {
             plugins.append(plugin);
         }
         break;
     case 2:  // Exporter plugins
-        for (auto plugin : registry.exporterPlugins())
+        for (auto plugin : registry.ExportPlugins())
         {
             plugins.append(plugin);
         }

@@ -40,8 +40,8 @@ void PluginRegistry::loadPlugins()
             QObject *instance = loader.instance();
 
             // Try to load against each type of plugin interface
-            if      (loadImporterPlugin(instance)) {}
-            else if (loadExporterPlugin(instance)) {}
+            if      (loadImportPlugin(instance)) {}
+            else if (loadExportPlugin(instance)) {}
             else
             {
                 // No match for the plugin
@@ -51,29 +51,29 @@ void PluginRegistry::loadPlugins()
     }
 
     qDebug() << "Loading plugins:";
-    qDebug() << "Importer:" << m_importerPlugins.count();
-    qDebug() << "Exporter:" << m_exporterPlugins.count();
+    qDebug() << "Importer:" << m_ImportPlugins.count();
+    qDebug() << "Exporter:" << m_ExportPlugins.count();
 }
 
 
 void PluginRegistry::clearRegistry()
 {
-    m_importerPlugins.clear();
+    m_ImportPlugins.clear();
 }
 
 
 /**
- * @brief PluginRegistry::loadImporterPlugin - Attempt to load an importer plugin
+ * @brief PluginRegistry::loadImportPlugin - Attempt to load an importer plugin
  * @param instance
  * @return
  */
-bool PluginRegistry::loadImporterPlugin(QObject *instance)
+bool PluginRegistry::loadImportPlugin(QObject *instance)
 {
-    ImporterPlugin *plugin = qobject_cast<ImporterPlugin*>(instance);
+    ImportPlugin *plugin = qobject_cast<ImportPlugin*>(instance);
 
     if (plugin)
     {
-        m_importerPlugins.append(QSharedPointer<ImporterPlugin>(plugin));
+        m_ImportPlugins.append(QSharedPointer<ImportPlugin>(plugin));
         return true;
     }
 
@@ -81,13 +81,13 @@ bool PluginRegistry::loadImporterPlugin(QObject *instance)
 }
 
 
-bool PluginRegistry::loadExporterPlugin(QObject *instance)
+bool PluginRegistry::loadExportPlugin(QObject *instance)
 {
-    ExporterPlugin *plugin = qobject_cast<ExporterPlugin*>(instance);
+    ExportPlugin *plugin = qobject_cast<ExportPlugin*>(instance);
 
     if (plugin)
     {
-        m_exporterPlugins.append(QSharedPointer<ExporterPlugin>(plugin));
+        m_ExportPlugins.append(QSharedPointer<ExportPlugin>(plugin));
         return true;
     }
 

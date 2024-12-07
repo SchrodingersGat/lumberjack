@@ -9,9 +9,10 @@
 #include <QRectF>
 #include <QColor>
 
-#include <qwt_symbol.h>
 
-
+/**
+ * @brief The DataPoint class represents a single <x, y> point of data
+ */
 class DataPoint
 {
 public:
@@ -26,6 +27,9 @@ public:
 };
 
 
+/**
+ * @brief The DataSeries class represents a timeseries vector of DataPoint objects
+ */
 class DataSeries : public QObject
 {
     Q_OBJECT
@@ -36,8 +40,6 @@ public:
     DataSeries(QString group, QString label);
     DataSeries(const DataSeries& other);
     DataSeries(const DataSeries& other, int64_t t_min, int64_t t_max, unsigned int expand=0);
-
-//    DataSeries& operator=(const DataSeries& other);
 
     virtual ~DataSeries();
 
@@ -215,7 +217,8 @@ protected:
 
     int lineStyle = Qt::SolidLine;
 
-    int symbolStyle = QwtSymbol::NoSymbol;
+    //! Graphical symbol style (see Qwt::SymbolStyle)
+    int symbolStyle = -1;
 
     unsigned int symbolSize = 5;
 

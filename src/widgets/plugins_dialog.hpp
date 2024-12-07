@@ -12,7 +12,7 @@ class PluginsDialog : public QDialog
     Q_OBJECT
 
 public:
-    PluginsDialog(Lumberjack::PluginRegistry &r, QWidget *parent = nullptr);
+    PluginsDialog(PluginRegistry &r, QWidget *parent = nullptr);
 
 public slots:
     void selectPluginType(int idx);
@@ -21,9 +21,9 @@ protected:
     Ui::plugins_dialog ui;
 
     void initPluginsTable(void);
-    void loadPluginsTable(const Lumberjack::PluginList &plugins);
+    void loadPluginsTable(const PluginList &plugins);
 
-    Lumberjack::PluginRegistry &registry;
+    PluginRegistry &registry;
 
 };
 

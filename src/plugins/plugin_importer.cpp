@@ -5,7 +5,7 @@
  * @param fileType - The file extension e.g. 'csv'
  * @return
  */
-bool ImporterPlugin::supportsFileType(QString fileType) const
+bool ImportPlugin::supportsFileType(QString fileType) const
 {
     fileType = fileType.replace(".", "").toLower();
 

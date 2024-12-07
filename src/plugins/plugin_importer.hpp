@@ -5,20 +5,20 @@
 
 #include "plugin_base.hpp"
 
-#define ImporterInterface_iid "org.lumberjack.plugins.ImporterInterface/1.0"
+#define ImporterInterface_iid "org.lumberjack.plugins.ImportPlugin/1.0"
 
 
 /**
- * @brief The ImporterPlugin class defines an interface for importing data
+ * @brief The ImportPlugin class defines an interface for importing data
  */
-class ImporterPlugin : public PluginBase
+class ImportPlugin : public PluginBase
 {
     Q_OBJECT
 public:
-    virtual ~ImporterPlugin() = default;
+    virtual ~ImportPlugin() = default;
 
-    // Generate a new ImporterPlugin instance
-    virtual ImporterPlugin* newInstance(void) const = 0;
+    // Generate a new ImportPlugin instance
+    virtual ImportPlugin* newInstance(void) const = 0;
 
     // Return a list of support file types, e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
@@ -38,8 +38,8 @@ public:
     bool supportsFileType(QString fileType) const;
 };
 
-typedef QList<QSharedPointer<ImporterPlugin>> ImporterPluginList;
+typedef QList<QSharedPointer<ImportPlugin>> ImportPluginList;
 
-Q_DECLARE_INTERFACE(ImporterPlugin, ImporterInterface_iid)
+Q_DECLARE_INTERFACE(ImportPlugin, ImporterInterface_iid)
 
 #endif // PLUGIN_IMPORTER_HPP

@@ -1,7 +1,8 @@
 #include <qcolordialog.h>
 
+#include <qwt_symbol.h>
+
 #include "series_editor_dialog.hpp"
-#include "datatable_widget.hpp"
 
 
 SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *parent) : QDialog(parent), series(s)

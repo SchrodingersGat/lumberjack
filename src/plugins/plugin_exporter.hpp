@@ -5,19 +5,19 @@
 
 #include "plugin_base.hpp"
 
-#define ExporterInterface_iid "org.lumberjack.plugins.ExporterInterface/1.0"
+#define ExporterInterface_iid "org.lumberjack.plugins.ExportPlugin/1.0"
 
 /**
- * @brief The ExporterPlugin class defines an interface for exporting data
+ * @brief The ExportPlugin class defines an interface for exporting data
  */
-class ExporterPlugin : public PluginBase
+class ExportPlugin : public PluginBase
 {
     Q_OBJECT
 public:
-    virtual ~ExporterPlugin() = default;
+    virtual ~ExportPlugin() = default;
 
-    // Generate a new ExporterPlugin interface
-    virtual ExporterPlugin* newInstance(void) const = 0;
+    // Generate a new ExportPlugin interface
+    virtual ExportPlugin* newInstance(void) const = 0;
 
     // Return a list of the support file types e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
@@ -30,8 +30,8 @@ public:
     }
 };
 
-typedef QList<QSharedPointer<ExporterPlugin>> ExporterPluginList;
+typedef QList<QSharedPointer<ExportPlugin>> ExportPluginList;
 
-Q_DECLARE_INTERFACE(ExporterPlugin, ExporterInterface_iid)
+Q_DECLARE_INTERFACE(ExportPlugin, ExporterInterface_iid)
 
 #endif // PLUGIN_EXPORTER_HPP
