@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "plugin_importer.hpp"
+#include "plugin_exporter.hpp"
 
 namespace Lumberjack {
 
@@ -25,9 +26,11 @@ public:
 protected:
 
     bool loadImporterPlugin(QObject *instance);
+    bool loadExporterPlugin(QObject *instance);
 
     // Registry of each plugin "type"
     ImporterPluginList m_importerPlugins;
+    ExporterPluginList m_exporterPlugins;
 
 };
 

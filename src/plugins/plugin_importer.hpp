@@ -9,13 +9,17 @@
 
 namespace Lumberjack {
 
+
+/**
+ * @brief The ImporterPlugin class defines an interface for importing data
+ */
 class ImporterPlugin : public PluginBase
 {
     Q_OBJECT
 public:
     virtual ~ImporterPlugin() = default;
 
-    // Generate a new ImporterInterface instance
+    // Generate a new ImporterPlugin instance
     virtual ImporterPlugin* newInstance(void) const = 0;
 
     // Return a list of support file types, e.g. ['csv', 'tsv']

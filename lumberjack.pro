@@ -94,6 +94,7 @@ HEADERS += \
     plugins/cobsr/cobsr.h \
     plugins/csv_importer.hpp \
     src/plugins/plugin_base.hpp \
+    src/plugins/plugin_exporter.hpp \
     src/plugins/plugin_importer.hpp \
     src/plugins/plugin_registry.hpp \
     src/widgets/about_dialog.hpp \

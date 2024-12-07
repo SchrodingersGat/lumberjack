@@ -42,7 +42,8 @@ void PluginRegistry::loadPlugins()
             QObject *instance = loader.instance();
 
             // Try to load against each type of plugin interface
-            if (loadImporterPlugin(instance)) {}
+            if      (loadImporterPlugin(instance)) {}
+            else if (loadExporterPlugin(instance)) {}
             else
             {
                 // No match for the plugin
@@ -53,6 +54,7 @@ void PluginRegistry::loadPlugins()
 
     qDebug() << "Loading plugins:";
     qDebug() << "Importer:" << m_importerPlugins.count();
+    qDebug() << "Exporter:" << m_exporterPlugins.count();
 }
 
 
@@ -74,6 +76,20 @@ bool PluginRegistry::loadImporterPlugin(QObject *instance)
     if (plugin)
     {
         m_importerPlugins.append(QSharedPointer<ImporterPlugin>(plugin));
+        return true;
+    }
+
+    return false;
+}
+
+
+bool PluginRegistry::loadExporterPlugin(QObject *instance)
+{
+    ExporterPlugin *plugin = qobject_cast<ExporterPlugin*>(instance);
+
+    if (plugin)
+    {
+        m_exporterPlugins.append(QSharedPointer<ExporterPlugin>(plugin));
         return true;
     }
 
