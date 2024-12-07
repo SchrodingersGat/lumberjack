@@ -84,7 +84,7 @@ private:
 
     DebugWidget debugWidget;
 
-    Lumberjack::PluginRegistry pluginRegistry;
+    PluginRegistry pluginRegistry;
 
 };
 #endif // MAINWINDOW_H

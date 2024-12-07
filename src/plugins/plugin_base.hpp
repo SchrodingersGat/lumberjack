@@ -4,8 +4,6 @@
 #include <QObject>
 #include <QString>
 
-namespace Lumberjack {
-
 /**
  * @brief The PluginBase class forms the basis of any Lumberjack plugin
  */
@@ -29,7 +27,5 @@ public:
 };
 
 typedef QList<QSharedPointer<PluginBase>> PluginList;
-
-}
 
 #endif // PLUGIN_BASE_HPP

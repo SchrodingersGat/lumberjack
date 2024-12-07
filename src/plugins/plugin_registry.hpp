@@ -6,8 +6,6 @@
 #include "plugin_importer.hpp"
 #include "plugin_exporter.hpp"
 
-namespace Lumberjack {
-
 /**
  * @brief The PluginRegistry class manages loading of custom plugins
  */
@@ -32,8 +30,6 @@ protected:
     // Registry of each plugin "type"
     ImporterPluginList m_importerPlugins;
     ExporterPluginList m_exporterPlugins;
-
-};
 
 };
 

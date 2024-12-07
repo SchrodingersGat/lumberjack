@@ -1,7 +1,5 @@
 #include "plugin_importer.hpp"
 
-namespace Lumberjack {
-
 /**
  * @brief PluginImporter::supportsFileType - Determine if a particular file type is supported
  * @param fileType - The file extension e.g. 'csv'
@@ -21,5 +19,3 @@ bool ImporterPlugin::supportsFileType(QString fileType) const
 
     return false;
 }
-
-};

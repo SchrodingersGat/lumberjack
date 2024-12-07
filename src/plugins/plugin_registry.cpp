@@ -5,8 +5,6 @@
 
 #include "plugin_registry.hpp"
 
-namespace Lumberjack {
-
 PluginRegistry::PluginRegistry(QObject *parent) : QObject(parent)
 {
 
@@ -95,5 +93,3 @@ bool PluginRegistry::loadExporterPlugin(QObject *instance)
 
     return false;
 }
-
-};

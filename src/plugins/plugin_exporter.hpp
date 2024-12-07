@@ -7,8 +7,6 @@
 
 #define ExporterInterface_iid "org.lumberjack.plugins.ExporterInterface/1.0"
 
-namespace Lumberjack {
-
 /**
  * @brief The ExporterPlugin class defines an interface for exporting data
  */
@@ -34,8 +32,6 @@ public:
 
 typedef QList<QSharedPointer<ExporterPlugin>> ExporterPluginList;
 
-};
-
-Q_DECLARE_INTERFACE(Lumberjack::ExporterPlugin, ExporterInterface_iid)
+Q_DECLARE_INTERFACE(ExporterPlugin, ExporterInterface_iid)
 
 #endif // PLUGIN_EXPORTER_HPP

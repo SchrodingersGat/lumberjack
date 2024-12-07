@@ -7,8 +7,6 @@
 
 #define ImporterInterface_iid "org.lumberjack.plugins.ImporterInterface/1.0"
 
-namespace Lumberjack {
-
 
 /**
  * @brief The ImporterPlugin class defines an interface for importing data
@@ -42,8 +40,6 @@ public:
 
 typedef QList<QSharedPointer<ImporterPlugin>> ImporterPluginList;
 
-};
-
-Q_DECLARE_INTERFACE(Lumberjack::ImporterPlugin, ImporterInterface_iid)
+Q_DECLARE_INTERFACE(ImporterPlugin, ImporterInterface_iid)
 
 #endif // PLUGIN_IMPORTER_HPP
