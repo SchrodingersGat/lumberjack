@@ -10,7 +10,6 @@
 #include <QColor>
 
 #include <qwt_symbol.h>
-#include <qwt_series_data.h>
 
 
 class DataPoint
@@ -57,8 +56,8 @@ public:
     static const float LINE_WIDTH_MIN;
     static const float LINE_WIDTH_MAX;
 
-    static const unsigned int SYMBOL_SIZE_MIN;
-    static const unsigned int SYMBOL_SIZE_MAX;
+    static const int SYMBOL_SIZE_MIN;
+    static const int SYMBOL_SIZE_MAX;
 
     const QString& getGroup(void) const { return group; }
     void setGroup(QString g) { group = g; }

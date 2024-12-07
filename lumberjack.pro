@@ -55,6 +55,7 @@ SOURCES += \
     plugins/cobsr/cobs.c \
     plugins/cobsr/cobsr.c \
     plugins/csv_importer.cpp \
+    src/plugins/plugin_importer.cpp \
     src/plugins/plugin_registry.cpp \
     src/widgets/about_dialog.cpp \
     src/widgets/axis_edit_dialog.cpp \

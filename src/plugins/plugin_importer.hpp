@@ -36,6 +36,8 @@ public:
     {
         return QString(ImporterInterface_iid);
     }
+
+    bool supportsFileType(QString fileType) const;
 };
 
 typedef QList<QSharedPointer<ImporterPlugin>> ImporterPluginList;
