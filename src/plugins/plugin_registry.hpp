@@ -22,6 +22,7 @@ public:
     void clearRegistry(void);
 
     const ImporterPluginList& importerPlugins(void) { return m_importerPlugins; }
+    const ExporterPluginList& exporterPlugins(void) { return m_exporterPlugins; }
 
 protected:
 

@@ -71,8 +71,14 @@ void PluginsDialog::selectPluginType(int idx)
 
     switch (idx)
     {
-    case 1:
+    case 1:  // Importer plugins
         for (auto plugin : registry.importerPlugins())
+        {
+            plugins.append(plugin);
+        }
+        break;
+    case 2:  // Exporter plugins
+        for (auto plugin : registry.exporterPlugins())
         {
             plugins.append(plugin);
         }
