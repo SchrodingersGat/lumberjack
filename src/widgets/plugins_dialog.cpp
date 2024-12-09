@@ -83,6 +83,12 @@ void PluginsDialog::selectPluginType(int idx)
             plugins.append(plugin);
         }
         break;
+    case 3: // Filter plugins
+        for (auto plugin : registry.FilterPlugins())
+        {
+            plugins.append(plugin);
+        }
+        break;
     default:
         break;
     }

@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "plugin_filter.hpp"
 #include "plugin_importer.hpp"
 #include "plugin_exporter.hpp"
 
@@ -21,15 +22,18 @@ public:
 
     const ImportPluginList& ImportPlugins(void) { return m_ImportPlugins; }
     const ExportPluginList& ExportPlugins(void) { return m_ExportPlugins; }
+    const FilterPluginList& FilterPlugins(void) { return m_FilterPlugins; }
 
 protected:
 
     bool loadImportPlugin(QObject *instance);
     bool loadExportPlugin(QObject *instance);
+    bool loadFilterPlugin(QObject *instance);
 
     // Registry of each plugin "type"
     ImportPluginList m_ImportPlugins;
     ExportPluginList m_ExportPlugins;
+    FilterPluginList m_FilterPlugins;
 
 };
 

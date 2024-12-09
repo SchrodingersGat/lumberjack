@@ -93,3 +93,17 @@ bool PluginRegistry::loadExportPlugin(QObject *instance)
 
     return false;
 }
+
+
+bool PluginRegistry::loadFilterPlugin(QObject *instance)
+{
+    FilterPlugin *plugin = qobject_cast<FilterPlugin*>(instance);
+
+    if (plugin)
+    {
+        m_FilterPlugins.append(QSharedPointer<FilterPlugin>(plugin));
+        return true;
+    }
+
+    return false;
+}
