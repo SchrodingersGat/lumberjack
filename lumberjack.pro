@@ -74,6 +74,7 @@ HEADERS += \
     src/plot_widget.hpp \
     src/plugins/plugin_base.hpp \
     src/plugins/plugin_exporter.hpp \
+    src/plugins/plugin_filter.hpp \
     src/plugins/plugin_importer.hpp \
     src/plugins/plugin_registry.hpp \
     src/widgets/about_dialog.hpp \
