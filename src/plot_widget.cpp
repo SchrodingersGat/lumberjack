@@ -57,7 +57,7 @@ PlotWidget::PlotWidget() : QwtPlot()
 
     QString bgColor = settings->loadSetting("graph", "defaultBackgroundColor", "#F0F0F0").toString();
 
-    if (QColor::isValidColor(bgColor))
+    if (QColor::isValidColorName(bgColor))
     {
         setBackgroundColor(QColor(bgColor));
     }

@@ -40,6 +40,9 @@ RCC_DIR = $$DESDIR
 MOC_DIR = $$DESTDIR/moc
 OBJECTS_DIR = $$DESTDIR/objects
 
+#Set the location for the generated ui_xxxx.h files
+UI_DIR = build/ui
+
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \

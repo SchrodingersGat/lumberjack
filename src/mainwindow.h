@@ -40,8 +40,6 @@ protected:
     void initSignalsSlots(void);
     void initStatusBar(void);
 
-    QList<QSharedPointer<FileDataSource>> getFileImporters();
-
     void loadWorkspaceSettings(void);
     void saveWorkspaceSettings(void);
 

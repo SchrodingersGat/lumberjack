@@ -13,12 +13,6 @@ class CSV_EXPORTER_EXPORT LumberjackCSVExporter : public ExportPlugin
 public:
     LumberjackCSVExporter();
 
-    // Generate a new instance of this importer
-    virtual ExportPlugin* newInstance(void) const override
-    {
-        return new LumberjackCSVExporter();
-    }
-
     // Base plugin functionality
     virtual QString pluginName(void) const override { return m_name; }
     virtual QString pluginDescription(void) const override { return m_description; }

@@ -32,7 +32,6 @@ INCLUDEPATH += src \
     plugins/cobsr
 
 SOURCES += \
-    plugins/mavlink_importer.cpp \
     src/fft_sampler.cpp \
     src/fft_widget.cpp \
     src/helpers.cpp \
@@ -45,16 +44,6 @@ SOURCES += \
     src/plot_widget.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
-    plugins/cedat_importer.cpp \
-    plugins/cedat_protocol/CEDATProtocol.cpp \
-    plugins/cedat_protocol/CEDATPackets.cpp \
-    plugins/cedat_protocol/fielddecode.cpp \
-    plugins/cedat_protocol/fieldencode.cpp \
-    plugins/cedat_protocol/scaleddecode.cpp \
-    plugins/cedat_protocol/scaledencode.cpp \
-    plugins/cobsr/cobs.c \
-    plugins/cobsr/cobsr.c \
-    plugins/csv_importer.cpp \
     src/plugins/plugin_importer.cpp \
     src/plugins/plugin_registry.cpp \
     src/widgets/about_dialog.cpp \
@@ -70,7 +59,7 @@ SOURCES += \
     src/widgets/timeline_widget.cpp
 
 HEADERS += \
-    plugins/mavlink_importer.hpp \
+    src/mainwindow.h \
     src/fft_sampler.hpp \
     src/fft_widget.hpp \
     src/helpers.hpp \
@@ -83,17 +72,6 @@ HEADERS += \
     src/plot_legend.hpp \
     src/plot_panner.hpp \
     src/plot_widget.hpp \
-    src/mainwindow.h \
-    plugins/cedat_importer.hpp \
-    plugins/cedat_protocol/CEDATProtocol.hpp \
-    plugins/cedat_protocol/CEDATPackets.hpp \
-    plugins/cedat_protocol/fielddecode.hpp \
-    plugins/cedat_protocol/fieldencode.hpp \
-    plugins/cedat_protocol/scaleddecode.hpp \
-    plugins/cedat_protocol/scaledencode.hpp \
-    plugins/cobsr/cobs.h \
-    plugins/cobsr/cobsr.h \
-    plugins/csv_importer.hpp \
     src/plugins/plugin_base.hpp \
     src/plugins/plugin_exporter.hpp \
     src/plugins/plugin_importer.hpp \
@@ -123,7 +101,6 @@ HEADERS += \
 FORMS += \
     ui/about_dialog.ui \
     ui/axis_edit_dialog.ui \
-    ui/csv_import_options.ui \
     ui/curve_editor_dialog.ui \
     ui/dataview_widget.ui \
     ui/debug_widget.ui \
@@ -135,7 +112,7 @@ FORMS += \
 RC_ICONS = logo/lumberjack.ico
 
 #Set the location for the generated ui_xxxx.h files
-UI_DIR = ui_tmp/
+UI_DIR = build/ui
 
 # Add some build info defines
 DEFINES += COMPILER=\\\"$$QMAKE_CXX\\\" \
@@ -151,16 +128,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 CONFIG(debug, debug|release) {
     CONFIG += debug
     DESTDIR = build/debug
-    RCC_DIR = build/debug
-    OBJECTS_DIR = build/debug
-    MOC_DIR = build/debug/moc
 } else {
     CONFIG += release
     DESTDIR = build/release
-    RCC_DIR = build/release
-    OBJECTS_DIR = build/release
-    MOC_DIR = build/release/moc
 }
+
+RCC_DIR = $$DESDIR
+MOC_DIR = $$DESTDIR/moc
+OBJECTS_DIR = $$DESTDIR/objects
 
 dllFiles.path = $$DESTDIR
 

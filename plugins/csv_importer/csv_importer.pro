@@ -1,4 +1,4 @@
-QT += gui
+QT += gui widgets
 
 TEMPLATE = lib
 DEFINES += CSV_IMPORTER_LIBRARY
@@ -13,12 +13,16 @@ INCLUDEPATH += \
     ../../src/plugins
 
 HEADERS += \
+    csv_import_options.hpp \
     csv_importer_global.h \
+    import_options_dialog.hpp \
     lumberjack_csv_importer.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_importer.hpp \
 
 SOURCES += \
+    ../../src/plugins/plugin_importer.cpp \
+    import_options_dialog.cpp \
     lumberjack_csv_importer.cpp
 
 # Default rules for deployment.
@@ -40,7 +44,13 @@ RCC_DIR = $$DESDIR
 MOC_DIR = $$DESTDIR/moc
 OBJECTS_DIR = $$DESTDIR/objects
 
+# Location of generated ui_xxxx.h files
+UI_DIR = build/ui
+
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
     lumberjack_csv_viewer.json
+
+FORMS += \
+    ui/csv_import_options.ui

@@ -1,8 +1,10 @@
 #ifndef LUMBERJACK_CSV_IMPORTER_HPP
 #define LUMBERJACK_CSV_IMPORTER_HPP
 
-#include "csv_importer_global.h"
 #include "plugin_importer.hpp"
+
+#include "csv_importer_global.h"
+#include "csv_import_options.hpp"
 
 
 class CSV_IMPORTER_EXPORT LumberjackCSVImporter : public ImportPlugin
@@ -13,12 +15,6 @@ class CSV_IMPORTER_EXPORT LumberjackCSVImporter : public ImportPlugin
 public:
     LumberjackCSVImporter();
 
-    // Generate a new instance of this importer
-    virtual ImportPlugin* newInstance(void) const override
-    {
-        return new LumberjackCSVImporter();
-    }
-
     // Base plugin functionality
     virtual QString pluginName(void) const override { return m_name; }
     virtual QString pluginDescription(void) const override { return m_description; }
@@ -26,13 +22,20 @@ public:
 
     // Importer plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
-    virtual bool loadDataFile(const QString &filename, QStringList &errors) override;
+
+    virtual bool beforeLoadData(void) override;
+    virtual bool loadDataFile(QStringList &errors) override;
+
+    virtual QList<QSharedPointer<DataSeries>> getDataSeries(void) const override;
 
 protected:
+    //! Plugin metadata
     const QString m_name = "CSV Importer";
     const QString m_description = "Import data from CSV files";
     const QString m_version = "0.1.0";
 
+    //! CSV import options
+    CSVImportOptions m_options;
 };
 
 #endif // LUMBERJACK_CSV_IMPORTER_HPP

@@ -49,6 +49,7 @@ public:
 };
 
 
+/*
 class CSVImportOptionsDialog : public QDialog
 {
     Q_OBJECT
@@ -71,6 +72,7 @@ protected:
     QStringList fileHead;
 
 };
+*/
 
 
 

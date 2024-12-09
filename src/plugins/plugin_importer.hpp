@@ -5,6 +5,8 @@
 
 #include "plugin_base.hpp"
 
+#include "data_series.hpp"
+
 #define ImporterInterface_iid "org.lumberjack.plugins.ImportPlugin/1.0"
 
 
@@ -17,17 +19,23 @@ class ImportPlugin : public PluginBase
 public:
     virtual ~ImportPlugin() = default;
 
-    // Generate a new ImportPlugin instance
-    virtual ImportPlugin* newInstance(void) const = 0;
-
     // Return a list of support file types, e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
 
-    // Load data from the provided filename
-    virtual bool loadDataFile(const QString &filename, QStringList &errors) = 0;
+    // Validate file before opening
+    // Note: The default implementation performs basic functionality,
+    //       but this can be extended by the plugin
+    virtual bool validateFile(QString filename, QStringList &errors) const;
 
-    // Return the loaded data
-    // virtual DataSource data(void) const;
+    // Optional function called before data loading
+    // Return False to cancel the data import
+    virtual bool beforeLoadData() { return true; }
+
+    // Load data from the provided filename
+    virtual bool loadDataFile(QStringList &errors) = 0;
+
+    // After import, plugin must return a list of DataSeries objects
+    virtual QList<QSharedPointer<DataSeries>> getDataSeries(void) const = 0;
 
     // Return the IID string
     virtual QString pluginIID(void) const override
@@ -35,7 +43,17 @@ public:
         return QString(ImporterInterface_iid);
     }
 
+    QString fileFilter(void) const;
+
     bool supportsFileType(QString fileType) const;
+
+    void setFilename(QString filename) { m_filename = filename; }
+    QString getFilename(void) const { return m_filename; }
+
+
+protected:
+    // Stored filename, source of imported data
+    QString m_filename;
 };
 
 typedef QList<QSharedPointer<ImportPlugin>> ImportPluginList;

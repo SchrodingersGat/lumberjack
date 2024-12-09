@@ -16,9 +16,6 @@ class ExportPlugin : public PluginBase
 public:
     virtual ~ExportPlugin() = default;
 
-    // Generate a new ExportPlugin interface
-    virtual ExportPlugin* newInstance(void) const = 0;
-
     // Return a list of the support file types e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
 
