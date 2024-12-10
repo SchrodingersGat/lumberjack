@@ -55,20 +55,20 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.8.1'
-        arch: 'win64_msvc2022_64'
+        arch: 'win64_mingw'
         cache: true
     - name: Build Qwt
       run: |
         cd qwt
         qmake qwt.pro
-        nmake
-        nmake install
+        make
+        make install
     - name: Build Lumberjack
       run: |
         qmake lumberjack.pro
-        nmake
+        make
     - name: Build Plugins
       run: |
         cd plugins
         qmake plugins.pro
-        nmake
+        make
