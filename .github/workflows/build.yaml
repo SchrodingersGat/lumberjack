@@ -1,0 +1,44 @@
+# Build lumberjack application and plugins
+
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types:
+      - created
+  
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.1'
+        cache: true
+    - name: Build Qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        make
+        sudo make install
+    - name: Build Lumberjack
+      run: |
+        qmake lumberjack.pro
+        make
+    - name: Build Plugins
+      run: |
+        cd plugins
+        qmake plugins.pro
+        make
