@@ -134,7 +134,7 @@ CONFIG(debug, debug|release) {
     DESTDIR = build/release
 }
 
-RCC_DIR = $$DESDIR
+RCC_DIR = $$DESTDIR
 MOC_DIR = $$DESTDIR/moc
 OBJECTS_DIR = $$DESTDIR/objects
 
