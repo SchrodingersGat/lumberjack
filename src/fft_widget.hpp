@@ -3,11 +3,6 @@
 
 #include "plot_widget.hpp"
 #include "data_series.hpp"
-#include "plot_curve.hpp"
-#include "plot_panner.hpp"
-
-#include "fft_sampler.hpp"
-
 
 class FFTWidget : public PlotWidget
 {

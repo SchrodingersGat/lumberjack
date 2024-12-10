@@ -26,13 +26,13 @@ class DataSource : public QObject
 
 public:
 
-    DataSource(QString label);
+    DataSource(QString label, QString description = QString());
     virtual ~DataSource();
 
-    virtual QString getLabel(void) const { return label; }
+    QString getLabel(void) const { return m_label; }
 
     // Descriptive text for this data source (override for custom sources)
-    virtual QString getDescription(void) const { return "Lumberjack data source"; }
+    QString getDescription(void) const { return m_description; }
 
     /* DataSeries access functions */
     int getSeriesCount(void) const { return data_series.size(); }
@@ -58,7 +58,10 @@ signals:
 protected:
 
     //! Text label associated with this DataSource (e.g. filename)
-    QString label;
+    QString m_label;
+
+    //! Text description associated with this DataSource
+    QString m_description;
 
     //! Circular list of colors to auto-assign to new series
     virtual QList<QColor> getColorWheel(void);
@@ -70,53 +73,6 @@ protected:
 
     // Keep a map of label:series for efficient lookup
     QMap<QString, QSharedPointer<DataSeries>> data_series;
-};
-
-
-/**
- * @brief The FileDataSource class defines a DataSource which can be read from file
- */
-class FileDataSource : public DataSource
-{
-    Q_OBJECT
-
-public:
-    FileDataSource(QString label);
-    virtual ~FileDataSource();
-
-    QStringList getFileHead(QString filename, int nLines = 10);
-
-    bool loadData(QString filename, QStringList& errors);
-
-    QString getFilename(void) const { return filename; }
-
-    virtual QString getLabel(void) const override
-    {
-        return DataSource::getLabel() + ":" + QFileInfo(filename).fileName();
-    }
-
-    // These functions should be overridden for inheriting child classes
-    virtual QString getFileDescription(void) const { return "Supported files"; }
-    virtual QStringList getSupportedFileTypes(void) const { return QStringList(); }
-
-    bool supportsFileType(QString suffix) const
-    {
-        return getSupportedFileTypes().contains(suffix.toLower());
-    }
-
-    // Function to set import options (called before loadDataFromFile)
-    virtual bool setImportOptions(void) { return true; }
-
-    virtual bool loadDataFromFile(QStringList &errors);
-
-    QString getFilePattern(void) const;
-
-protected:
-    QString filename;
-
-    bool validateFile(QString filename, QStringList& errors);
-
-    qint64 getFileSize();
 };
 
 
@@ -166,7 +122,7 @@ public slots:
 
     bool addSource(QSharedPointer<DataSource> source);
     bool addSource(DataSource* source) { return addSource(QSharedPointer<DataSource>(source)); }
-    bool addSource(QString label);
+    bool addSource(QString label, QString description = QString());
 
     bool removeSource(QSharedPointer<DataSource> source);
     bool removeSource(DataSource* source) { return removeSource(QSharedPointer<DataSource>(source)); }

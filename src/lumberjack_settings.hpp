@@ -11,6 +11,8 @@ public:
     LumberjackSettings();
 
     static QString getSettingsDirectory(void);
+    static QString getSettingsSubdirectory(QString subdir);
+    static QString getPluginsDirectory(void);
     static QString getSettingsFile(void);
 
     // Singleton design pattern

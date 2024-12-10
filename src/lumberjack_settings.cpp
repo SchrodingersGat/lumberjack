@@ -10,7 +10,6 @@ LumberjackSettings *LumberjackSettings::instance = 0;
 
 LumberjackSettings::LumberjackSettings() : settings(getSettingsFile(), QSettings::IniFormat)
 {
-//    loadSettings();
 }
 
 
@@ -24,6 +23,18 @@ QString LumberjackSettings::getSettingsDirectory()
     }
 
     return QString();
+}
+
+
+QString LumberjackSettings::getSettingsSubdirectory(QString subdir)
+{
+    return LumberjackSettings::getSettingsDirectory() + QDir::separator() + subdir;
+}
+
+
+QString LumberjackSettings::getPluginsDirectory()
+{
+    return LumberjackSettings::getSettingsSubdirectory("plugins");
 }
 
 
@@ -42,6 +53,7 @@ void LumberjackSettings::createDirectories()
     QStringList dirs;
 
     dirs.append(getSettingsDirectory());
+    dirs.append(getPluginsDirectory());
 
     for (auto dir : dirs)
     {

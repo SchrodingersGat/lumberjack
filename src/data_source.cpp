@@ -6,10 +6,10 @@
 #include "data_source.hpp"
 
 
-DataSource::DataSource(QString lbl) :
-    label(lbl)
+DataSource::DataSource(QString label, QString description) :
+    m_label(label),
+    m_description(description)
 {
-    // TODO
 }
 
 
@@ -26,6 +26,8 @@ DataSource::~DataSource()
 QList<QColor> DataSource::getColorWheel()
 {
     QList<QColor> colors;
+
+    // TODO: Make this ... better? ...
 
     colors.append(QColor(0, 0, 250));
     colors.append(QColor(0, 250, 0));
@@ -287,182 +289,11 @@ QStringList DataSource::getGroupLabels() const
 }
 
 
-FileDataSource::FileDataSource(QString label) : DataSource(label)
-{
-}
-
-
-FileDataSource::~FileDataSource()
-{
-}
-
-
-/**
- * @brief FileDataSource::getFilePattern constructs a "file pattern" string for this plugin
- * e.g. "CSV Files (*.csv)"
- * @return
- */
-QString FileDataSource::getFilePattern() const
-{
-    QString pattern = getFileDescription();
-
-    pattern += " (";
-
-    QStringList supportedTypes = getSupportedFileTypes();
-
-    for (int idx = 0; idx < supportedTypes.length(); idx++)
-    {
-        pattern += "*.";
-        pattern += supportedTypes.at(idx);
-
-        if (idx < (supportedTypes.length() - 1))
-        {
-            pattern += " ";
-        }
-    }
-
-    pattern += ")";
-
-    return pattern;
-}
-
-
-
-
-
-bool FileDataSource::loadData(QString filename, QStringList &errors)
-{
-    // Run file validation
-    if (!validateFile(filename, errors))
-    {
-        return false;
-    }
-
-    // Store the filename
-    this->filename = filename;
-
-    // Configure import options
-    if (!setImportOptions())
-    {
-        errors.append(tr("setImportOptions returned false"));
-        return false;
-    }
-
-    // Run specific file loading function
-    bool result = loadDataFromFile(errors);
-
-    // TODO: Any steps after loading data?
-
-    return result;
-}
-
-
-/**
- * @brief FileDataSource::validateFile ensures that the provided file is available
- * @param filename
- * @return
- */
-bool FileDataSource::validateFile(QString filename, QStringList& errorList)
-{
-    QFileInfo info(filename);
-
-    QStringList errors;
-
-    if (!info.exists())
-    {
-        errors.append(tr("File does not exist"));
-    }
-
-    if (!info.isFile())
-    {
-        errors.append(tr("Not a valid file"));
-    }
-
-    if (!info.isReadable())
-    {
-        errors.append(tr("File is not readable"));
-    }
-
-    if (info.size() == 0) {
-        errors.append(tr("File is empty"));
-    }
-
-    if (errors.isEmpty())
-    {
-        return true;
-    }
-    else
-    {
-        errorList.append(errors);
-        return false;
-    }
-}
-
-
-qint64 FileDataSource::getFileSize()
-{
-    QFileInfo f(filename);
-
-    if (f.exists() && f.isFile())
-    {
-        return f.size();
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
-/*
- * Read the first <n> lines of the file
- */
-QStringList FileDataSource::getFileHead(QString filename, int nLines)
-{
-    QStringList lines;
-    QStringList errors;
-
-    if (!validateFile(filename, errors)) {
-        qCritical() << "Could not read file head for" << filename;
-
-        for (QString err : errors) {
-            qInfo() << "error message:" << err;
-        }
-
-        return lines;
-    }
-
-    QFile f(filename);
-
-    if (!f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable()) {
-        qCritical() << "Error opening file:" << filename;
-        return lines;
-    }
-
-    f.seek(0);
-
-    while (!f.atEnd() && lines.count() < nLines) {
-        lines.append(f.readLine());
-    }
-
-    return lines;
-}
-
-
-bool FileDataSource::loadDataFromFile(QStringList &errors)
-{
-    errors.append(tr("loadDataFromFile function not implemented"));
-    return false;
-}
-
-
-
 DataSourceManager *DataSourceManager::instance = 0;
 
 
 DataSourceManager::DataSourceManager()
 {
-    // TODO
 }
 
 
@@ -550,11 +381,11 @@ bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
  * @param label is the label of the DataSource to add
  * @return true if the source was added, false if a DataSource with the given title already existed
  */
-bool DataSourceManager::addSource(QString label)
+bool DataSourceManager::addSource(QString label, QString description)
 {
     if (getSourceByLabel(label).isNull())
     {
-        return addSource(new DataSource(label));
+        return addSource(new DataSource(label, description));
     }
 
     // Source with provided label already exists!

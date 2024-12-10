@@ -1,0 +1,12 @@
+#ifndef CSV_IMPORTER_GLOBAL_H
+#define CSV_IMPORTER_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(CSV_IMPORTER_LIBRARY)
+#define CSV_IMPORTER_EXPORT Q_DECL_EXPORT
+#else
+#define CSV_IMPORTER_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // CSV_IMPORTER_GLOBAL_H
