@@ -4,6 +4,7 @@ build-*
 qwt-6.1.4/
 *.pro.user
 .qtc_clangd/
+qrc_resources.cpp
 
 Makefile
 Makefile.debug
@@ -15,14 +16,15 @@ Makefile.release
 *.stash
 *.patch
 
+# Intermediate UI files
 ui_tmp
 
 # Build directories
-debug
-release
+build/
+debug/
+release/
 unit_test/debug
 unit_test/release
-wininstall/
 
 # Project files, workspaces, etc
 .vscode/

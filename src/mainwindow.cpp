@@ -19,12 +19,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "plugins_dialog.hpp"
 #include "about_dialog.hpp"
 
-// TODO: In the future, replace these explicit includes with a "plugin" architecture
-#include "csv_importer.hpp"
-#include "cedat_importer.hpp"
-#include "mavlink_importer.hpp"
+#include "plugin_registry.hpp"
+
+#include <QCoreApplication>
+#include <QDir>
+#include <QPluginLoader>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -49,6 +51,8 @@ MainWindow::MainWindow(QWidget *parent)
     setAcceptDrops(true);
 
     loadWorkspaceSettings();
+
+    pluginRegistry.loadPlugins();
 }
 
 
@@ -68,6 +72,11 @@ MainWindow::~MainWindow()
  */
 void MainWindow::loadDummyData()
 {
+    /*
+     * TODO: Reimplement this as a plugin
+     */
+
+    /*
 
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
@@ -135,7 +144,7 @@ void MainWindow::loadDummyData()
     src->addSeries(series_5);
     src->addSeries(series_6);
     src->addSeries(series_7);
-
+    */
 }
 
 
@@ -192,6 +201,7 @@ void MainWindow::initMenus()
 
     // Help menu
     connect(ui->action_About, &QAction::triggered, this, &MainWindow::showAboutInfo);
+    connect(ui->action_Plugins, &QAction::triggered, this, &MainWindow::showPluginsInfo);
     connect(ui->action_Debug, &QAction::triggered, this, &MainWindow::toggleDebugView);
 }
 
@@ -329,11 +339,21 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
 
 
 /*
+ * Display the "Plugins" dialog
+ */
+void MainWindow::showPluginsInfo(void)
+{
+    PluginsDialog dlg(pluginRegistry, this);
+    dlg.exec();
+}
+
+
+/*
  * Display the "About" dialog
  */
 void MainWindow::showAboutInfo()
 {
-    AboutDialog dlg;
+    AboutDialog dlg(this);
 
     dlg.exec();
 }
@@ -373,23 +393,11 @@ void MainWindow::loadDroppedFile(QString filename)
 }
 
 
-/*
- * Construct a list of available data file importer classes
+
+/**
+ * @brief MainWindow::loadDataFromFile - Load data from the provided file
+ * @param filename
  */
-QList<QSharedPointer<FileDataSource>> MainWindow::getFileImporters()
-{
-    // TODO: In the future this should hook into the plugin architecture
-
-    QList<QSharedPointer<FileDataSource>> sources;
-
-    sources.append(QSharedPointer<FileDataSource>(new CSVImporter()));
-    sources.append(QSharedPointer<FileDataSource>(new CEDATImporter()));
-    sources.append(QSharedPointer<FileDataSource>(new MavlinkImporter()));
-
-    return sources;
-}
-
-
 void MainWindow::loadDataFromFile(QString filename)
 {
     qDebug() << "loadDataFromFile:" << filename;
@@ -398,48 +406,96 @@ void MainWindow::loadDataFromFile(QString filename)
 
     // Record the directory this file was loaded from
     QFileInfo fi(filename);
+
+    if (!fi.exists())
+    {
+        // TODO - show error message
+        return;
+    }
+
     settings->saveSetting("import", "lastDirectory", fi.absoluteDir().absolutePath());
 
-    auto sources = getFileImporters();
+    // Find a matching plugin
+    ImportPluginList importers;
+
+    QSharedPointer<ImportPlugin> importer;
+
+    for (auto plugin : pluginRegistry.ImportPlugins())
+    {
+        if (plugin.isNull()) continue;
+
+        if (plugin->supportsFileType(fi.suffix()))
+        {
+            importers.append(plugin);
+        }
+    }
+
+    if (importers.length() == 1)
+    {
+        importer = importers.first();
+    }
+    else if (importers.length() == 0)
+    {
+        // TODO: Select an importer
+        // TODO: For now, just take the first one...
+        importer = importers.first();
+    }
+    else
+    {
+        // TODO: Select an importer
+        // TODO: For now, just take the first one...
+        importer = importers.first();
+    }
+
+    // Create a new instance of the provided importer
+    DataSource *source = new DataSource(importer->pluginName(), importer->pluginDescription());
 
     QStringList errors;
-    bool matched = false;
-    bool loaded = false;
 
-    for (auto source : sources)
+
+    if (!importer->validateFile(filename, errors))
     {
-        if (source.isNull()) continue;
-
-        if (source->supportsFileType(fi.suffix()))
-        {
-            matched = true;
-
-            loaded = source->loadData(filename, errors);
-
-            if (loaded)
-            {
-                DataSourceManager::getInstance()->addSource(source);
-                break;
-            }
-        }
+        // TODO: error message?
+        return;
     }
 
-    if (!matched)
+    importer->setFilename(filename);
+
+    if (!importer->beforeLoadData())
     {
-        qWarning() << "No importer class found for" << filename;
-    }
-    else if (!loaded)
-    {
-        qCritical() << "File could not be loaded" << filename;
+        // TODO: error message?
+        return;
     }
 
-    if (errors.length() > 0)
+    errors.clear();
+
+    bool result = importer->loadDataFile(errors);
+
+    if (!result)
     {
-        for (auto error : errors)
-        {
-            qWarning() << error;
-        }
+        // TODO: Display errors
+
+        delete source;
+        return;
     }
+
+    auto seriesList = importer->getDataSeries();
+
+    if (seriesList.count() == 0)
+    {
+        // TODO: Error msg - no data imported
+        delete source;
+        return;
+    }
+
+    for (auto series : importer->getDataSeries())
+    {
+        source->addSeries(series);
+    }
+
+    DataSourceManager::getInstance()->addSource(source);
+
+    // TODO: Success message?
 }
 
 
@@ -452,27 +508,19 @@ void MainWindow::importData()
 
     qDebug() << "MainWindow::importData";
 
-    auto sources = getFileImporters();
-
     // Assemble set of supported file types
     QStringList supportedFileTypes;
 
     QStringList filePatterns;
 
-    for (auto source : sources)
+    for (QSharedPointer<ImportPlugin> plugin : pluginRegistry.ImportPlugins())
     {
-        if (source.isNull()) continue;
+        if (plugin.isNull()) continue;
 
-        for (QString fileType : source->getSupportedFileTypes())
-        {
-            if (!supportedFileTypes.contains(fileType))
-            {
-                supportedFileTypes.append(fileType);
-            }
-        }
-
-        filePatterns.append(source->getFilePattern());
+        filePatterns.append(plugin->fileFilter());
     }
+
+    filePatterns.append("Any files (*)");
 
     // Load a file
     QFileDialog dialog(this);
@@ -487,7 +535,7 @@ void MainWindow::importData()
     }
 
     dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setNameFilter(filePatterns.join(";;"));
+    dialog.setNameFilters(filePatterns);
     dialog.setViewMode(QFileDialog::Detail);
 
     int result = dialog.exec();

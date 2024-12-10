@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -42,6 +42,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="action_About"/>
+    <addaction name="action_Plugins"/>
     <addaction name="separator"/>
     <addaction name="action_Debug"/>
    </widget>
@@ -115,6 +116,11 @@
   <action name="action_FFT">
    <property name="text">
     <string>&amp;FFT</string>
+   </property>
+  </action>
+  <action name="action_Plugins">
+   <property name="text">
+    <string>&amp;Plugins</string>
    </property>
   </action>
  </widget>

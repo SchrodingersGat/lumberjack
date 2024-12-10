@@ -1,16 +1,29 @@
+#include <QDir>
 #include <QApplication>
 #include <qcommandlineparser.h>
 #include <qcommandlineoption.h>
 
 #include "lumberjack_debug.hpp"
 #include "lumberjack_version.hpp"
+#include "lumberjack_settings.hpp"
 
 #include "mainwindow.h"
 
 
 int main(int argc, char *argv[])
 {
+
     QApplication a(argc, argv);
+
+    // Add custom plugin dirs
+    QStringList pluginPaths = a.libraryPaths();
+
+    pluginPaths.prepend(QDir::currentPath() + "/plugins");
+    pluginPaths.prepend(LumberjackSettings::getPluginsDirectory());
+
+    a.setLibraryPaths(pluginPaths);
+
+    QString p = QDir::currentPath() + "/plugins";
 
     // Configure application properties
     a.setApplicationName("lumberjack");

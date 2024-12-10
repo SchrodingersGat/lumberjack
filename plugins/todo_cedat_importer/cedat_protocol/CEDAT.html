@@ -1,0 +1,518 @@
+<style>
+body {
+    text-align:justify;
+    max-width: 25cm;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: Georgia;
+    counter-reset: h1counter h2counter  h3counter toc1counter toc2counter toc3counter;
+}
+
+<p>table {
+border: 1px solid #e0e0e0;
+border-collapse: collapse;
+margin-bottom: 25px;
+}</p>
+
+<p>th, td {
+border: 1px solid #e0e0e0;
+font-family: Courier, monospace;
+font-size: 90%;
+padding: 2px;
+}</p>
+
+<p>/*</p>
+
+<ul>
+<li> Alternate colors for the table, including the heading row
+*/
+th {
+background-color: #e0e0e0<br />
+}
+tr:nth-child(even){background-color: #e0e0e0}</li>
+</ul>
+
+<p>h1, h2, h3, h4, h5 { font-family: Arial; }
+h1 { font-size:120%; margin-bottom: 25px; }
+h2 { font-size:110%; margin-bottom: 15px; }
+h3 { font-size:100%; margin-bottom: 10px;}
+h4, li { font-size:100%; }</p>
+
+<p>caption{ font-family:Arial; font-size:85%;}</p>
+
+<p>code, pre, .codelike {
+font-family: Courier, monospace;
+font-size: 100%;
+color: darkblue;
+}</p>
+
+<p>/*</p>
+
+<ul>
+<li> Counters for the main headings
+*/</li>
+</ul>
+
+<p>h1:before {
+counter-increment: h1counter;
+content: counter(h1counter) &quot;\00a0 &quot;;
+}
+h1 {
+counter-reset: h2counter;
+}</p>
+
+<p>h2:before {
+counter-increment: h2counter;
+content: counter(h1counter) &#8220;.&#8221; counter(h2counter) &quot;\00a0 &quot;;
+}
+h2 {
+counter-reset: h3counter;
+}</p>
+
+<p>h3:before {
+counter-increment: h3counter;
+content: counter(h1counter) &#8220;.&#8221; counter(h2counter) &#8220;.&#8221; counter(h3counter) &quot;\00a0 &quot;;
+}</p>
+
+<p>/*</p>
+
+<ul>
+<li> The document title, centered
+*/
+doctitle {font-family: Arial; font-size:120%; font-weight: bold; margin-bottom:25px; text-align:center; display:block;}
+titlepagetext {text-align:center; display:block;}</li>
+</ul>
+
+<p>/*</p>
+
+<ul>
+<li> The table of contents formatting
+*/
+toctitle {font-family: Arial; font-size:120%; font-weight: bold; margin-bottom:25px; display:block;}
+toc1, toc2, toc3 {font-family: Arial; font-size:100%; margin-bottom:2px; display:block;}
+toc1 {text-indent: 0px;}
+toc2 {text-indent: 15px;}
+toc3 {text-indent: 30px;}</li>
+</ul>
+
+<p>toc1:before {
+content: counter(toc1counter) &quot;\00a0 &quot;;
+counter-increment: toc1counter;
+}
+toc1 {
+counter-reset: toc2counter;
+}</p>
+
+<p>toc2:before {
+content: counter(toc1counter) &#8220;.&#8221; counter(toc2counter) &quot;\00a0 &quot;;
+counter-increment: toc2counter;
+}
+toc2 {
+counter-reset: toc3counter;
+}</p>
+
+<p>toc3:before {
+content: counter(toc1counter) &#8220;.&#8221; counter(toc2counter) &#8220;.&#8221; counter(toc3counter) &quot;\00a0 &quot;;
+counter-increment: toc3counter;
+}</p>
+
+<p>/* How it looks on a screen, notice the fancy hr blocks and lack of page breaks */
+@media screen {
+body {
+background-color: #f0f0f0;
+}
+.page-break { display: none; }
+hr {
+height: 25px;
+border-style: solid;
+border-color: gray;
+border-width: 1px 0 0 0;
+border-radius: 10px;
+}
+hr:before {
+display: block;
+content: &#8220;&#8221;;
+height: 25px;
+margin-top: -26px;
+border-style: solid;
+border-color: gray;
+border-width: 0 0 1px 0;
+border-radius: 10px;
+}
+}</p>
+
+<p>/* How it looks when printed, hr turned off, in favor of page breaks*/
+@media print {
+hr {display: none;}
+body {background-color: white;}
+.page-break{page-break-before: always;}
+}
+</style></p>
+
+<h1 id="cedatprotocol">CEDAT Protocol</h1>
+
+<p>Binary protocol for compressed log data</p>
+
+<p>Protocol version is 0.1.</p>
+
+<p>Protocol API is 1.</p>
+
+<h2 id="packetsenumeration">Packets enumeration</h2>
+
+<p>CEDAT packet definitions</p>
+
+<table id="anamepacketsapacketsenumeration">
+<caption style="caption-side: bottom;"><a name="Packets"></a>Packets enumeration</caption>
+<colgroup>
+<col />
+<col style="text-align:center;"/>
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Name             </th>
+	<th style="text-align:center;"> Value </th>
+	<th> Description         </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> <a href="#CEDAT_FILE_INFO"><code>CEDAT_FILE_INFO</code></a>     </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Log file version information    </td>
+</tr>
+<tr>
+	<td> <a href="#CEDAT_NEW_VAR"><code>CEDAT_NEW_VAR</code></a>      </td>
+	<td style="text-align:center;"> 128 </td>
+	<td> New data variable received     </td>
+</tr>
+<tr>
+	<td> <a href="#CEDAT_DATAPOINT"><code>CEDAT_DATAPOINT</code></a>     </td>
+	<td style="text-align:center;"> 129 </td>
+	<td> Timestamped datapoint (floating point data) </td>
+</tr>
+<tr>
+	<td> <a href="#CEDAT_DATAPOINT_BOOLEAN"><code>CEDAT_DATAPOINT_BOOLEAN</code></a> </td>
+	<td style="text-align:center;"> 130 </td>
+	<td> Timestamped datapoint (boolean data)  </td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="anamecedat_file_infoaversionpacket"><a name="CEDAT_FILE_INFO"></a>Version packet</h2>
+
+<p>Log file version information</p>
+
+<ul>
+<li>packet identifier: <code>CEDAT_FILE_INFO</code> : 1</li>
+<li>minimum data length: 2</li>
+<li>maximum data length: 9</li>
+</ul>
+
+<table id="versionpacketbytes">
+<caption style="caption-side: bottom;">Version packet bytes</caption>
+<colgroup>
+<col />
+<col />
+<col style="text-align:center;"/>
+<col style="text-align:center;"/>
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Bytes </th>
+	<th> Name   </th>
+	<th style="text-align:center;"> <a href="#Enc">Enc</a>       </th>
+	<th style="text-align:center;"> Repeat </th>
+	<th> Description                  </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 0  </td>
+	<td> 1)apiVersion </td>
+	<td style="text-align:center;"> U8         </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Log file API version.<br>Data are given constant value on encode getCEDATApi(). </td>
+</tr>
+<tr>
+	<td> 1&#8230;8 </td>
+	<td> 2)protocol </td>
+	<td style="text-align:center;" colspan="2"> Zero-terminated string up to 8 bytes   </td>
+	<td> Protocol version.<br>Data are given constant value on encode getCEDATVersion(). </td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="anamecedat_new_varanewlogvariablepacket"><a name="CEDAT_NEW_VAR"></a>NewLogVariable packet</h2>
+
+<p>New data variable received</p>
+
+<ul>
+<li>packet identifier: <code>CEDAT_NEW_VAR</code> : 128</li>
+<li>minimum data length: 7</li>
+<li>maximum data length: 196</li>
+</ul>
+
+<table id="newlogvariablepacketbytes">
+<caption style="caption-side: bottom;">NewLogVariable packet bytes</caption>
+<colgroup>
+<col />
+<col />
+<col style="text-align:center;"/>
+<col style="text-align:center;"/>
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Bytes  </th>
+	<th> Name   </th>
+	<th style="text-align:center;"> <a href="#Enc">Enc</a>       </th>
+	<th style="text-align:center;"> Repeat </th>
+	<th> Description </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 0&#8230;1  </td>
+	<td> 1)variableId </td>
+	<td style="text-align:center;"> U16         </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Variable ID. </td>
+</tr>
+<tr>
+	<td> 2&#8230;3  </td>
+	<td> 2)ownerId </td>
+	<td style="text-align:center;"> I16         </td>
+	<td style="text-align:center;"> 1  </td>
+	<td>    </td>
+</tr>
+<tr>
+	<td> 4&#8230;67 </td>
+	<td> 3)ownerName </td>
+	<td style="text-align:center;" colspan="2"> Zero-terminated string up to 64 bytes   </td>
+	<td>    </td>
+</tr>
+<tr>
+	<td> 68&#8230;131 </td>
+	<td> 4)title  </td>
+	<td style="text-align:center;" colspan="2"> Zero-terminated string up to 64 bytes   </td>
+	<td>    </td>
+</tr>
+<tr>
+	<td> 132&#8230;195 </td>
+	<td> 5)units  </td>
+	<td style="text-align:center;" colspan="2"> Zero-terminated string up to 64 bytes   </td>
+	<td>    </td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="anamecedat_datapointatimestampeddatapacket"><a name="CEDAT_DATAPOINT"></a>TimestampedData packet</h2>
+
+<p>Timestamped datapoint (floating point data)</p>
+
+<ul>
+<li>packet identifier: <code>CEDAT_DATAPOINT</code> : 129</li>
+<li>data length: 7</li>
+</ul>
+
+<table id="timestampeddatapacketbytes">
+<caption style="caption-side: bottom;">TimestampedData packet bytes</caption>
+<colgroup>
+<col />
+<col />
+<col style="text-align:center;"/>
+<col style="text-align:center;"/>
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Bytes </th>
+	<th> Name   </th>
+	<th style="text-align:center;"> <a href="#Enc">Enc</a> </th>
+	<th style="text-align:center;"> Repeat </th>
+	<th> Description       </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 0:7 </td>
+	<td> 1)reserved </td>
+	<td style="text-align:center;"> B1   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Reserved bit (ignored).    </td>
+</tr>
+<tr>
+	<td> 0:6 </td>
+	<td> 2)delta  </td>
+	<td style="text-align:center;"> B1   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> 1 if the data value is delta-encoded. </td>
+</tr>
+<tr>
+	<td> 1&#8230;2 </td>
+	<td> 3)variableId </td>
+	<td style="text-align:center;"> U16   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Variable ID.       </td>
+</tr>
+<tr>
+	<td> 3&#8230;6 </td>
+	<td> 4)value  </td>
+	<td style="text-align:center;"> F32   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Value.        </td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="anamecedat_datapoint_booleanatimestampedbooleandatapacket"><a name="CEDAT_DATAPOINT_BOOLEAN"></a>TimestampedBooleanData packet</h2>
+
+<p>Timestamped datapoint (boolean data)</p>
+
+<ul>
+<li>packet identifier: <code>CEDAT_DATAPOINT_BOOLEAN</code> : 130</li>
+<li>data length: 3</li>
+</ul>
+
+<table id="timestampedbooleandatapacketbytes">
+<caption style="caption-side: bottom;">TimestampedBooleanData packet bytes</caption>
+<colgroup>
+<col />
+<col />
+<col style="text-align:center;"/>
+<col style="text-align:center;"/>
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th> Bytes  </th>
+	<th> Name   </th>
+	<th style="text-align:center;"> <a href="#Enc">Enc</a> </th>
+	<th style="text-align:center;"> Repeat </th>
+	<th> Description                         </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td> 0:7  </td>
+	<td> 1)reserved </td>
+	<td style="text-align:center;"> B1   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Reserved bit (ignored).                      </td>
+</tr>
+<tr>
+	<td> 0:6  </td>
+	<td> 2)delta  </td>
+	<td style="text-align:center;"> B1   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> 1 if the data value is delta-encoded (false for boolean data).<br>Data are given constant value on encode 0. </td>
+</tr>
+<tr>
+	<td> 0:5&#8230;0:1 </td>
+	<td> 3)reserved2 </td>
+	<td style="text-align:center;"> B5   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Reserved for future use.<br>Data are given constant value on encode 0.          </td>
+</tr>
+<tr>
+	<td> 0:0  </td>
+	<td> 4)value  </td>
+	<td style="text-align:center;"> B1   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Value.                          </td>
+</tr>
+<tr>
+	<td> 1&#8230;2  </td>
+	<td> 5)variableId </td>
+	<td style="text-align:center;"> U16   </td>
+	<td style="text-align:center;"> 1  </td>
+	<td> Variable ID.                         </td>
+</tr>
+</tbody>
+</table>
+
+<div class="page-break"></div>
+
+<hr />
+
+<h1 id="aboutthisicd">About this ICD</h1>
+
+<p>This is the interface control document for data <em>on the wire</em>, not data in memory. This document was automatically generated by the <a href="https://github.com/billvaglienti/ProtoGen">ProtoGen software</a>, version 3.2.a. ProtoGen also generates C source code for doing most of the work of encoding data from memory to the wire, and vice versa.</p>
+
+<h2 id="encodings">Encodings</h2>
+
+<p>Data for this protocol are sent in BIG endian format. Any field larger than one byte is sent with the most signficant byte first, and the least significant byte last.</p>
+
+<p>Data can be encoded as unsigned integers, signed integers (two&#8217;s complement), bitfields, and floating point.</p>
+
+<table>
+<colgroup>
+<col style="text-align:center;"/>
+<col />
+<col />
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:center;"> <a name="Enc"></a>Encoding </th>
+	<th> Interpretation      </th>
+	<th> Notes                  </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:center;"> UX       </td>
+	<td> Unsigned integer X bits long   </td>
+	<td> X must be: 8, 16, 24, 32, 40, 48, 56, or 64         </td>
+</tr>
+<tr>
+	<td style="text-align:center;"> IX       </td>
+	<td> Signed integer X bits long   </td>
+	<td> X must be: 8, 16, 24, 32, 40, 48, 56, or 64         </td>
+</tr>
+<tr>
+	<td style="text-align:center;"> BX       </td>
+	<td> Unsigned integer bitfield X bits long </td>
+	<td> X must be greater than 0 and less than 32         </td>
+</tr>
+<tr>
+	<td style="text-align:center;"> F16:X      </td>
+	<td> 16 bit float with X significand bits </td>
+	<td> 1 sign bit : 15-X exponent bits : X significant bits with implied leading 1 </td>
+</tr>
+<tr>
+	<td style="text-align:center;"> F24:X      </td>
+	<td> 24 bit float with X significand bits </td>
+	<td> 1 sign bit : 23-X exponent bits : X significant bits with implied leading 1 </td>
+</tr>
+<tr>
+	<td style="text-align:center;"> F32       </td>
+	<td> 32 bit float (IEEE-754)    </td>
+	<td> 1 sign bit : 8 exponent bits : 23 significant bits with implied leading 1 </td>
+</tr>
+<tr>
+	<td style="text-align:center;"> F64       </td>
+	<td> 64 bit float (IEEE-754)    </td>
+	<td> 1 sign bit : 11 exponent bits : 52 significant bits with implied leading 1 </td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="sizeoffields">Size of fields</h2>
+
+<p>The encoding tables give the bytes for each field as X&#8230;Y; where X is the first byte (counting from 0) and Y is the last byte. For example a 4 byte field at the beginning of a packet will give 0&#8230;3. If the field is 1 byte long then only the starting byte is given. Bitfields are more complex, they are displayed as Byte:Bit. A 3-bit bitfield at the beginning of a packet will give 0:7&#8230;0:5, indicating that the bitfield uses bits 7, 6, and 5 of byte 0. Note that the most signficant bit of a byte is 7, and the least signficant bit is 0. If the bitfield is 1 bit long then only the starting bit is given.</p>
+
+<p>The byte count in the encoding tables are based on the maximum length of the field(s). If a field is variable length then the actual byte location of the data may be different depending on the value of the variable field. If the field is a variable length character string this will be indicated in the encoding column of the table. If the field is a variable length array this will be indicated in the repeat column of the encoding table. If the field depends on the non-zero value of another field this will be indicated in the description column of the table.</p>
