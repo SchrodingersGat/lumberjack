@@ -61,14 +61,14 @@ jobs:
       run: |
         cd qwt
         qmake qwt.pro
-        make
-        make install
+        mingw32-make
+        mingw32-make install
     - name: Build Lumberjack
       run: |
         qmake lumberjack.pro
-        make
+        mingw32-make
     - name: Build Plugins
       run: |
         cd plugins
         qmake plugins.pro
-        make
+        mingw32-make
