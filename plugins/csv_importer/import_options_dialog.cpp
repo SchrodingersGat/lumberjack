@@ -22,6 +22,12 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
 
     // Callbacks to update the data preview
     connect(ui.columnDelimiter, &QComboBox::currentIndexChanged, this, &CSVImportOptionsDialog::updateImportPreview);
+    connect(ui.hasTimestampColumn, &QCheckBox::released, this, &CSVImportOptionsDialog::updateImportPreview);
+    connect(ui.hasHeadersRow, &QCheckBox::released, this, &CSVImportOptionsDialog::updateImportPreview);
+    connect(ui.hasUnitsRow, &QCheckBox::released, this, &CSVImportOptionsDialog::updateImportPreview);
+    connect(ui.timestampColumn, &QSpinBox::valueChanged, this, &CSVImportOptionsDialog::updateImportPreview);
+    connect(ui.dataHeadersRow, &QSpinBox::valueChanged, this, &CSVImportOptionsDialog::updateImportPreview);
+    connect(ui.dataUnitsRow, &QSpinBox::valueChanged, this, &CSVImportOptionsDialog::updateImportPreview);
 }
 
 
@@ -55,6 +61,7 @@ void CSVImportOptionsDialog::initImportOptions()
     ui.timestampColumn->setValue(m_options.colTimestamp);
     ui.dataHeadersRow->setValue(m_options.rowHeaders);
     ui.dataUnitsRow->setValue(m_options.rowUnits);
+    ui.dataStartRow->setValue(m_options.rowDataStart);
 
     ui.ignoreStartWith->setText(m_options.ignoreRowsStartingWith);
 }
@@ -76,6 +83,7 @@ void CSVImportOptionsDialog::saveImportOptions()
     options.colTimestamp = ui.timestampColumn->value();
     options.rowHeaders = ui.dataHeadersRow->value();
     options.rowUnits = ui.dataUnitsRow->value();
+    options.rowDataStart = ui.dataStartRow->value();
 
     options.ignoreRowsStartingWith = ui.ignoreStartWith->text().trimmed();
 
@@ -154,7 +162,22 @@ void CSVImportOptionsDialog::updateImportPreview(void)
                 data = row.at(jj);
             }
 
-            table->setItem(ii, jj, new QTableWidgetItem(data));
+            auto *item = new QTableWidgetItem(data);
+
+            if (ui.hasHeadersRow->isChecked() && ii == ui.dataHeadersRow->value())
+            {
+                item->setBackground(QColor(50, 100, 50));
+            }
+            else if (ui.hasUnitsRow->isChecked() && ii == ui.dataUnitsRow->value())
+            {
+                item->setBackground(QColor(50, 100, 100));
+            }
+            else if (ui.hasTimestampColumn->isChecked() && jj == ui.timestampColumn->value())
+            {
+                item->setBackground(QColor(100, 50, 50));
+            }
+
+            table->setItem(ii, jj, item);
         }
     }
 }

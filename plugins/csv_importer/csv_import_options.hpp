@@ -36,6 +36,7 @@ struct CSVImportOptions
     int colTimestamp = 0;
     int rowHeaders = 0;
     int rowUnits = 0;
+    int rowDataStart = 0;
 
     TimestampFormat timestampFormat = TimestampFormat::SECONDS;
     DelimiterType delimeter = DelimiterType::COMMA;

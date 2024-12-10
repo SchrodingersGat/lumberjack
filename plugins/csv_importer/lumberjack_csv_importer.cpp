@@ -176,7 +176,7 @@ bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QSt
 
         return true;
     }
-    else
+    else if (rowIndex >= m_options.rowDataStart)
     {
         return extractData(rowIndex, row, errors);
     }
