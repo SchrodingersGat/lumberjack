@@ -37,9 +37,6 @@ protected:
     //! CSV import options
     CSVImportOptions m_options;
 
-    QString getDelimiterCharacter(void) const;
-    double getTimestampScaler(void) const;
-
     QStringList m_headers;
 
     //! Internal functions for processing data

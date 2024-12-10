@@ -16,9 +16,11 @@ public:
     CSVImportOptionsDialog(QString filename, QWidget *parent = nullptr);
     ~CSVImportOptionsDialog();
 
-    CSVImportOptions getOptions(void) const;
+    CSVImportOptions getOptions(void) { return m_options; }
 
 public slots:
+    void saveImportOptions(void);
+    void updateImportPreview(void);
 
 protected:
 
@@ -28,8 +30,6 @@ protected:
 
     void initImportOptions(void);
 
-    void initImportPreview(void);
-    void updateImportPreview(void);
 
     //! The filename to load data from
     QString m_filename;

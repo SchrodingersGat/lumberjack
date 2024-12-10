@@ -27,40 +27,6 @@ QStringList LumberjackCSVImporter::supportedFileTypes() const
 }
 
 
-QString LumberjackCSVImporter::getDelimiterCharacter(void) const
-{
-    switch (m_options.delimeter)
-    {
-    default:
-    case CSVImportOptions::DelimiterType::COMMA:
-        return ",";
-    case CSVImportOptions::DelimiterType::TAB:
-        return "\t";
-    case CSVImportOptions::DelimiterType::COLON:
-        return ":";
-    case CSVImportOptions::DelimiterType::SEMICOLON:
-        return ";";
-    case CSVImportOptions::DelimiterType::PIPE:
-        return "|";
-    case CSVImportOptions::DelimiterType::SPACE:
-        return " ";
-    }
-}
-
-
-double LumberjackCSVImporter::getTimestampScaler(void) const
-{
-    switch (m_options.timestampFormat)
-    {
-    default:
-    case CSVImportOptions::TimestampFormat::SECONDS:
-    case CSVImportOptions::TimestampFormat::HHMMSS:
-        return 1.0;
-    case CSVImportOptions::TimestampFormat::MILLISECONDS:
-        return 0.001;
-    }
-}
-
 
 /**
  * @brief LumberjackCSVImporter::beforeLoadData - Open configuration dialog
@@ -122,7 +88,7 @@ bool LumberjackCSVImporter::loadDataFile(QStringList &errors)
 
     progress.show();
 
-    QString delimiter = getDelimiterCharacter();
+    QString delimiter = m_options.getDelimiterString();
 
     qint64 byteCount = 0;
     qint64 lineCount = 0;
@@ -284,18 +250,7 @@ bool LumberjackCSVImporter::extractData(int rowIndex, const QStringList &row, QS
 
     if (!m_options.hasTimestamp)
     {
-        switch (m_options.timestampFormat)
-        {
-        case CSVImportOptions::TimestampFormat::SECONDS:
-        default:
-            timestamp = (incrementingTimestamp += 1.0f);
-            break;
-        case CSVImportOptions::MILLISECONDS:
-            timestamp = (incrementingTimestamp += 0.001f);
-            break;
-        }
-
-        timestamp = incrementingTimestamp++;
+        timestamp = incrementingTimestamp + m_options.getTimestampScaler();
     }
     else if (!extractTimestamp(rowIndex, row, timestamp))
     {
@@ -406,7 +361,7 @@ bool LumberjackCSVImporter::extractTimestamp(int rowIndex, const QStringList &ro
 
     bool result = false;
 
-    double timestampScaler = getTimestampScaler();
+    double timestampScaler = m_options.getTimestampScaler();
 
     // Convert from hh:mm::ss
     if (ts.contains(":"))

@@ -13,35 +13,21 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
     // TODO: Load last selected CSV options from settings
     initImportOptions();
 
-    initImportPreview();
     readFileHeader();
+
     updateImportPreview();
 
     connect(ui.cancelButton, &QPushButton::released, this, &CSVImportOptionsDialog::reject);
-    connect(ui.importButton, &QPushButton::released, this, &CSVImportOptionsDialog::accept);
+    connect(ui.importButton, &QPushButton::released, this, &CSVImportOptionsDialog::saveImportOptions);
+
+    // Callbacks to update the data preview
+    connect(ui.columnDelimiter, &QComboBox::currentIndexChanged, this, &CSVImportOptionsDialog::updateImportPreview);
 }
 
 
 CSVImportOptionsDialog::~CSVImportOptionsDialog()
 {
     // TODO
-}
-
-
-/**
- * @brief CSVImportOptionsDialog::getOptions - Return the selected options
- * @return
- */
-CSVImportOptions CSVImportOptionsDialog::getOptions() const
-{
-    CSVImportOptions options;
-
-    options.delimeter = (CSVImportOptions::DelimiterType) ui.columnDelimiter->currentIndex();
-    options.timestampFormat = (CSVImportOptions::TimestampFormat) ui.timestampFormat->currentIndex();
-
-    // TODO: The rest of the options...
-
-    return options;
 }
 
 
@@ -53,10 +39,50 @@ void CSVImportOptionsDialog::initImportOptions()
     ui.columnDelimiter->addItem(tr("Pipe"));
     ui.columnDelimiter->addItem(tr("Space"));
 
+    ui.columnDelimiter->setCurrentIndex((int) m_options.delimeter);
+
     ui.timestampFormat->addItem(tr("Seconds"));
     ui.timestampFormat->addItem(tr("Milliseconds"));
     ui.timestampFormat->addItem(tr("hh:mm:ss"));
+
+    ui.timestampFormat->setCurrentIndex((int) m_options.timestampFormat);
+
+    ui.hasHeadersRow->setChecked(m_options.hasHeaders);
+    ui.hasUnitsRow->setChecked(m_options.hasUnits);
+    ui.hasTimestampColumn->setChecked(m_options.hasTimestamp);
+    ui.zeroInitialTimestamp->setChecked(m_options.zeroTimestamp);
+
+    ui.timestampColumn->setValue(m_options.colTimestamp);
+    ui.dataHeadersRow->setValue(m_options.rowHeaders);
+    ui.dataUnitsRow->setValue(m_options.rowUnits);
+
+    ui.ignoreStartWith->setText(m_options.ignoreRowsStartingWith);
 }
+
+
+
+void CSVImportOptionsDialog::saveImportOptions()
+{
+    CSVImportOptions options;
+
+    options.delimeter = (CSVImportOptions::DelimiterType) ui.columnDelimiter->currentIndex();
+    options.timestampFormat = (CSVImportOptions::TimestampFormat) ui.timestampFormat->currentIndex();
+
+    options.hasHeaders = ui.hasHeadersRow->isChecked();
+    options.hasUnits = ui.hasUnitsRow->isChecked();
+    options.hasTimestamp = ui.hasTimestampColumn->isChecked();
+    options.zeroTimestamp = ui.zeroInitialTimestamp->isChecked();
+
+    options.colTimestamp = ui.timestampColumn->value();
+    options.rowHeaders = ui.dataHeadersRow->value();
+    options.rowUnits = ui.dataUnitsRow->value();
+
+    options.ignoreRowsStartingWith = ui.ignoreStartWith->text().trimmed();
+
+    accept();
+}
+
+
 
 
 void CSVImportOptionsDialog::readFileHeader(void)
@@ -83,17 +109,52 @@ void CSVImportOptionsDialog::readFileHeader(void)
 }
 
 
-void CSVImportOptionsDialog::initImportPreview(void)
-{
-    QTableWidget *table = ui.previewTable;
-
-    if (!table) return;
-}
-
-
 void CSVImportOptionsDialog::updateImportPreview(void)
 {
     QTableWidget *table = ui.previewTable;
 
     if (!table) return;
+
+    table->clear();
+
+    int nRows = m_fileHeader.count();
+    int nCols = 0;
+
+    QList<QStringList> rows;
+
+    m_options.delimeter = (CSVImportOptions::DelimiterType) ui.columnDelimiter->currentIndex();
+
+    QString delimiter = m_options.getDelimiterString();
+
+    for (QString row : m_fileHeader)
+    {
+        QStringList rowData = row.split(delimiter);
+
+        if (rowData.count() > nCols)
+        {
+            nCols = rowData.count();
+        }
+
+        rows.append(rowData);
+    }
+
+    table->setRowCount(nRows);
+    table->setColumnCount(nCols);
+
+    for (int ii = 0; ii < nRows; ii++)
+    {
+        QStringList row = rows.at(ii);
+
+        for (int jj = 0; jj < nCols; jj++)
+        {
+            QString data;
+
+            if (jj < row.count())
+            {
+                data = row.at(jj);
+            }
+
+            table->setItem(ii, jj, new QTableWidgetItem(data));
+        }
+    }
 }

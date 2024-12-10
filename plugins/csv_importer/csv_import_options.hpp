@@ -41,8 +41,39 @@ struct CSVImportOptions
     DelimiterType delimeter = DelimiterType::COMMA;
 
     QString ignoreRowsStartingWith;
-    QString ignoreColsStartingWith;
 
+    QString getDelimiterString(void) const
+    {
+        switch (delimeter)
+        {
+        default:
+        case DelimiterType::COMMA:
+            return ",";
+        case DelimiterType::TAB:
+            return "\t";
+        case DelimiterType::COLON:
+            return ":";
+        case DelimiterType::SEMICOLON:
+            return ";";
+        case DelimiterType::PIPE:
+            return "|";
+        case DelimiterType::SPACE:
+            return " ";
+        }
+    }
+
+    double getTimestampScaler(void) const
+    {
+        switch (timestampFormat)
+        {
+        default:
+        case TimestampFormat::SECONDS:
+        case TimestampFormat::HHMMSS:
+            return 1.0;
+        case TimestampFormat::MILLISECONDS:
+            return 0.001;
+        }
+    }
 };
 
 #endif // CSV_IMPORT_OPTIONS_HPP
