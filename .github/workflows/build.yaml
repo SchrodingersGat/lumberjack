@@ -42,3 +42,33 @@ jobs:
         cd plugins
         qmake plugins.pro
         make
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.1'
+        arch: 'win64_msvc2022_64'
+        cache: true
+    - name: Build Qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        nmake
+        nmake install
+    - name: Build Lumberjack
+      run: |
+        qmake lumberjack.pro
+        nmake
+    - name: Build Plugins
+      run: |
+        cd plugins
+        qmake plugins.pro
+        nmake
