@@ -16,7 +16,7 @@ public:
     CSVImportOptionsDialog(QString filename, QWidget *parent = nullptr);
     ~CSVImportOptionsDialog();
 
-    CSVImportOptions getOptions(void) const { return m_options; }
+    CSVImportOptions getOptions(void) const;
 
 public slots:
 

@@ -150,6 +150,4 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
 
     emit sampleComplete(x_data, y_data);
 
-    // qDebug() << "Completed FFT for" << N << "samples in" << QString::number(fft_timer.elapsed(), 'f', 3) << "ms";
-
 }

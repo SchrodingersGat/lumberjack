@@ -16,7 +16,7 @@ struct CSVImportOptions
     };
 
     enum DelimiterType {
-        COMMA,
+        COMMA = 0,
         TAB,
         COLON,
         SEMICOLON,

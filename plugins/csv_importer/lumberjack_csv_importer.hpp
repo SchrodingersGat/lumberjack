@@ -36,6 +36,29 @@ protected:
 
     //! CSV import options
     CSVImportOptions m_options;
+
+    QString getDelimiterCharacter(void) const;
+    double getTimestampScaler(void) const;
+
+    QStringList m_headers;
+
+    //! Internal functions for processing data
+    bool processRow(int rowIndex, const QStringList &row, QStringList &errors);
+    bool extractHeaders(int rowIndex, const QStringList &row, QStringList &errors);
+    bool extractData(int rowIndex, const QStringList &row, QStringList &errors);
+    bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
+
+    // Keep track of data columns while loading
+    QHash<QString, QSharedPointer<DataSeries>> columnMap;
+
+
+    // Keep track of first timestamp value
+    double initialTimetamp = 0;
+    bool initialTimestampSeen = false;
+
+    // Internal timestamp which is used if not available in imported file
+    double incrementingTimestamp = 0;
+
 };
 
 #endif // LUMBERJACK_CSV_IMPORTER_HPP

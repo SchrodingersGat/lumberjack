@@ -13,6 +13,7 @@ INCLUDEPATH += \
     ../../src/plugins
 
 HEADERS += \
+    ../../src/data_series.hpp \
     csv_import_options.hpp \
     csv_importer_global.h \
     import_options_dialog.hpp \
@@ -21,6 +22,7 @@ HEADERS += \
     ../../src/plugins/plugin_importer.hpp \
 
 SOURCES += \
+    ../../src/data_series.cpp \
     ../../src/plugins/plugin_importer.cpp \
     import_options_dialog.cpp \
     lumberjack_csv_importer.cpp

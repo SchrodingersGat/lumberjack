@@ -22,11 +22,6 @@
 #include "plugins_dialog.hpp"
 #include "about_dialog.hpp"
 
-// TODO: In the future, replace these explicit includes with a "plugin" architecture
-// #include "csv_importer.hpp"
-// #include "cedat_importer.hpp"
-// #include "mavlink_importer.hpp"
-
 #include "plugin_registry.hpp"
 
 #include <QCoreApplication>
@@ -460,13 +455,15 @@ void MainWindow::loadDataFromFile(QString filename)
 
     if (!importer->validateFile(filename, errors))
     {
-        // TODO: error message
+        // TODO: error message?
+        return;
     }
 
     importer->setFilename(filename);
 
     if (!importer->beforeLoadData())
     {
+        // TODO: error message?
         return;
     }
 

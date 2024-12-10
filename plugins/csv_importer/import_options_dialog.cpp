@@ -17,7 +17,8 @@ CSVImportOptionsDialog::CSVImportOptionsDialog(QString filename, QWidget *parent
     readFileHeader();
     updateImportPreview();
 
-
+    connect(ui.cancelButton, &QPushButton::released, this, &CSVImportOptionsDialog::reject);
+    connect(ui.importButton, &QPushButton::released, this, &CSVImportOptionsDialog::accept);
 }
 
 
@@ -27,9 +28,34 @@ CSVImportOptionsDialog::~CSVImportOptionsDialog()
 }
 
 
+/**
+ * @brief CSVImportOptionsDialog::getOptions - Return the selected options
+ * @return
+ */
+CSVImportOptions CSVImportOptionsDialog::getOptions() const
+{
+    CSVImportOptions options;
+
+    options.delimeter = (CSVImportOptions::DelimiterType) ui.columnDelimiter->currentIndex();
+    options.timestampFormat = (CSVImportOptions::TimestampFormat) ui.timestampFormat->currentIndex();
+
+    // TODO: The rest of the options...
+
+    return options;
+}
+
+
 void CSVImportOptionsDialog::initImportOptions()
 {
-    // TODO
+    ui.columnDelimiter->addItem(tr("Comma"));
+    ui.columnDelimiter->addItem(tr("Tab"));
+    ui.columnDelimiter->addItem(tr("Colon"));
+    ui.columnDelimiter->addItem(tr("Pipe"));
+    ui.columnDelimiter->addItem(tr("Space"));
+
+    ui.timestampFormat->addItem(tr("Seconds"));
+    ui.timestampFormat->addItem(tr("Milliseconds"));
+    ui.timestampFormat->addItem(tr("hh:mm:ss"));
 }
 
 

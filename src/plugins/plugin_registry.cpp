@@ -25,8 +25,14 @@ void PluginRegistry::loadPlugins()
 {
     QList<PluginBase*> pluginInstances;
 
+    QList<QString> checkedPaths;
+
     for (QString libPath : QApplication::libraryPaths())
     {
+        if (checkedPaths.contains(libPath)) continue;
+
+        checkedPaths.append(libPath);
+
         QDir libDir(libPath);
 
         if (!libDir.exists()) continue;
