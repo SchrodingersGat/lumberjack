@@ -166,6 +166,9 @@ bool LumberjackCSVImporter::loadDataFile(QStringList &errors)
 bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& errors)
 {
 
+    // TODO: error messages
+    Q_UNUSED(errors)
+
     if (rowIndex == m_options.rowHeaders)
     {
         return extractHeaders(rowIndex, row, errors);
@@ -193,6 +196,9 @@ bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QSt
 bool LumberjackCSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringList &errors)
 {
     Q_UNUSED(rowIndex);
+
+    // TODO: Error messages
+    Q_UNUSED(errors);
 
     m_headers.clear();
 
@@ -242,6 +248,9 @@ bool LumberjackCSVImporter::extractHeaders(int rowIndex, const QStringList &row,
  */
 bool LumberjackCSVImporter::extractData(int rowIndex, const QStringList &row, QStringList &errors)
 {
+    // TODO: Error messages
+    Q_UNUSED(errors)
+
     double timestamp = 0;
 
     QString text;
