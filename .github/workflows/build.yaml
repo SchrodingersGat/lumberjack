@@ -54,9 +54,12 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
+        aqtversion: '==3.1.*'
         version: '6.8.1'
+        host: 'windows'
+        target: 'desktop'
         arch: 'win64_mingw'
-        tools: 'tools_mingw,tools_mingw1310'
+        tools: 'tools_mingw,qt.tools.win64_mingw810'
         cache: true
     - name: Build Qwt
       run: |
