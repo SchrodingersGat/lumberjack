@@ -271,7 +271,7 @@ bool DataSourceManager::loadFromFile(QString filename)
 
     importer->setFilename(filename);
 
-    if (!importer->beforeLoadData())
+    if (!importer->beforeImport())
     {
         // TODO: error message?
         return false;
@@ -279,7 +279,7 @@ bool DataSourceManager::loadFromFile(QString filename)
 
     errors.clear();
 
-    bool result = importer->loadDataFile(errors);
+    bool result = importer->importData(errors);
 
     if (!result)
     {
@@ -368,7 +368,11 @@ bool DataSourceManager::saveToFile(QList<DataSeriesPointer> &series, QString fil
 
     exporter->setFilename(filename);
 
-    bool result = exporter->exportData(series);
+    QStringList errors;
+
+    bool result = exporter->exportData(series, errors);
+
+    // TODO: Display errors?
 
     return result;
 }

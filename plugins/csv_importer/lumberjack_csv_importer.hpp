@@ -23,8 +23,8 @@ public:
     // Importer plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
 
-    virtual bool beforeLoadData(void) override;
-    virtual bool loadDataFile(QStringList &errors) override;
+    virtual bool beforeImport(void) override;
+    virtual bool importData(QStringList &errors) override;
 
     virtual QList<QSharedPointer<DataSeries>> getDataSeries(void) const override;
 

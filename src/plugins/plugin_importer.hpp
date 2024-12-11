@@ -27,12 +27,12 @@ public:
     //       but this can be extended by the plugin
     virtual bool validateFile(QString filename, QStringList &errors) const;
 
-    // Optional function called before data loading
-    // Return False to cancel the data import
-    virtual bool beforeLoadData() { return true; }
+    // Optional function called before data import
+    // Return False to cancel the data import process
+    virtual bool beforeImport() { return true; }
 
     // Load data from the provided filename
-    virtual bool loadDataFile(QStringList &errors) = 0;
+    virtual bool importData(QStringList &errors) = 0;
 
     // After import, plugin must return a list of DataSeries objects
     virtual QList<DataSeriesPointer> getDataSeries(void) const = 0;

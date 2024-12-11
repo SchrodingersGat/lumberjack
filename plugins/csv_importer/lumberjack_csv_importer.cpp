@@ -32,7 +32,7 @@ QStringList LumberjackCSVImporter::supportedFileTypes() const
  * @brief LumberjackCSVImporter::beforeLoadData - Open configuration dialog
  * @return
  */
-bool LumberjackCSVImporter::beforeLoadData(void)
+bool LumberjackCSVImporter::beforeImport(void)
 {
     CSVImportOptionsDialog dlg(m_filename);
 
@@ -53,7 +53,7 @@ bool LumberjackCSVImporter::beforeLoadData(void)
  * @param errors -
  * @return
  */
-bool LumberjackCSVImporter::loadDataFile(QStringList &errors)
+bool LumberjackCSVImporter::importData(QStringList &errors)
 {
     // Reset importer to initial conditions
     m_headers.clear();

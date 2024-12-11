@@ -20,7 +20,12 @@ public:
     // Return a list of the support file types e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
 
-    virtual bool exportData(QList<DataSeriesPointer> &series) = 0;
+    // Optional function called before data export
+    // Return False to cancel the data export process
+    virtual bool beforeExport(void) { return true; }
+
+    // Export data to the provided filename
+    virtual bool exportData(QList<DataSeriesPointer> &series, QStringList &errors) = 0;
 
     virtual QString pluginIID(void) const override
     {
