@@ -61,10 +61,6 @@ void PluginRegistry::loadPlugins()
             }
         }
     }
-
-    qDebug() << "Loading plugins:";
-    qDebug() << "Importer:" << m_ImportPlugins.count();
-    qDebug() << "Exporter:" << m_ExportPlugins.count();
 }
 
 
