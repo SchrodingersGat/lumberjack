@@ -59,6 +59,10 @@ public slots:
 
     void removeAllSources(bool update = true);
 
+    // Import / export functionality
+    bool loadFromFile(QString filename = QString());
+    bool saveToFile(QList<DataSeriesPointer> &series, QString filename = QString());
+
     void update(void) { emit sourcesChanged(); }
 
 signals:

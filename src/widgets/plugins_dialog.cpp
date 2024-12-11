@@ -1,7 +1,8 @@
 #include "plugins_dialog.hpp"
+#include "plugin_registry.hpp"
 
 
-PluginsDialog::PluginsDialog(PluginRegistry &r, QWidget *parent) : QDialog(parent), registry(r)
+PluginsDialog::PluginsDialog(QWidget *parent) : QDialog(parent)
 {
     ui.setupUi(this);
 
@@ -67,24 +68,26 @@ void PluginsDialog::loadPluginsTable(const PluginList &plugins)
 
 void PluginsDialog::selectPluginType(int idx)
 {
+    auto* registry = PluginRegistry::getInstance();
+
     PluginList plugins;
 
     switch (idx)
     {
     case 1:  // Importer plugins
-        for (auto plugin : registry.ImportPlugins())
+        for (auto plugin : registry->ImportPlugins())
         {
             plugins.append(plugin);
         }
         break;
     case 2:  // Exporter plugins
-        for (auto plugin : registry.ExportPlugins())
+        for (auto plugin : registry->ExportPlugins())
         {
             plugins.append(plugin);
         }
         break;
     case 3: // Filter plugins
-        for (auto plugin : registry.FilterPlugins())
+        for (auto plugin : registry->FilterPlugins())
         {
             plugins.append(plugin);
         }

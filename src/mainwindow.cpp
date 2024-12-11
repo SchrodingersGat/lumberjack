@@ -53,7 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     loadWorkspaceSettings();
 
-    pluginRegistry.loadPlugins();
+    // Load plugins
+    PluginRegistry::getInstance()->loadPlugins();
 }
 
 
@@ -250,7 +251,7 @@ void MainWindow::initSignalsSlots()
         connect(tree, &DataViewTree::onSeriesRemoved, this, &MainWindow::seriesRemoved);
     }
 
-    connect(&dataView, &DataviewWidget::fileDropped, this, &MainWindow::loadDroppedFile);
+    connect(&dataView, &DataviewWidget::fileDropped, this, &MainWindow::loadDataFromFile);
 
     // Timeline view
     connect(&timelineView, &TimelineWidget::timeUpdated, this, &MainWindow::onTimescaleChanged);
@@ -344,7 +345,7 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
  */
 void MainWindow::showPluginsInfo(void)
 {
-    PluginsDialog dlg(pluginRegistry, this);
+    PluginsDialog dlg(this);
     dlg.exec();
 }
 
@@ -384,16 +385,6 @@ void MainWindow::toggleDebugView()
 }
 
 
-/*
- * Callback for loading a data file which is dropped into the window
- */
-void MainWindow::loadDroppedFile(QString filename)
-{
-    qDebug() << "MainWindow::loadDroppedFile" << filename;
-    loadDataFromFile(filename);
-}
-
-
 
 /**
  * @brief MainWindow::loadDataFromFile - Load data from the provided file
@@ -401,102 +392,8 @@ void MainWindow::loadDroppedFile(QString filename)
  */
 void MainWindow::loadDataFromFile(QString filename)
 {
-    qDebug() << "loadDataFromFile:" << filename;
-
-    auto *settings = LumberjackSettings::getInstance();
-
-    // Record the directory this file was loaded from
-    QFileInfo fi(filename);
-
-    if (!fi.exists())
-    {
-        // TODO - show error message
-        return;
-    }
-
-    settings->saveSetting("import", "lastDirectory", fi.absoluteDir().absolutePath());
-
-    // Find a matching plugin
-    ImportPluginList importers;
-
-    QSharedPointer<ImportPlugin> importer;
-
-    for (auto plugin : pluginRegistry.ImportPlugins())
-    {
-        if (plugin.isNull()) continue;
-
-        if (plugin->supportsFileType(fi.suffix()))
-        {
-            importers.append(plugin);
-        }
-    }
-
-    if (importers.length() == 1)
-    {
-        importer = importers.first();
-    }
-    else if (importers.length() == 0)
-    {
-        // TODO: Select an importer
-        // TODO: For now, just take the first one...
-        importer = importers.first();
-    }
-    else
-    {
-        // TODO: Select an importer
-        // TODO: For now, just take the first one...
-        importer = importers.first();
-    }
-
-    // Create a new instance of the provided importer
-    DataSource *source = new DataSource(importer->pluginName(), importer->pluginDescription());
-
-    QStringList errors;
-
-
-    if (!importer->validateFile(filename, errors))
-    {
-        // TODO: error message?
-        return;
-    }
-
-    importer->setFilename(filename);
-
-    if (!importer->beforeLoadData())
-    {
-        // TODO: error message?
-        return;
-    }
-
-    errors.clear();
-
-    bool result = importer->loadDataFile(errors);
-
-    if (!result)
-    {
-        // TODO: Display errors
-
-        delete source;
-        return;
-    }
-
-    auto seriesList = importer->getDataSeries();
-
-    if (seriesList.count() == 0)
-    {
-        // TODO: Error msg - no data imported
-        delete source;
-        return;
-    }
-
-    for (auto series : importer->getDataSeries())
-    {
-        source->addSeries(series);
-    }
-
-    DataSourceManager::getInstance()->addSource(source);
-
-    // TODO: Success message?
+    auto manager = DataSourceManager::getInstance();
+    manager->loadFromFile(filename);
 }
 
 
@@ -505,60 +402,7 @@ void MainWindow::loadDataFromFile(QString filename)
  */
 void MainWindow::importData()
 {
-    auto *settings = LumberjackSettings::getInstance();
-
-    qDebug() << "MainWindow::importData";
-
-    // Assemble set of supported file types
-    QStringList supportedFileTypes;
-
-    QStringList filePatterns;
-
-    for (QSharedPointer<ImportPlugin> plugin : pluginRegistry.ImportPlugins())
-    {
-        if (plugin.isNull()) continue;
-
-        filePatterns.append(plugin->fileFilter());
-    }
-
-    filePatterns.append("Any files (*)");
-
-    // Load a file
-    QFileDialog dialog(this);
-
-    dialog.setWindowTitle(tr("Import Data from File"));
-
-    QString lastDir = settings->loadSetting("import", "lastDirectory", QString()).toString();
-
-    if (!lastDir.isEmpty())
-    {
-        dialog.setDirectory(lastDir);
-    }
-
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setNameFilters(filePatterns);
-    dialog.setViewMode(QFileDialog::Detail);
-
-    int result = dialog.exec();
-
-    if (result != QDialog::Accepted)
-    {
-        // User cancelled the import process
-        return;
-    }
-
-    // Determine which plugin loaded the data
-    QString filter = dialog.selectedNameFilter();
-    QStringList files = dialog.selectedFiles();
-
-    if (filter.isEmpty() || files.length() != 1)
-    {
-        return;
-    }
-
-    QString filename = files.first();
-
-    loadDataFromFile(filename);
+    loadDataFromFile();
 }
 
 
@@ -617,7 +461,7 @@ void MainWindow::addPlot()
     connect(plot, &PlotWidget::viewChanged, this, &MainWindow::onTimescaleChanged);
     connect(plot, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
     connect(plot, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
-    connect(plot, &PlotWidget::fileDropped, this, &MainWindow::loadDroppedFile);
+    connect(plot, &PlotWidget::fileDropped, this, &MainWindow::loadDataFromFile);
 
     plots.append(QSharedPointer<PlotWidget>(plot));
 

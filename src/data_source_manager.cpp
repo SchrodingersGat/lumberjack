@@ -1,4 +1,11 @@
+#include <QDir>
+#include <QFileInfo>
+
+
 #include "data_source_manager.hpp"
+
+#include "plugin_registry.hpp"
+#include "lumberjack_settings.hpp"
 
 
 DataSourceManager *DataSourceManager::instance = 0;
@@ -189,4 +196,122 @@ void DataSourceManager::removeAllSources(bool update)
     {
         emit sourcesChanged();
     }
+}
+
+
+bool DataSourceManager::loadFromFile(QString filename)
+{
+    auto registry = PluginRegistry::getInstance();
+    auto settings = LumberjackSettings::getInstance();
+
+    if (filename.isEmpty())
+    {
+        filename = registry->getFilenameForImport();
+    }
+
+    // Still empty? No further actions
+    if (filename.isEmpty())
+    {
+        return false;
+    }
+
+    QFileInfo fi(filename);
+
+    if (!fi.exists())
+    {
+        qCritical() << "File does not exist:" << filename;
+        return false;
+    }
+
+    // Save the last directory information
+    settings->saveSetting("import", "lastDirectory", fi.absoluteDir().absolutePath());
+
+    ImportPluginList importers;
+
+    for (auto plugin : registry->ImportPlugins())
+    {
+        if (plugin.isNull()) continue;
+
+        if (plugin->supportsFileType(fi.suffix()))
+        {
+            importers.append(plugin);
+        }
+    }
+
+    QSharedPointer<ImportPlugin> importer;
+
+    if (importers.length() == 1)
+    {
+        importer = importers.first();
+    }
+    else if (importers.length() == 0)
+    {
+        // TODO: Select an importer
+        // TODO: For now, just take the first one...
+        importer = importers.first();
+    }
+    else
+    {
+        // TODO: Select an importer
+        // TODO: For now, just take the first one...
+        importer = importers.first();
+    }
+
+    // Create a new instance of the provided importer
+    DataSource *source = new DataSource(importer->pluginName(), importer->pluginDescription());
+
+    QStringList errors;
+
+    if (!importer->validateFile(filename, errors))
+    {
+        // TODO: Display errors
+
+        qWarning() << "File is not valid:" << filename;
+        return false;
+    }
+
+    importer->setFilename(filename);
+
+    if (!importer->beforeLoadData())
+    {
+        // TODO: error message?
+        return false;
+    }
+
+    errors.clear();
+
+    bool result = importer->loadDataFile(errors);
+
+    if (!result)
+    {
+        // TODO: Display errors
+
+        delete source;
+        return false;
+    }
+
+    auto seriesList = importer->getDataSeries();
+
+    if (seriesList.count() == 0)
+    {
+        // TODO: Error msg - no data imported
+        delete source;
+        return false;
+    }
+
+    for (auto series : importer->getDataSeries())
+    {
+        source->addSeries(series);
+    }
+
+    addSource(source);
+
+    return true;
+}
+
+
+bool DataSourceManager::saveToFile(QList<DataSeriesPointer> &series, QString filename)
+{
+    // TODO
+    return false;
 }

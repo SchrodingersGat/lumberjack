@@ -3,8 +3,7 @@
 
 #include <QDialog>
 
-#include "plugin_registry.hpp"
-
+#include "plugin_base.hpp"
 #include "ui_plugins_dialog.h"
 
 class PluginsDialog : public QDialog
@@ -12,7 +11,7 @@ class PluginsDialog : public QDialog
     Q_OBJECT
 
 public:
-    PluginsDialog(PluginRegistry &r, QWidget *parent = nullptr);
+    PluginsDialog(QWidget *parent = nullptr);
 
 public slots:
     void selectPluginType(int idx);
@@ -22,8 +21,6 @@ protected:
 
     void initPluginsTable(void);
     void loadPluginsTable(const PluginList &plugins);
-
-    PluginRegistry &registry;
 
 };
 

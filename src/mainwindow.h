@@ -32,8 +32,7 @@ public slots:
 
     void onTimescaleChanged(const QwtInterval &view);
     void updateCursorPos(double t, double y1, double y2);
-    void loadDataFromFile(QString filename);
-
+    void loadDataFromFile(QString filename = QString());
 
 protected:
     void initMenus(void);
@@ -52,7 +51,6 @@ protected slots:
     void showPluginsInfo(void);
 
     void importData(void);
-    void loadDroppedFile(QString filename);
 
     void toggleDebugView(void);
     void toggleDataView(void);
@@ -82,8 +80,5 @@ private:
     FFTWidget fftView;
 
     DebugWidget debugWidget;
-
-    PluginRegistry pluginRegistry;
-
 };
 #endif // MAINWINDOW_H

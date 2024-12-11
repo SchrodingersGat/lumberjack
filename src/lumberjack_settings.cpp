@@ -5,7 +5,7 @@
 #include <QDebug>
 
 
-LumberjackSettings *LumberjackSettings::instance = 0;
+LumberjackSettings* LumberjackSettings::instance = 0;
 
 
 LumberjackSettings::LumberjackSettings() : settings(getSettingsFile(), QSettings::IniFormat)

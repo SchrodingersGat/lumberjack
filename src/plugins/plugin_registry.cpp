@@ -1,13 +1,18 @@
 #include <QCoreApplication>
 #include <QApplication>
+#include <QFileDialog>
+#include <QDialog>
 #include <QPluginLoader>
 #include <QDir>
 
 #include "plugin_registry.hpp"
+#include "lumberjack_settings.hpp"
 
-PluginRegistry::PluginRegistry(QObject *parent) : QObject(parent)
+PluginRegistry* PluginRegistry::instance = 0;
+
+
+PluginRegistry::PluginRegistry() : QObject()
 {
-
 }
 
 
@@ -113,4 +118,65 @@ bool PluginRegistry::loadFilterPlugin(QObject *instance)
     }
 
     return false;
+}
+
+
+/**
+ * @brief PluginRegistry::getFilenameForImport - Select a file for importing
+ * @return
+ */
+QString PluginRegistry::getFilenameForImport(void) const
+{
+    auto settings = LumberjackSettings::getInstance();
+
+    // Assemble set of supported file types
+    QStringList supportedFileTypes;
+
+    QStringList filePatterns;
+
+    for (QSharedPointer<ImportPlugin> plugin : m_ImportPlugins)
+    {
+        if (plugin.isNull()) continue;
+
+        filePatterns.append(plugin->fileFilter());
+    }
+
+    filePatterns.append("Any files (*)");
+
+    // Load a file
+    QFileDialog dialog;
+
+    dialog.setWindowTitle(tr("Import Data from File"));
+
+    QString lastDir = settings->loadSetting("import", "lastDirectory", QString()).toString();
+
+    if (!lastDir.isEmpty())
+    {
+        dialog.setDirectory(lastDir);
+    }
+
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilters(filePatterns);
+    dialog.setViewMode(QFileDialog::Detail);
+
+    int result = dialog.exec();
+
+    QString filename;
+
+    if (result != QDialog::Accepted)
+    {
+        // User cancelled the import process
+        return filename;
+    }
+
+    // Determine which plugin loaded the data
+    QString filter = dialog.selectedNameFilter();
+    QStringList files = dialog.selectedFiles();
+
+    if (!filter.isEmpty() && files.length() >= 1)
+    {
+        filename = files.first();
+    }
+
+    return filename;
 }

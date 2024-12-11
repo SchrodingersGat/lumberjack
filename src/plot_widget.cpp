@@ -649,6 +649,11 @@ void PlotWidget::dropEvent(QDropEvent *event)
     auto *mime = event->mimeData();
     auto *manager = DataSourceManager::getInstance();
 
+    if (!mime || !manager)
+    {
+        return;
+    }
+
     // DataSeries is dropped onto this PlotWidget
     if (mime->hasFormat("source") && mime->hasFormat("series"))
     {
