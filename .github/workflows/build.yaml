@@ -59,7 +59,7 @@ jobs:
         host: 'windows'
         target: 'desktop'
         arch: 'win64_mingw'
-        tools: 'tools_mingw,qt.tools.win64_mingw810'
+        tools: 'tools_mingw1310'
         cache: true
     - name: Build Qwt
       run: |
