@@ -60,8 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    qDebug() << "~MainWindow()";
-
+    PluginRegistry::cleanup();
     DataSourceManager::cleanup();
     LumberjackSettings::cleanup();
 
@@ -376,6 +375,7 @@ void MainWindow::toggleDebugView()
     else
     {
         QDockWidget *dock = new QDockWidget(tr("Debug View"), this);
+        dock->setObjectName("debug-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&debugWidget);
 
@@ -442,11 +442,10 @@ void MainWindow::addPlot()
 {
     static int plotIndex = 1;
 
-    qDebug() << "MainWindow::addPlot()";
-
     PlotWidget *plot = new PlotWidget();
 
     QDockWidget *dock = new QDockWidget(tr("Plot") + QString(" ") + QString::number(plotIndex), this);
+    dock->setObjectName("plot-" + QString::number(plotIndex));
     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
     plot->setParent(dock);
     dock->setWidget(plot);
@@ -491,6 +490,7 @@ void MainWindow::toggleFftView(void)
     else
     {
         QDockWidget* dock = new QDockWidget(tr("FFT View"), this);
+        dock->setObjectName("fft-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&fftView);
 
@@ -517,6 +517,7 @@ void MainWindow::toggleDataView(void)
     else
     {
         QDockWidget* dock = new QDockWidget(tr("Data View"), this);
+        dock->setObjectName("data-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&dataView);
 
@@ -543,6 +544,7 @@ void MainWindow::toggleTimelineView(void)
     else
     {
         QDockWidget* dock = new QDockWidget(tr("Timeline"), this);
+        dock->setObjectName("timeline-view");
         dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
         dock->setWidget(&timelineView);
 
@@ -569,6 +571,7 @@ void MainWindow::toggleStatisticsView(void)
     else
     {
         QDockWidget *dock = new QDockWidget(tr("Stats View"), this);
+        dock->setObjectName("stats-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&statsView);
 

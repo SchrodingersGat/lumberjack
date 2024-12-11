@@ -27,6 +27,16 @@ public:
         return instance;
     }
 
+    static void cleanup()
+    {
+        if (instance)
+        {
+            instance->clearRegistry();
+            delete instance;
+            instance = nullptr;
+        }
+    }
+
     void loadPlugins(void);
     void clearRegistry(void);
 
