@@ -18,8 +18,9 @@ public:
     virtual QString pluginDescription(void) const override { return m_description; }
     virtual QString pluginVersion(void) const override { return m_version; }
 
-    // Importer plugin functionality
+    // Exporter plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
+    virtual bool exportData(QList<DataSeriesPointer> &series) override;
 
 protected:
     const QString m_name = "CSV Exporter";

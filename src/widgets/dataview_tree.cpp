@@ -123,6 +123,9 @@ void DataViewTree::onContextMenu(const QPoint &pos)
             return;
         }
 
+        // Export series
+        QAction *exportSeries = new QAction(tr("Export Series"), &menu);
+
         // Edit series
         QAction *editSeries = new QAction(tr("Edit Series"), &menu);
 
@@ -132,6 +135,8 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         // Delete series
         QAction *deleteSeries = new QAction(tr("Delete Series"), &menu);
 
+        menu.addAction(exportSeries);
+        menu.addSeparator();
         menu.addAction(editSeries);
         menu.addAction(viewSeriesData);
         menu.addSeparator();
@@ -139,7 +144,14 @@ void DataViewTree::onContextMenu(const QPoint &pos)
 
         QAction *action = menu.exec(mapToGlobal(pos));
 
-        if (action == editSeries)
+        if (action == exportSeries)
+        {
+            QList<DataSeriesPointer> seriesList;
+            seriesList << series;
+
+            DataSourceManager::getInstance()->saveToFile(seriesList);
+        }
+        else if (action == editSeries)
         {
             editDataSeries(series);
         }

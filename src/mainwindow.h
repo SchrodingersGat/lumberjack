@@ -12,7 +12,6 @@
 #include "stats_widget.hpp"
 #include "dataview_widget.hpp"
 #include "timeline_widget.hpp"
-#include "plugin_registry.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

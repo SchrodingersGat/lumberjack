@@ -35,6 +35,7 @@ public:
     const FilterPluginList& FilterPlugins(void) { return m_FilterPlugins; }
 
     QString getFilenameForImport(void) const;
+    QString getFilenameForExport(void) const;
 
 protected:
 

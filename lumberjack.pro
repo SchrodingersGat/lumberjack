@@ -45,6 +45,7 @@ SOURCES += \
     src/plot_widget.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
+    src/plugins/plugin_exporter.cpp \
     src/plugins/plugin_importer.cpp \
     src/plugins/plugin_registry.cpp \
     src/widgets/about_dialog.cpp \

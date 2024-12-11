@@ -13,11 +13,11 @@ INCLUDEPATH += \
     ../../src/plugins
 
 HEADERS += \
-    ../../src/data_series.hpp \
-    csv_import_options.hpp \
     csv_importer_global.h \
-    import_options_dialog.hpp \
     lumberjack_csv_importer.hpp \
+    import_options_dialog.hpp \
+    csv_import_options.hpp \
+    ../../src/data_series.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_importer.hpp \
 

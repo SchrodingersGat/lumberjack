@@ -4,6 +4,7 @@
 #include <QtPlugin>
 
 #include "plugin_base.hpp"
+#include "data_series.hpp"
 
 #define ExporterInterface_iid "org.lumberjack.plugins.ExportPlugin/1.0"
 
@@ -19,12 +20,23 @@ public:
     // Return a list of the support file types e.g. ['csv', 'tsv']
     virtual QStringList supportedFileTypes(void) const = 0;
 
-    // TODO: Export data function
+    virtual bool exportData(QList<DataSeriesPointer> &series) = 0;
 
     virtual QString pluginIID(void) const override
     {
         return QString(ExporterInterface_iid);
     }
+
+    QString fileFilter(void) const;
+
+    bool supportsFileType(QString fileType) const;
+
+    void setFilename(QString filename) { m_filename = filename; }
+    QString getFilename(void) const { return m_filename; }
+
+protected:
+    // Stored filename, destination of exported data
+    QString m_filename;
 };
 
 typedef QList<QSharedPointer<ExportPlugin>> ExportPluginList;

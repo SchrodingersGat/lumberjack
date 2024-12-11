@@ -240,14 +240,13 @@ bool DataSourceManager::loadFromFile(QString filename)
 
     QSharedPointer<ImportPlugin> importer;
 
-    if (importers.length() == 1)
+    if (importers.length() == 0)
     {
-        importer = importers.first();
+        // TODO: Error message
+        return false;
     }
-    else if (importers.length() == 0)
+    else if (importers.length() == 1)
     {
-        // TODO: Select an importer
-        // TODO: For now, just take the first one...
         importer = importers.first();
     }
     else
@@ -310,8 +309,66 @@ bool DataSourceManager::loadFromFile(QString filename)
 }
 
 
+/**
+ * @brief DataSourceManager::saveToFile - Export a set of data series to a file
+ * @param series
+ * @param filename
+ * @return
+ */
 bool DataSourceManager::saveToFile(QList<DataSeriesPointer> &series, QString filename)
 {
-    // TODO
-    return false;
+    auto registry = PluginRegistry::getInstance();
+    auto settings = LumberjackSettings::getInstance();
+
+    if (filename.isEmpty())
+    {
+        filename = registry->getFilenameForExport();
+    }
+
+    // Still empty? No further progress
+    if (filename.isEmpty())
+    {
+        return false;
+    }
+
+    QFileInfo fi(filename);
+
+    // Save the last directory information
+    settings->saveSetting("export", "lastDirectory", fi.absoluteDir().absolutePath());
+
+    ExportPluginList exporters;
+
+    QSharedPointer<ExportPlugin> exporter;
+
+    for (auto plugin : registry->ExportPlugins())
+    {
+        if (plugin.isNull()) continue;
+
+        if (plugin->supportsFileType(fi.suffix()))
+        {
+            exporters.append(plugin);
+        }
+    }
+
+    if (exporters.length() == 0)
+    {
+        // TODO: Error message
+        return false;
+    }
+    else if (exporters.length() == 1)
+    {
+        exporter = exporters.first();
+    }
+    else
+    {
+        // TODO: select an exporter
+        // TODO: For now, just take the first one
+        exporter = exporters.first();
+    }
+
+    exporter->setFilename(filename);
+
+    bool result = exporter->exportData(series);
+
+    return result;
 }
