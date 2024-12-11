@@ -338,10 +338,14 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     // Data menu
     QMenu *dataMenu = new QMenu(tr("Data"), &menu);
 
+    QAction *exportData = dataMenu->addAction(tr("Export Data"));
+    dataMenu->addSeparator();
     QAction *imageToClipboard = dataMenu->addAction(tr("Image to Clipboard"));
     QAction *imageToFile = dataMenu->addAction(tr("Image to File"));
     dataMenu->addSeparator();
     QAction *clearAll = dataMenu->addAction(tr("Clear All"));
+
+    exportData->setEnabled(curves.count() > 0);
 
     menu.addMenu(dataMenu);
 
@@ -427,6 +431,10 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     else if (action == toggleGridY)
     {
         yGridEnable(!isYGridEnabled());
+    }
+    else if (action == exportData)
+    {
+        exportDataToFile();
     }
     else if (action == imageToClipboard)
     {
@@ -533,6 +541,24 @@ void PlotWidget::selectBackgroundColor()
 
     // Save the background color as 'default'
     settings->saveSetting("graph", "defaultBackgroundColor", c.name());
+}
+
+
+/**
+ * @brief PlotWidget::exportDataToFile - export data to a file
+ */
+void PlotWidget::exportDataToFile()
+{
+    auto manager = DataSourceManager::getInstance();
+
+    QList<DataSeriesPointer> series;
+
+    for (auto curve : curves)
+    {
+        series.append(curve->getDataSeries());
+    }
+
+    manager->saveToFile(series);
 }
 
 

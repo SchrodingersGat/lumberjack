@@ -79,6 +79,8 @@ public slots:
 
     void selectBackgroundColor();
 
+    void exportDataToFile();
+
     void saveImageToClipboard();
     void saveImageToFile();
 
