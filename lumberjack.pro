@@ -149,7 +149,7 @@ CONFIG(debug, debug|release) {
             qwt/lib/qwtd.dll
     } else {
         dllFiles.files += \
-            qwt/lib/libqwtd.a
+            qwt/lib/libqwtd.so
     }
 } else {
     win32 {
@@ -157,7 +157,7 @@ CONFIG(debug, debug|release) {
             qwt/lib/qwt.dll
     } else {
         dllFiles.files += \
-            qwt/lib/libqwt.a
+            qwt/lib/libqwt.so
     }
 }
 

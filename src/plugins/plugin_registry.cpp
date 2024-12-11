@@ -48,6 +48,7 @@ void PluginRegistry::loadPlugins()
             // Try to load against each type of plugin interface
             if      (loadImportPlugin(instance)) {}
             else if (loadExportPlugin(instance)) {}
+            else if (loadFilterPlugin(instance)) {}
             else
             {
                 // No match for the plugin

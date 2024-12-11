@@ -1,0 +1,79 @@
+# Build lumberjack application and plugins
+
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types:
+      - created
+  
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.1'
+        cache: true
+    - name: Build Qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        make
+        sudo make install
+    - name: Build Lumberjack
+      run: |
+        qmake lumberjack.pro
+        make
+    - name: Build Plugins
+      run: |
+        cd plugins
+        qmake plugins.pro
+        make
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        aqtversion: '==3.1.*'
+        version: '6.8.1'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_mingw'
+        tools: 'tools_mingw1310'
+        cache: true
+    - name: Build Qwt
+      run: |
+        cd qwt
+        qmake qwt.pro
+        mingw32-make clean
+        mingw32-make
+        mingw32-make install
+    - name: Build Lumberjack
+      run: |
+        qmake lumberjack.pro
+        mingw32-make
+    - name: Build Plugins
+      run: |
+        cd plugins
+        qmake plugins.pro
+        mingw32-make
