@@ -34,6 +34,7 @@ public slots:
     void updateCursorPos(double t, double y1, double y2);
     void loadDataFromFile(QString filename);
 
+
 protected:
     void initMenus(void);
     void initDocks(void);
@@ -64,7 +65,7 @@ protected slots:
 
     void hideDockedWidget(QWidget *widget);
 
-    void seriesRemoved(QSharedPointer<DataSeries> series);
+    void seriesRemoved(DataSeriesPointer series);
 
 private:
     Ui::MainWindow *ui;

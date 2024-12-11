@@ -35,7 +35,7 @@ public:
     virtual bool loadDataFile(QStringList &errors) = 0;
 
     // After import, plugin must return a list of DataSeries objects
-    virtual QList<QSharedPointer<DataSeries>> getDataSeries(void) const = 0;
+    virtual QList<DataSeriesPointer> getDataSeries(void) const = 0;
 
     // Return the IID string
     virtual QString pluginIID(void) const override

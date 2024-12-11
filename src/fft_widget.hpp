@@ -16,7 +16,7 @@ public:
 
 protected:
     virtual bool isCurveTrackingEnabled(void) const override { return false; }
-    virtual PlotCurveUpdater* generateNewWorker(QSharedPointer<DataSeries> series) override;
+    virtual PlotCurveUpdater* generateNewWorker(DataSeriesPointer series) override;
 
     virtual void resampleCurves(int axis_id = yBoth) override;
 

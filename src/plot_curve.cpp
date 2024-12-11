@@ -13,7 +13,7 @@
  * @param s - the source data series
  * @param updater - the worker which resamples the data
  */
-PlotCurve::PlotCurve(QSharedPointer<DataSeries> s, PlotCurveUpdater *updater) : QwtPlotCurve(), series(s)
+PlotCurve::PlotCurve(DataSeriesPointer s, PlotCurveUpdater *updater) : QwtPlotCurve(), series(s)
 {
 
     // Create a new worker thread

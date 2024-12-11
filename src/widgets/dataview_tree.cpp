@@ -64,7 +64,7 @@ void DataViewTree::setupTree()
 /*
  * Callback function to edit a particular DataSeries.
  */
-void DataViewTree::editDataSeries(QSharedPointer<DataSeries> series)
+void DataViewTree::editDataSeries(DataSeriesPointer series)
 {
     if (series.isNull())
     {

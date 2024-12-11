@@ -5,7 +5,7 @@
 #include "series_editor_dialog.hpp"
 
 
-SeriesEditorDialog::SeriesEditorDialog(QSharedPointer<DataSeries> s, QWidget *parent) : QDialog(parent), series(s)
+SeriesEditorDialog::SeriesEditorDialog(DataSeriesPointer s, QWidget *parent) : QDialog(parent), series(s)
 {
     ui.setupUi(this);
 

@@ -32,7 +32,7 @@ void StatsWidget::initTable()
 }
 
 
-void StatsWidget::updateStats(const QList<QSharedPointer<DataSeries>> &seriesList, const QwtInterval &interval)
+void StatsWidget::updateStats(const QList<DataSeriesPointer> &seriesList, const QwtInterval &interval)
 {
     auto* table = ui.statsTable;
 

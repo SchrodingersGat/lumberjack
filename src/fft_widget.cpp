@@ -44,7 +44,7 @@ void FFTWidget::initAxes()
  * @brief PlotWidget::generateNewWorker - Create a new curve sampling worker
  * @return
  */
-PlotCurveUpdater* FFTWidget::generateNewWorker(QSharedPointer<DataSeries> series)
+PlotCurveUpdater* FFTWidget::generateNewWorker(DataSeriesPointer series)
 {
     return new FFTCurveUpdater(*series);
 }

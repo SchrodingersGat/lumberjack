@@ -108,12 +108,12 @@ void MainWindow::loadDummyData()
 
     src = manager->getSourceByLabel("Source A");
 
-    auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
-    auto series_3 = QSharedPointer<DataSeries>(new DataSeries("Series 3"));
-    auto series_4 = QSharedPointer<DataSeries>(new DataSeries("Series 4"));
-    auto series_5 = QSharedPointer<DataSeries>(new DataSeries("Series 5"));
-    auto series_6 = QSharedPointer<DataSeries>(new DataSeries("Series 6"));
-    auto series_7 = QSharedPointer<DataSeries>(new DataSeries("Series 7"));
+    auto series_2 = DataSeriesPointer(new DataSeries("Series 2"));
+    auto series_3 = DataSeriesPointer(new DataSeries("Series 3"));
+    auto series_4 = DataSeriesPointer(new DataSeries("Series 4"));
+    auto series_5 = DataSeriesPointer(new DataSeries("Series 5"));
+    auto series_6 = DataSeriesPointer(new DataSeries("Series 6"));
+    auto series_7 = DataSeriesPointer(new DataSeries("Series 7"));
 
     for (double t = 0; t < 100; t += 0.0001)
     {        
@@ -279,7 +279,7 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 {
     auto source = sender();
 
-    QList<QSharedPointer<DataSeries>> seriesList;
+    QList<DataSeriesPointer> seriesList;
 
     // Update the timescale on other plots
     for (auto plot : plots)
@@ -577,7 +577,7 @@ void MainWindow::hideDockedWidget(QWidget *widget)
 /*
  * Callback when a DataSeries is removed from the available graphs
  */
-void MainWindow::seriesRemoved(QSharedPointer<DataSeries> series)
+void MainWindow::seriesRemoved(DataSeriesPointer series)
 {
     if (series.isNull()) return;
 

@@ -12,7 +12,7 @@ class DataSeriesTableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    DataSeriesTableModel(QSharedPointer<DataSeries> series, QObject *parent = nullptr);
+    DataSeriesTableModel(DataSeriesPointer series, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -20,7 +20,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 protected:
-    QSharedPointer<DataSeries> series;
+    DataSeriesPointer series;
 };
 
 
@@ -29,7 +29,7 @@ class DataSeriesTableView : public QTableView
     Q_OBJECT
 
 public:
-    DataSeriesTableView(QSharedPointer<DataSeries> series, QWidget *parent = nullptr);
+    DataSeriesTableView(DataSeriesPointer series, QWidget *parent = nullptr);
     virtual ~DataSeriesTableView();
 
 protected:

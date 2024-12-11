@@ -24,10 +24,10 @@ class PlotCurve : public QObject, public QwtPlotCurve
    Q_OBJECT
 
 public:
-    PlotCurve(QSharedPointer<DataSeries> series, PlotCurveUpdater* updater);
-    PlotCurve(DataSeries* series, PlotCurveUpdater *updater) : PlotCurve(QSharedPointer<DataSeries>(series), updater) {}
+    PlotCurve(DataSeriesPointer series, PlotCurveUpdater* updater);
+    PlotCurve(DataSeries* series, PlotCurveUpdater *updater) : PlotCurve(DataSeriesPointer(series), updater) {}
 
-    QSharedPointer<DataSeries> getDataSeries(void) { return series; }
+    DataSeriesPointer getDataSeries(void) { return series; }
 
     virtual ~PlotCurve();
 
@@ -42,7 +42,7 @@ protected slots:
     void onDataResampled(const QVector<double> &t_data, const QVector<double> &y_data);
 
 protected:
-    QSharedPointer<DataSeries> series;
+    DataSeriesPointer series;
 
     PlotCurveUpdater *worker = nullptr;
 

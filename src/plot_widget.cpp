@@ -1395,7 +1395,7 @@ void PlotWidget::updateCursorShape(QMouseEvent *event)
  * @param axis_id - axis ID (either QwtPlot::yLeft or QwtPlot::yRight)
  * @return true if the series was added
  */
-bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
+bool PlotWidget::addSeries(DataSeriesPointer series, int axis_id)
 {
     if (series.isNull()) return false;
 
@@ -1438,7 +1438,7 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
  * @param series - DataSeries pointer
  * @return true if the DataSeries existed and was removed
  */
-bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
+bool PlotWidget::removeSeries(DataSeriesPointer series)
 {
     for (int idx = 0; idx < curves.size(); idx++)
     {
@@ -1677,7 +1677,7 @@ int PlotWidget::getHorizontalPixels() const
  * @brief PlotWidget::generateNewWorker - Create a new curve sampling worker
  * @return
  */
-PlotCurveUpdater* PlotWidget::generateNewWorker(QSharedPointer<DataSeries> series)
+PlotCurveUpdater* PlotWidget::generateNewWorker(DataSeriesPointer series)
 {
     return new PlotCurveUpdater(*series);
 }

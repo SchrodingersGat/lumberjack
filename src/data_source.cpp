@@ -131,7 +131,7 @@ QStringList DataSource::getSeriesLabels(QString filter_string) const
  *
  * Returns true if the series was added, else false
  */
-bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
+bool DataSource::addSeries(DataSeriesPointer series, bool auto_color)
 {
     if (series.isNull())
     {
@@ -163,7 +163,7 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
 
 bool DataSource::addSeries(DataSeries *series, bool auto_color)
 {
-    return addSeries(QSharedPointer<DataSeries>(series), auto_color);
+    return addSeries(DataSeriesPointer(series), auto_color);
 }
 
 
@@ -186,7 +186,7 @@ bool DataSource::addSeries(QString label, bool auto_color)
  *
  * If the index is out of bounds, return a null DataSeries pointer
  */
-QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
+DataSeriesPointer DataSource::getSeriesByIndex(unsigned int index)
 {
     QList<QString> keys = data_series.keys();
 
@@ -196,11 +196,11 @@ QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
     }
 
     // No match found
-    return QSharedPointer<DataSeries>(nullptr);
+    return DataSeriesPointer(nullptr);
 }
 
 
-bool DataSource::removeSeries(QSharedPointer<DataSeries> series, bool update)
+bool DataSource::removeSeries(DataSeriesPointer series, bool update)
 {
     for (QString label : data_series.keys())
     {
@@ -227,7 +227,7 @@ bool DataSource::removeSeries(QSharedPointer<DataSeries> series, bool update)
  *
  * If the label is not found, return a null DataSeries pointer
  */
-QSharedPointer<DataSeries> DataSource::getSeriesByLabel(QString label)
+DataSeriesPointer DataSource::getSeriesByLabel(QString label)
 {
     if (data_series.contains(label))
     {
@@ -235,7 +235,7 @@ QSharedPointer<DataSeries> DataSource::getSeriesByLabel(QString label)
     }
 
     // No match found - return a null series
-    return QSharedPointer<DataSeries>(nullptr);
+    return DataSeriesPointer(nullptr);
 }
 
 
@@ -303,11 +303,11 @@ DataSourceManager::~DataSourceManager()
 }
 
 
-QSharedPointer<DataSeries> DataSourceManager::findSeries(QString source_label, QString series_label)
+DataSeriesPointer DataSourceManager::findSeries(QString source_label, QString series_label)
 {
     auto source = getSourceByLabel(source_label);
 
-    if (source.isNull()) return QSharedPointer<DataSeries>(nullptr);
+    if (source.isNull()) return DataSeriesPointer(nullptr);
 
     return source->getSeriesByLabel(series_label);
 }
@@ -328,15 +328,15 @@ QStringList DataSourceManager::getSourceLabels() const
 }
 
 
-QSharedPointer<DataSource> DataSourceManager::getSourceByIndex(unsigned int idx)
+DataSourcePointer DataSourceManager::getSourceByIndex(unsigned int idx)
 {
     if (idx < sources.size()) return sources.at(idx);
 
-    return QSharedPointer<DataSource>(nullptr);
+    return DataSourcePointer(nullptr);
 }
 
 
-QSharedPointer<DataSource> DataSourceManager::getSourceByLabel(QString label)
+DataSourcePointer DataSourceManager::getSourceByLabel(QString label)
 {
     for (auto src : sources)
     {
@@ -348,11 +348,11 @@ QSharedPointer<DataSource> DataSourceManager::getSourceByLabel(QString label)
         }
     }
 
-    return QSharedPointer<DataSource>(nullptr);
+    return DataSourcePointer(nullptr);
 }
 
 
-bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
+bool DataSourceManager::addSource(DataSourcePointer source)
 {
     if (source.isNull()) return false;
 
@@ -398,7 +398,7 @@ bool DataSourceManager::addSource(QString label, QString description)
  * @param source is a shared pointer to the DataSource
  * @return true if the source was removed, else false
  */
-bool DataSourceManager::removeSource(QSharedPointer<DataSource> source)
+bool DataSourceManager::removeSource(DataSourcePointer source)
 {
     for (auto idx = 0; idx < sources.size(); idx++)
     {

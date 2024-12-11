@@ -40,14 +40,14 @@ public:
 
     QStringList getGroupLabels(void) const;
 
-    bool addSeries(QSharedPointer<DataSeries> series, bool auto_color = true);
+    bool addSeries(DataSeriesPointer series, bool auto_color = true);
     bool addSeries(DataSeries* series, bool auto_color=true);
     bool addSeries(QString label, bool auto_color=true);
 
-    QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
-    QSharedPointer<DataSeries> getSeriesByLabel(QString label);
+    DataSeriesPointer getSeriesByIndex(unsigned int index);
+    DataSeriesPointer getSeriesByLabel(QString label);
 
-    bool removeSeries(QSharedPointer<DataSeries> series, bool update = true);
+    bool removeSeries(DataSeriesPointer series, bool update = true);
     bool removeSeriesByLabel(QString label, bool update = true);
 
     void removeAllSeries(bool update = true);
@@ -72,8 +72,11 @@ protected:
     int color_wheel_cursor = 0;
 
     // Keep a map of label:series for efficient lookup
-    QMap<QString, QSharedPointer<DataSeries>> data_series;
+    QMap<QString, DataSeriesPointer> data_series;
 };
+
+
+typedef QSharedPointer<DataSource> DataSourcePointer;
 
 
 /*
@@ -112,20 +115,20 @@ public:
 
 public slots:
 
-    QSharedPointer<DataSeries> findSeries(QString source_label, QString series_label);
+    DataSeriesPointer findSeries(QString source_label, QString series_label);
 
     int getSourceCount(void) const { return sources.size(); }
     QStringList getSourceLabels(void) const;
 
-    QSharedPointer<DataSource> getSourceByIndex(unsigned int idx);
-    QSharedPointer<DataSource> getSourceByLabel(QString label);
+    DataSourcePointer getSourceByIndex(unsigned int idx);
+    DataSourcePointer getSourceByLabel(QString label);
 
-    bool addSource(QSharedPointer<DataSource> source);
-    bool addSource(DataSource* source) { return addSource(QSharedPointer<DataSource>(source)); }
+    bool addSource(DataSourcePointer source);
+    bool addSource(DataSource* source) { return addSource(DataSourcePointer(source)); }
     bool addSource(QString label, QString description = QString());
 
-    bool removeSource(QSharedPointer<DataSource> source);
-    bool removeSource(DataSource* source) { return removeSource(QSharedPointer<DataSource>(source)); }
+    bool removeSource(DataSourcePointer source);
+    bool removeSource(DataSource* source) { return removeSource(DataSourcePointer(source)); }
 
     bool removeSourceByIndex(unsigned int idx, bool update = true);
     bool removeSourceByLabel(QString label, bool update = true);
@@ -141,7 +144,7 @@ protected slots:
     void onDataChanged() { emit sourcesChanged(); }
 
 protected:
-    QVector<QSharedPointer<DataSource>> sources;
+    QVector<DataSourcePointer> sources;
 };
 
 

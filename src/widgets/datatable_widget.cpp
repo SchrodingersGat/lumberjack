@@ -1,7 +1,7 @@
 #include "datatable_widget.hpp"
 
 
-DataSeriesTableModel::DataSeriesTableModel(QSharedPointer<DataSeries> series, QObject* parent) : QAbstractTableModel(parent)
+DataSeriesTableModel::DataSeriesTableModel(DataSeriesPointer series, QObject* parent) : QAbstractTableModel(parent)
 {
     this->series = series;
 }
@@ -62,7 +62,7 @@ QVariant DataSeriesTableModel::data(const QModelIndex &index, int role) const
 }
 
 
-DataSeriesTableView::DataSeriesTableView(QSharedPointer<DataSeries> series, QWidget *parent) :
+DataSeriesTableView::DataSeriesTableView(DataSeriesPointer series, QWidget *parent) :
     QTableView(parent),
     model(series)
 {

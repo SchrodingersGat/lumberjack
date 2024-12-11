@@ -13,7 +13,7 @@ class SeriesEditorDialog : public QDialog
     Q_OBJECT
 
 public:
-    SeriesEditorDialog(QSharedPointer<DataSeries> series, QWidget *parent = nullptr);
+    SeriesEditorDialog(DataSeriesPointer series, QWidget *parent = nullptr);
     virtual ~SeriesEditorDialog();
 
 public slots:
@@ -25,7 +25,7 @@ public slots:
 protected:
     Ui::series_editor_form ui;
 
-    QSharedPointer<DataSeries> series;
+    DataSeriesPointer series;
 
     QColor color;
 
