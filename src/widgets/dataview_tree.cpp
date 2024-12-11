@@ -6,8 +6,8 @@
 
 #include "datatable_widget.hpp"
 #include "series_editor_dialog.hpp"
-#include "data_source.hpp"
 #include "dataview_tree.hpp"
+#include "data_source_manager.hpp"
 
 
 DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)

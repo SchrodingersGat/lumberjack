@@ -12,6 +12,7 @@
 #include "helpers.hpp"
 #include "lumberjack_settings.hpp"
 
+#include "data_source_manager.hpp"
 #include "plot_curve.hpp"
 #include "data_series.hpp"
 #include "plot_widget.hpp"

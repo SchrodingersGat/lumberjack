@@ -2,6 +2,7 @@
 #include <QDropEvent>
 #include <qmimedata.h>
 
+#include "data_source_manager.hpp"
 #include "dataview_widget.hpp"
 
 

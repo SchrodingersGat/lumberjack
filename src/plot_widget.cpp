@@ -14,8 +14,9 @@
 #include "axis_edit_dialog.hpp"
 #include "series_editor_dialog.hpp"
 
-#include "data_source.hpp"
 #include "plot_widget.hpp"
+
+#include "data_source_manager.hpp"
 #include "lumberjack_settings.hpp"
 
 
