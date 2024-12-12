@@ -393,7 +393,7 @@ void MainWindow::toggleDebugView()
 void MainWindow::loadDataFromFile(QString filename)
 {
     auto manager = DataSourceManager::getInstance();
-    manager->loadFromFile(filename);
+    manager->importData(filename);
 }
 
 

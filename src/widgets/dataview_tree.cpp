@@ -250,17 +250,20 @@ int DataViewTree::refresh(QString filters)
 
     int series_count = 0;
 
-    for (QString source_label : manager->getSourceLabels())
+    for (int ii = 0; ii < manager->getSourceCount(); ii++)
     {
-        auto source = manager->getSourceByLabel(source_label);
-
-        QStringList labels = source->getSeriesLabels(filters);
+        auto source = manager->getSourceByIndex(ii);
 
         if (source.isNull()) continue;
 
+        QStringList labels = source->getSeriesLabels(filters);
+
+        // Add a header item for this "data source"
         QTreeWidgetItem *item = new QTreeWidgetItem();
 
-        item->setText(1, source_label);
+        QString uid = source->getIdentifier();
+
+        item->setText(1, source->getLabel());
 
         // Embolden text for "source"
         QFont font = item->font(1);

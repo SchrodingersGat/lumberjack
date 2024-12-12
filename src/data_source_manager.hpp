@@ -49,7 +49,7 @@ public slots:
 
     bool addSource(DataSourcePointer source);
     bool addSource(DataSource* source) { return addSource(DataSourcePointer(source)); }
-    bool addSource(QString label, QString description = QString());
+    bool addSource(QString source, QString label, QString description = QString());
 
     bool removeSource(DataSourcePointer source);
     bool removeSource(DataSource* source) { return removeSource(DataSourcePointer(source)); }
@@ -60,7 +60,7 @@ public slots:
     void removeAllSources(bool update = true);
 
     // Data import functionality
-    bool loadFromFile(QString filename = QString());
+    bool importData(QString filename = QString());
 
     // Data export functionality
     bool exportData(QList<DataSeriesPointer> &series, QString filename = QString());

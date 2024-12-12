@@ -26,8 +26,12 @@ class DataSource : public QObject
 
 public:
 
-    DataSource(QString label, QString description = QString());
+    DataSource(QString source, QString label, QString description = QString());
     virtual ~DataSource();
+
+    QString getIdentifier(void) const;
+
+    QString getSource(void) const { return m_source; }
 
     QString getLabel(void) const { return m_label; }
 
@@ -56,6 +60,9 @@ signals:
     void dataChanged(void);
 
 protected:
+
+    //! Data source (e.g plugin name)
+    QString m_source;
 
     //! Text label associated with this DataSource (e.g. filename)
     QString m_label;

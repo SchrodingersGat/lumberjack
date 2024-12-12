@@ -75,9 +75,13 @@ bool DataSourceManager::addSource(DataSourcePointer source)
 {
     if (source.isNull()) return false;
 
+    QString identifier = source->getIdentifier();
+
     for (auto src : sources)
     {
-        if (src == source)
+        if (src.isNull()) continue;
+
+        if (src == source || src->getIdentifier() == identifier)
         {
             qInfo() << "Ignoring duplicate source:" << source->getLabel();
 
@@ -100,11 +104,11 @@ bool DataSourceManager::addSource(DataSourcePointer source)
  * @param label is the label of the DataSource to add
  * @return true if the source was added, false if a DataSource with the given title already existed
  */
-bool DataSourceManager::addSource(QString label, QString description)
+bool DataSourceManager::addSource(QString source, QString label, QString description)
 {
     if (getSourceByLabel(label).isNull())
     {
-        return addSource(new DataSource(label, description));
+        return addSource(new DataSource(source, label, description));
     }
 
     // Source with provided label already exists!
@@ -199,7 +203,7 @@ void DataSourceManager::removeAllSources(bool update)
 }
 
 
-bool DataSourceManager::loadFromFile(QString filename)
+bool DataSourceManager::importData(QString filename)
 {
     auto registry = PluginRegistry::getInstance();
     auto settings = LumberjackSettings::getInstance();
@@ -257,7 +261,11 @@ bool DataSourceManager::loadFromFile(QString filename)
     }
 
     // Create a new instance of the provided importer
-    DataSource *source = new DataSource(importer->pluginName(), importer->pluginDescription());
+    DataSource *source = new DataSource(
+        importer->pluginName(),
+        fi.fileName(),
+        fi.absoluteFilePath()
+    );
 
     QStringList errors;
 

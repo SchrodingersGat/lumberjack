@@ -30,6 +30,7 @@ protected:
     const QString m_version = "0.1.0";
 
     QList<DataSeriesPointer> m_data;
+    QList<uint64_t> m_indices;
 
     // Data export options
     QString m_delimiter = ",";
@@ -41,6 +42,8 @@ protected:
     QByteArray rowToString(QStringList &row) const;
     QStringList headerRow(void) const;
     QStringList unitsRow(void) const;
+
+    QStringList nextDataRow(bool &valid);
 
 };
 

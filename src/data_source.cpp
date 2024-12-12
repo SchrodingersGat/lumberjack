@@ -6,7 +6,8 @@
 #include "data_source.hpp"
 
 
-DataSource::DataSource(QString label, QString description) :
+DataSource::DataSource(QString source, QString label, QString description) :
+    m_source(source),
     m_label(label),
     m_description(description)
 {
@@ -16,6 +17,16 @@ DataSource::DataSource(QString label, QString description) :
 DataSource::~DataSource()
 {
     removeAllSeries(false);
+}
+
+
+/*
+ * Return a unique identifier string for this data source
+ */
+QString DataSource::getIdentifier(void) const
+{
+    // TODO: Maybe a "better" approach to this in the future?
+    return m_source + ":" + m_label + ":" + m_description;
 }
 
 
