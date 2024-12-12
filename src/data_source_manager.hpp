@@ -63,7 +63,7 @@ public slots:
     bool loadFromFile(QString filename = QString());
 
     // Data export functionality
-    bool saveToFile(QList<DataSeriesPointer> &series, QString filename = QString());
+    bool exportData(QList<DataSeriesPointer> &series, QString filename = QString());
 
     void update(void) { emit sourcesChanged(); }
 

@@ -146,10 +146,10 @@ void DataViewTree::onContextMenu(const QPoint &pos)
 
         if (action == exportSeries)
         {
-            QList<DataSeriesPointer> seriesList;
-            seriesList << series;
+            QList<DataSeriesPointer> dataSeries;
+            dataSeries << series;
 
-            DataSourceManager::getInstance()->saveToFile(seriesList);
+            DataSourceManager::getInstance()->exportData(dataSeries);
         }
         else if (action == editSeries)
         {

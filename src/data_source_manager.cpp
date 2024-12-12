@@ -310,12 +310,12 @@ bool DataSourceManager::loadFromFile(QString filename)
 
 
 /**
- * @brief DataSourceManager::saveToFile - Export a set of data series to a file
+ * @brief DataSourceManager::exportData - Export a set of data series to a file
  * @param series
  * @param filename
  * @return
  */
-bool DataSourceManager::saveToFile(QList<DataSeriesPointer> &series, QString filename)
+bool DataSourceManager::exportData(QList<DataSeriesPointer> &series, QString filename)
 {
     auto registry = PluginRegistry::getInstance();
     auto settings = LumberjackSettings::getInstance();

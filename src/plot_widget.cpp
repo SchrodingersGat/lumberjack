@@ -551,14 +551,14 @@ void PlotWidget::exportDataToFile()
 {
     auto manager = DataSourceManager::getInstance();
 
-    QList<DataSeriesPointer> series;
+    QList<DataSeriesPointer> dataSeries;
 
     for (auto curve : curves)
     {
-        series.append(curve->getDataSeries());
+        dataSeries.append(curve->getDataSeries());
     }
 
-    manager->saveToFile(series);
+    manager->exportData(dataSeries);
 }
 
 
