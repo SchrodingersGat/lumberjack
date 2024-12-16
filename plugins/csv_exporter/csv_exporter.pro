@@ -1,4 +1,4 @@
-QT += gui
+QT += gui widgets
 
 TEMPLATE = lib
 DEFINES += CSV_EXPORTER_LIBRARY
@@ -15,11 +15,14 @@ INCLUDEPATH += \
 HEADERS += \
     csv_exporter_global.h \
     lumberjack_csv_exporter.hpp \
+    ../../src/data_series.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_exporter.hpp \
 
 SOURCES += \
-    lumberjack_csv_exporter.cpp
+    lumberjack_csv_exporter.cpp \
+    ../../src/data_series.cpp \
+    ../../src/plugins/plugin_exporter.cpp
 
 # Default rules for deployment.
 unix {

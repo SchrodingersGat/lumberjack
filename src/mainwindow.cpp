@@ -12,6 +12,7 @@
 #include "helpers.hpp"
 #include "lumberjack_settings.hpp"
 
+#include "data_source_manager.hpp"
 #include "plot_curve.hpp"
 #include "data_series.hpp"
 #include "plot_widget.hpp"
@@ -52,14 +53,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     loadWorkspaceSettings();
 
-    pluginRegistry.loadPlugins();
+    // Load plugins
+    PluginRegistry::getInstance()->loadPlugins();
 }
 
 
 MainWindow::~MainWindow()
 {
-    qDebug() << "~MainWindow()";
-
+    PluginRegistry::cleanup();
     DataSourceManager::cleanup();
     LumberjackSettings::cleanup();
 
@@ -108,12 +109,12 @@ void MainWindow::loadDummyData()
 
     src = manager->getSourceByLabel("Source A");
 
-    auto series_2 = QSharedPointer<DataSeries>(new DataSeries("Series 2"));
-    auto series_3 = QSharedPointer<DataSeries>(new DataSeries("Series 3"));
-    auto series_4 = QSharedPointer<DataSeries>(new DataSeries("Series 4"));
-    auto series_5 = QSharedPointer<DataSeries>(new DataSeries("Series 5"));
-    auto series_6 = QSharedPointer<DataSeries>(new DataSeries("Series 6"));
-    auto series_7 = QSharedPointer<DataSeries>(new DataSeries("Series 7"));
+    auto series_2 = DataSeriesPointer(new DataSeries("Series 2"));
+    auto series_3 = DataSeriesPointer(new DataSeries("Series 3"));
+    auto series_4 = DataSeriesPointer(new DataSeries("Series 4"));
+    auto series_5 = DataSeriesPointer(new DataSeries("Series 5"));
+    auto series_6 = DataSeriesPointer(new DataSeries("Series 6"));
+    auto series_7 = DataSeriesPointer(new DataSeries("Series 7"));
 
     for (double t = 0; t < 100; t += 0.0001)
     {        
@@ -249,7 +250,7 @@ void MainWindow::initSignalsSlots()
         connect(tree, &DataViewTree::onSeriesRemoved, this, &MainWindow::seriesRemoved);
     }
 
-    connect(&dataView, &DataviewWidget::fileDropped, this, &MainWindow::loadDroppedFile);
+    connect(&dataView, &DataviewWidget::fileDropped, this, &MainWindow::loadDataFromFile);
 
     // Timeline view
     connect(&timelineView, &TimelineWidget::timeUpdated, this, &MainWindow::onTimescaleChanged);
@@ -279,7 +280,7 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 {
     auto source = sender();
 
-    QList<QSharedPointer<DataSeries>> seriesList;
+    QList<DataSeriesPointer> seriesList;
 
     // Update the timescale on other plots
     for (auto plot : plots)
@@ -343,7 +344,7 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
  */
 void MainWindow::showPluginsInfo(void)
 {
-    PluginsDialog dlg(pluginRegistry, this);
+    PluginsDialog dlg(this);
     dlg.exec();
 }
 
@@ -374,22 +375,13 @@ void MainWindow::toggleDebugView()
     else
     {
         QDockWidget *dock = new QDockWidget(tr("Debug View"), this);
+        dock->setObjectName("debug-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&debugWidget);
 
         addDockWidget(Qt::RightDockWidgetArea, dock);
         ui->action_Debug->setChecked(true);
     }
-}
-
-
-/*
- * Callback for loading a data file which is dropped into the window
- */
-void MainWindow::loadDroppedFile(QString filename)
-{
-    qDebug() << "MainWindow::loadDroppedFile" << filename;
-    loadDataFromFile(filename);
 }
 
 
@@ -400,102 +392,8 @@ void MainWindow::loadDroppedFile(QString filename)
  */
 void MainWindow::loadDataFromFile(QString filename)
 {
-    qDebug() << "loadDataFromFile:" << filename;
-
-    auto *settings = LumberjackSettings::getInstance();
-
-    // Record the directory this file was loaded from
-    QFileInfo fi(filename);
-
-    if (!fi.exists())
-    {
-        // TODO - show error message
-        return;
-    }
-
-    settings->saveSetting("import", "lastDirectory", fi.absoluteDir().absolutePath());
-
-    // Find a matching plugin
-    ImportPluginList importers;
-
-    QSharedPointer<ImportPlugin> importer;
-
-    for (auto plugin : pluginRegistry.ImportPlugins())
-    {
-        if (plugin.isNull()) continue;
-
-        if (plugin->supportsFileType(fi.suffix()))
-        {
-            importers.append(plugin);
-        }
-    }
-
-    if (importers.length() == 1)
-    {
-        importer = importers.first();
-    }
-    else if (importers.length() == 0)
-    {
-        // TODO: Select an importer
-        // TODO: For now, just take the first one...
-        importer = importers.first();
-    }
-    else
-    {
-        // TODO: Select an importer
-        // TODO: For now, just take the first one...
-        importer = importers.first();
-    }
-
-    // Create a new instance of the provided importer
-    DataSource *source = new DataSource(importer->pluginName(), importer->pluginDescription());
-
-    QStringList errors;
-
-
-    if (!importer->validateFile(filename, errors))
-    {
-        // TODO: error message?
-        return;
-    }
-
-    importer->setFilename(filename);
-
-    if (!importer->beforeLoadData())
-    {
-        // TODO: error message?
-        return;
-    }
-
-    errors.clear();
-
-    bool result = importer->loadDataFile(errors);
-
-    if (!result)
-    {
-        // TODO: Display errors
-
-        delete source;
-        return;
-    }
-
-    auto seriesList = importer->getDataSeries();
-
-    if (seriesList.count() == 0)
-    {
-        // TODO: Error msg - no data imported
-        delete source;
-        return;
-    }
-
-    for (auto series : importer->getDataSeries())
-    {
-        source->addSeries(series);
-    }
-
-    DataSourceManager::getInstance()->addSource(source);
-
-    // TODO: Success message?
+    auto manager = DataSourceManager::getInstance();
+    manager->importData(filename);
 }
 
 
@@ -504,60 +402,7 @@ void MainWindow::loadDataFromFile(QString filename)
  */
 void MainWindow::importData()
 {
-    auto *settings = LumberjackSettings::getInstance();
-
-    qDebug() << "MainWindow::importData";
-
-    // Assemble set of supported file types
-    QStringList supportedFileTypes;
-
-    QStringList filePatterns;
-
-    for (QSharedPointer<ImportPlugin> plugin : pluginRegistry.ImportPlugins())
-    {
-        if (plugin.isNull()) continue;
-
-        filePatterns.append(plugin->fileFilter());
-    }
-
-    filePatterns.append("Any files (*)");
-
-    // Load a file
-    QFileDialog dialog(this);
-
-    dialog.setWindowTitle(tr("Import Data from File"));
-
-    QString lastDir = settings->loadSetting("import", "lastDirectory", QString()).toString();
-
-    if (!lastDir.isEmpty())
-    {
-        dialog.setDirectory(lastDir);
-    }
-
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setNameFilters(filePatterns);
-    dialog.setViewMode(QFileDialog::Detail);
-
-    int result = dialog.exec();
-
-    if (result != QDialog::Accepted)
-    {
-        // User cancelled the import process
-        return;
-    }
-
-    // Determine which plugin loaded the data
-    QString filter = dialog.selectedNameFilter();
-    QStringList files = dialog.selectedFiles();
-
-    if (filter.isEmpty() || files.length() != 1)
-    {
-        return;
-    }
-
-    QString filename = files.first();
-
-    loadDataFromFile(filename);
+    loadDataFromFile();
 }
 
 
@@ -577,7 +422,7 @@ void MainWindow::hideDockedWidget(QWidget *widget)
 /*
  * Callback when a DataSeries is removed from the available graphs
  */
-void MainWindow::seriesRemoved(QSharedPointer<DataSeries> series)
+void MainWindow::seriesRemoved(DataSeriesPointer series)
 {
     if (series.isNull()) return;
 
@@ -597,11 +442,10 @@ void MainWindow::addPlot()
 {
     static int plotIndex = 1;
 
-    qDebug() << "MainWindow::addPlot()";
-
     PlotWidget *plot = new PlotWidget();
 
     QDockWidget *dock = new QDockWidget(tr("Plot") + QString(" ") + QString::number(plotIndex), this);
+    dock->setObjectName("plot-" + QString::number(plotIndex));
     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
     plot->setParent(dock);
     dock->setWidget(plot);
@@ -616,7 +460,7 @@ void MainWindow::addPlot()
     connect(plot, &PlotWidget::viewChanged, this, &MainWindow::onTimescaleChanged);
     connect(plot, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
     connect(plot, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
-    connect(plot, &PlotWidget::fileDropped, this, &MainWindow::loadDroppedFile);
+    connect(plot, &PlotWidget::fileDropped, this, &MainWindow::loadDataFromFile);
 
     plots.append(QSharedPointer<PlotWidget>(plot));
 
@@ -646,6 +490,7 @@ void MainWindow::toggleFftView(void)
     else
     {
         QDockWidget* dock = new QDockWidget(tr("FFT View"), this);
+        dock->setObjectName("fft-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&fftView);
 
@@ -672,6 +517,7 @@ void MainWindow::toggleDataView(void)
     else
     {
         QDockWidget* dock = new QDockWidget(tr("Data View"), this);
+        dock->setObjectName("data-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&dataView);
 
@@ -698,6 +544,7 @@ void MainWindow::toggleTimelineView(void)
     else
     {
         QDockWidget* dock = new QDockWidget(tr("Timeline"), this);
+        dock->setObjectName("timeline-view");
         dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
         dock->setWidget(&timelineView);
 
@@ -724,6 +571,7 @@ void MainWindow::toggleStatisticsView(void)
     else
     {
         QDockWidget *dock = new QDockWidget(tr("Stats View"), this);
+        dock->setObjectName("stats-view");
         dock->setAllowedAreas(Qt::AllDockWidgetAreas);
         dock->setWidget(&statsView);
 

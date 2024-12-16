@@ -6,7 +6,8 @@
 #include "data_source.hpp"
 
 
-DataSource::DataSource(QString label, QString description) :
+DataSource::DataSource(QString source, QString label, QString description) :
+    m_source(source),
     m_label(label),
     m_description(description)
 {
@@ -16,6 +17,16 @@ DataSource::DataSource(QString label, QString description) :
 DataSource::~DataSource()
 {
     removeAllSeries(false);
+}
+
+
+/*
+ * Return a unique identifier string for this data source
+ */
+QString DataSource::getIdentifier(void) const
+{
+    // TODO: Maybe a "better" approach to this in the future?
+    return m_source + ":" + m_label + ":" + m_description;
 }
 
 
@@ -131,7 +142,7 @@ QStringList DataSource::getSeriesLabels(QString filter_string) const
  *
  * Returns true if the series was added, else false
  */
-bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
+bool DataSource::addSeries(DataSeriesPointer series, bool auto_color)
 {
     if (series.isNull())
     {
@@ -163,7 +174,7 @@ bool DataSource::addSeries(QSharedPointer<DataSeries> series, bool auto_color)
 
 bool DataSource::addSeries(DataSeries *series, bool auto_color)
 {
-    return addSeries(QSharedPointer<DataSeries>(series), auto_color);
+    return addSeries(DataSeriesPointer(series), auto_color);
 }
 
 
@@ -186,7 +197,7 @@ bool DataSource::addSeries(QString label, bool auto_color)
  *
  * If the index is out of bounds, return a null DataSeries pointer
  */
-QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
+DataSeriesPointer DataSource::getSeriesByIndex(unsigned int index)
 {
     QList<QString> keys = data_series.keys();
 
@@ -196,11 +207,11 @@ QSharedPointer<DataSeries> DataSource::getSeriesByIndex(unsigned int index)
     }
 
     // No match found
-    return QSharedPointer<DataSeries>(nullptr);
+    return DataSeriesPointer(nullptr);
 }
 
 
-bool DataSource::removeSeries(QSharedPointer<DataSeries> series, bool update)
+bool DataSource::removeSeries(DataSeriesPointer series, bool update)
 {
     for (QString label : data_series.keys())
     {
@@ -227,7 +238,7 @@ bool DataSource::removeSeries(QSharedPointer<DataSeries> series, bool update)
  *
  * If the label is not found, return a null DataSeries pointer
  */
-QSharedPointer<DataSeries> DataSource::getSeriesByLabel(QString label)
+DataSeriesPointer DataSource::getSeriesByLabel(QString label)
 {
     if (data_series.contains(label))
     {
@@ -235,7 +246,7 @@ QSharedPointer<DataSeries> DataSource::getSeriesByLabel(QString label)
     }
 
     // No match found - return a null series
-    return QSharedPointer<DataSeries>(nullptr);
+    return DataSeriesPointer(nullptr);
 }
 
 
@@ -289,192 +300,3 @@ QStringList DataSource::getGroupLabels() const
 }
 
 
-DataSourceManager *DataSourceManager::instance = 0;
-
-
-DataSourceManager::DataSourceManager()
-{
-}
-
-
-DataSourceManager::~DataSourceManager()
-{
-    removeAllSources(false);
-}
-
-
-QSharedPointer<DataSeries> DataSourceManager::findSeries(QString source_label, QString series_label)
-{
-    auto source = getSourceByLabel(source_label);
-
-    if (source.isNull()) return QSharedPointer<DataSeries>(nullptr);
-
-    return source->getSeriesByLabel(series_label);
-}
-
-
-QStringList DataSourceManager::getSourceLabels() const
-{
-    QStringList labels;
-
-    for (auto src : sources)
-    {
-        if (src.isNull()) continue;
-
-        labels.push_back(src->getLabel());
-    }
-
-    return labels;
-}
-
-
-QSharedPointer<DataSource> DataSourceManager::getSourceByIndex(unsigned int idx)
-{
-    if (idx < sources.size()) return sources.at(idx);
-
-    return QSharedPointer<DataSource>(nullptr);
-}
-
-
-QSharedPointer<DataSource> DataSourceManager::getSourceByLabel(QString label)
-{
-    for (auto src : sources)
-    {
-        if (src.isNull()) continue;
-
-        if (src->getLabel() == label)
-        {
-            return src;
-        }
-    }
-
-    return QSharedPointer<DataSource>(nullptr);
-}
-
-
-bool DataSourceManager::addSource(QSharedPointer<DataSource> source)
-{
-    if (source.isNull()) return false;
-
-    for (auto src : sources)
-    {
-        if (src == source)
-        {
-            qInfo() << "Ignoring duplicate source:" << source->getLabel();
-
-            return false;
-        }
-    }
-
-    sources.push_back(source);
-
-    connect(source.data(), &DataSource::dataChanged, this, &DataSourceManager::onDataChanged);
-
-    emit sourcesChanged();
-
-    return true;
-}
-
-
-/**
- * @brief DataSourceManager::addSource adds a DataSource with the given title
- * @param label is the label of the DataSource to add
- * @return true if the source was added, false if a DataSource with the given title already existed
- */
-bool DataSourceManager::addSource(QString label, QString description)
-{
-    if (getSourceByLabel(label).isNull())
-    {
-        return addSource(new DataSource(label, description));
-    }
-
-    // Source with provided label already exists!
-    return false;
-}
-
-
-/**
- * @brief DataSourceManager::removeSource removes the DataSource from this DataSourceManager
- * @param source is a shared pointer to the DataSource
- * @return true if the source was removed, else false
- */
-bool DataSourceManager::removeSource(QSharedPointer<DataSource> source)
-{
-    for (auto idx = 0; idx < sources.size(); idx++)
-    {
-        auto src = sources.at(idx);
-
-        if (src == source)
-        {
-            sources.removeAt(idx);
-            emit sourcesChanged();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
-/**
- * @brief DataSourceManager::removeSourceByIndex removes the DataSource at the specified index
- * @param idx - Index of the DataSource to remove
- * @param update - If true, emit a "sourcesChanged" event
- * @return true if the source was removed, else false (in the case of an invalid index)
- */
-bool DataSourceManager::removeSourceByIndex(unsigned int idx, bool update)
-{
-    if (idx < sources.size())
-    {
-        sources.removeAt(idx);
-
-        if (update)
-        {
-            emit sourcesChanged();
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
-
-/**
- * @brief DataSourceManager::removeSourceByLabel - Remove the first DataSource which matches the specified label
- * @param label - QString label
- * @param update - If true, emit a "sourcesChanged" event
- * @return true if a source matching the provided label was found (and subsequentyly deleted)
- */
-bool DataSourceManager::removeSourceByLabel(QString label, bool update)
-{
-    for (int idx = 0; idx < sources.size(); idx++)
-    {
-        auto src = sources.at(idx);
-
-        if (!src.isNull() && src->getLabel() == label)
-        {
-            return removeSourceByIndex(idx, update);
-        }
-    }
-
-    return false;
-}
-
-
-/**
- * @brief DataSourceManager::removeAllSources removes all DataSource objects from this DataSourceManager
- * @param update - if true, emit a "sourcesChanged" event
- */
-void DataSourceManager::removeAllSources(bool update)
-{
-    while (sources.count() > 0)
-    {
-        removeSourceByIndex(0, update);
-    }
-
-    if (update)
-    {
-        emit sourcesChanged();
-    }
-}

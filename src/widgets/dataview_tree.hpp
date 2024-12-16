@@ -20,13 +20,13 @@ public slots:
     void onContextMenu(const QPoint &pos);
 
 signals:
-    void onSeriesRemoved(QSharedPointer<DataSeries> series);
+    void onSeriesRemoved(DataSeriesPointer series);
 
 protected:
     virtual void startDrag(Qt::DropActions supported_actions) override;
 
     void setupTree();
-    void editDataSeries(QSharedPointer<DataSeries> series);
+    void editDataSeries(DataSeriesPointer series);
 
     QString filterString;
 };

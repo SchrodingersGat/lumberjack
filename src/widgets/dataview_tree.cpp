@@ -6,8 +6,8 @@
 
 #include "datatable_widget.hpp"
 #include "series_editor_dialog.hpp"
-#include "data_source.hpp"
 #include "dataview_tree.hpp"
+#include "data_source_manager.hpp"
 
 
 DataViewTree::DataViewTree(QWidget *parent) : QTreeWidget(parent)
@@ -64,7 +64,7 @@ void DataViewTree::setupTree()
 /*
  * Callback function to edit a particular DataSeries.
  */
-void DataViewTree::editDataSeries(QSharedPointer<DataSeries> series)
+void DataViewTree::editDataSeries(DataSeriesPointer series)
 {
     if (series.isNull())
     {
@@ -123,6 +123,9 @@ void DataViewTree::onContextMenu(const QPoint &pos)
             return;
         }
 
+        // Export series
+        QAction *exportSeries = new QAction(tr("Export Series"), &menu);
+
         // Edit series
         QAction *editSeries = new QAction(tr("Edit Series"), &menu);
 
@@ -132,6 +135,8 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         // Delete series
         QAction *deleteSeries = new QAction(tr("Delete Series"), &menu);
 
+        menu.addAction(exportSeries);
+        menu.addSeparator();
         menu.addAction(editSeries);
         menu.addAction(viewSeriesData);
         menu.addSeparator();
@@ -139,7 +144,14 @@ void DataViewTree::onContextMenu(const QPoint &pos)
 
         QAction *action = menu.exec(mapToGlobal(pos));
 
-        if (action == editSeries)
+        if (action == exportSeries)
+        {
+            QList<DataSeriesPointer> dataSeries;
+            dataSeries << series;
+
+            DataSourceManager::getInstance()->exportData(dataSeries);
+        }
+        else if (action == editSeries)
         {
             editDataSeries(series);
         }
@@ -238,17 +250,20 @@ int DataViewTree::refresh(QString filters)
 
     int series_count = 0;
 
-    for (QString source_label : manager->getSourceLabels())
+    for (int ii = 0; ii < manager->getSourceCount(); ii++)
     {
-        auto source = manager->getSourceByLabel(source_label);
-
-        QStringList labels = source->getSeriesLabels(filters);
+        auto source = manager->getSourceByIndex(ii);
 
         if (source.isNull()) continue;
 
+        QStringList labels = source->getSeriesLabels(filters);
+
+        // Add a header item for this "data source"
         QTreeWidgetItem *item = new QTreeWidgetItem();
 
-        item->setText(1, source_label);
+        QString uid = source->getIdentifier();
+
+        item->setText(1, source->getLabel());
 
         // Embolden text for "source"
         QFont font = item->font(1);

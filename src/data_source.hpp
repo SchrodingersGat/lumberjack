@@ -26,8 +26,12 @@ class DataSource : public QObject
 
 public:
 
-    DataSource(QString label, QString description = QString());
+    DataSource(QString source, QString label, QString description = QString());
     virtual ~DataSource();
+
+    QString getIdentifier(void) const;
+
+    QString getSource(void) const { return m_source; }
 
     QString getLabel(void) const { return m_label; }
 
@@ -40,14 +44,14 @@ public:
 
     QStringList getGroupLabels(void) const;
 
-    bool addSeries(QSharedPointer<DataSeries> series, bool auto_color = true);
+    bool addSeries(DataSeriesPointer series, bool auto_color = true);
     bool addSeries(DataSeries* series, bool auto_color=true);
     bool addSeries(QString label, bool auto_color=true);
 
-    QSharedPointer<DataSeries> getSeriesByIndex(unsigned int index);
-    QSharedPointer<DataSeries> getSeriesByLabel(QString label);
+    DataSeriesPointer getSeriesByIndex(unsigned int index);
+    DataSeriesPointer getSeriesByLabel(QString label);
 
-    bool removeSeries(QSharedPointer<DataSeries> series, bool update = true);
+    bool removeSeries(DataSeriesPointer series, bool update = true);
     bool removeSeriesByLabel(QString label, bool update = true);
 
     void removeAllSeries(bool update = true);
@@ -56,6 +60,9 @@ signals:
     void dataChanged(void);
 
 protected:
+
+    //! Data source (e.g plugin name)
+    QString m_source;
 
     //! Text label associated with this DataSource (e.g. filename)
     QString m_label;
@@ -72,77 +79,11 @@ protected:
     int color_wheel_cursor = 0;
 
     // Keep a map of label:series for efficient lookup
-    QMap<QString, QSharedPointer<DataSeries>> data_series;
+    QMap<QString, DataSeriesPointer> data_series;
 };
 
 
-/*
- * Data source manager class:
- * - Manages all data sources
- * - Employs singleton design pattern so can be accessed globally
- */
-class DataSourceManager : public QObject
-{
-    Q_OBJECT
-
-    static DataSourceManager *instance;
-
-public:
-    DataSourceManager();
-    ~DataSourceManager();
-
-    static DataSourceManager *getInstance()
-    {
-        if (!instance)
-        {
-            instance = new DataSourceManager;
-        }
-
-        return instance;
-    }
-
-    static void cleanup()
-    {
-        if (instance)
-        {
-            delete instance;
-            instance = nullptr;
-        }
-    }
-
-public slots:
-
-    QSharedPointer<DataSeries> findSeries(QString source_label, QString series_label);
-
-    int getSourceCount(void) const { return sources.size(); }
-    QStringList getSourceLabels(void) const;
-
-    QSharedPointer<DataSource> getSourceByIndex(unsigned int idx);
-    QSharedPointer<DataSource> getSourceByLabel(QString label);
-
-    bool addSource(QSharedPointer<DataSource> source);
-    bool addSource(DataSource* source) { return addSource(QSharedPointer<DataSource>(source)); }
-    bool addSource(QString label, QString description = QString());
-
-    bool removeSource(QSharedPointer<DataSource> source);
-    bool removeSource(DataSource* source) { return removeSource(QSharedPointer<DataSource>(source)); }
-
-    bool removeSourceByIndex(unsigned int idx, bool update = true);
-    bool removeSourceByLabel(QString label, bool update = true);
-
-    void removeAllSources(bool update = true);
-
-    void update(void) { emit sourcesChanged(); }
-
-signals:
-    void sourcesChanged();
-
-protected slots:
-    void onDataChanged() { emit sourcesChanged(); }
-
-protected:
-    QVector<QSharedPointer<DataSource>> sources;
-};
+typedef QSharedPointer<DataSource> DataSourcePointer;
 
 
 #endif // DATA_SOURCE_H

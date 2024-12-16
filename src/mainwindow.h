@@ -12,7 +12,6 @@
 #include "stats_widget.hpp"
 #include "dataview_widget.hpp"
 #include "timeline_widget.hpp"
-#include "plugin_registry.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -32,7 +31,7 @@ public slots:
 
     void onTimescaleChanged(const QwtInterval &view);
     void updateCursorPos(double t, double y1, double y2);
-    void loadDataFromFile(QString filename);
+    void loadDataFromFile(QString filename = QString());
 
 protected:
     void initMenus(void);
@@ -51,7 +50,6 @@ protected slots:
     void showPluginsInfo(void);
 
     void importData(void);
-    void loadDroppedFile(QString filename);
 
     void toggleDebugView(void);
     void toggleDataView(void);
@@ -64,7 +62,7 @@ protected slots:
 
     void hideDockedWidget(QWidget *widget);
 
-    void seriesRemoved(QSharedPointer<DataSeries> series);
+    void seriesRemoved(DataSeriesPointer series);
 
 private:
     Ui::MainWindow *ui;
@@ -81,8 +79,5 @@ private:
     FFTWidget fftView;
 
     DebugWidget debugWidget;
-
-    PluginRegistry pluginRegistry;
-
 };
 #endif // MAINWINDOW_H

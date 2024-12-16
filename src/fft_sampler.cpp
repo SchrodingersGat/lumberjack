@@ -55,7 +55,7 @@ void FFTCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned in
     auto idx_min = series.getIndexForTimestamp(t_min);
     auto idx_max = series.getIndexForTimestamp(t_max);
 
-    if (idx_min < 0) idx_min = 0;
+    if (idx_min <= 0) idx_min = 0;
     if (idx_max >= series.size()) idx_max = series.size() - 1;
 
     // Recalculate endpoint timestamps

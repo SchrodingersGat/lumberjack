@@ -1,8 +1,6 @@
 #ifndef PLUGIN_REGISTRY_HPP
 #define PLUGIN_REGISTRY_HPP
 
-#include <QObject>
-
 #include "plugin_filter.hpp"
 #include "plugin_importer.hpp"
 #include "plugin_exporter.hpp"
@@ -13,9 +11,31 @@
 class PluginRegistry : public QObject
 {
     Q_OBJECT
+    static PluginRegistry* instance;
+
 public:
-    PluginRegistry(QObject *parent = nullptr);
+    PluginRegistry();
     virtual ~PluginRegistry();
+
+    static PluginRegistry* getInstance()
+    {
+        if (!instance)
+        {
+            instance = new PluginRegistry();
+        }
+
+        return instance;
+    }
+
+    static void cleanup()
+    {
+        if (instance)
+        {
+            instance->clearRegistry();
+            delete instance;
+            instance = nullptr;
+        }
+    }
 
     void loadPlugins(void);
     void clearRegistry(void);
@@ -23,6 +43,9 @@ public:
     const ImportPluginList& ImportPlugins(void) { return m_ImportPlugins; }
     const ExportPluginList& ExportPlugins(void) { return m_ExportPlugins; }
     const FilterPluginList& FilterPlugins(void) { return m_FilterPlugins; }
+
+    QString getFilenameForImport(void) const;
+    QString getFilenameForExport(void) const;
 
 protected:
 

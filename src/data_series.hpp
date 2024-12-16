@@ -230,5 +230,7 @@ protected:
 
 };
 
+typedef QSharedPointer<DataSeries> DataSeriesPointer;
+
 
 #endif // DATA_SERIES_H

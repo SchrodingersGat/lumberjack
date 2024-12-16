@@ -32,6 +32,7 @@ INCLUDEPATH += src \
     plugins/cobsr
 
 SOURCES += \
+    src/data_source_manager.cpp \
     src/fft_sampler.cpp \
     src/fft_widget.cpp \
     src/helpers.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
     src/plot_widget.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
+    src/plugins/plugin_exporter.cpp \
     src/plugins/plugin_importer.cpp \
     src/plugins/plugin_registry.cpp \
     src/widgets/about_dialog.cpp \
@@ -59,6 +61,7 @@ SOURCES += \
     src/widgets/timeline_widget.cpp
 
 HEADERS += \
+    src/data_source_manager.hpp \
     src/mainwindow.h \
     src/fft_sampler.hpp \
     src/fft_widget.hpp \

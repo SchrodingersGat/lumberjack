@@ -14,8 +14,9 @@
 #include "axis_edit_dialog.hpp"
 #include "series_editor_dialog.hpp"
 
-#include "data_source.hpp"
 #include "plot_widget.hpp"
+
+#include "data_source_manager.hpp"
 #include "lumberjack_settings.hpp"
 
 
@@ -337,10 +338,14 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     // Data menu
     QMenu *dataMenu = new QMenu(tr("Data"), &menu);
 
+    QAction *exportData = dataMenu->addAction(tr("Export Data"));
+    dataMenu->addSeparator();
     QAction *imageToClipboard = dataMenu->addAction(tr("Image to Clipboard"));
     QAction *imageToFile = dataMenu->addAction(tr("Image to File"));
     dataMenu->addSeparator();
     QAction *clearAll = dataMenu->addAction(tr("Clear All"));
+
+    exportData->setEnabled(curves.count() > 0);
 
     menu.addMenu(dataMenu);
 
@@ -426,6 +431,10 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     else if (action == toggleGridY)
     {
         yGridEnable(!isYGridEnabled());
+    }
+    else if (action == exportData)
+    {
+        exportDataToFile();
     }
     else if (action == imageToClipboard)
     {
@@ -532,6 +541,24 @@ void PlotWidget::selectBackgroundColor()
 
     // Save the background color as 'default'
     settings->saveSetting("graph", "defaultBackgroundColor", c.name());
+}
+
+
+/**
+ * @brief PlotWidget::exportDataToFile - export data to a file
+ */
+void PlotWidget::exportDataToFile()
+{
+    auto manager = DataSourceManager::getInstance();
+
+    QList<DataSeriesPointer> dataSeries;
+
+    for (auto curve : curves)
+    {
+        dataSeries.append(curve->getDataSeries());
+    }
+
+    manager->exportData(dataSeries);
 }
 
 
@@ -647,6 +674,11 @@ void PlotWidget::dropEvent(QDropEvent *event)
 {
     auto *mime = event->mimeData();
     auto *manager = DataSourceManager::getInstance();
+
+    if (!mime || !manager)
+    {
+        return;
+    }
 
     // DataSeries is dropped onto this PlotWidget
     if (mime->hasFormat("source") && mime->hasFormat("series"))
@@ -1395,7 +1427,7 @@ void PlotWidget::updateCursorShape(QMouseEvent *event)
  * @param axis_id - axis ID (either QwtPlot::yLeft or QwtPlot::yRight)
  * @return true if the series was added
  */
-bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
+bool PlotWidget::addSeries(DataSeriesPointer series, int axis_id)
 {
     if (series.isNull()) return false;
 
@@ -1438,7 +1470,7 @@ bool PlotWidget::addSeries(QSharedPointer<DataSeries> series, int axis_id)
  * @param series - DataSeries pointer
  * @return true if the DataSeries existed and was removed
  */
-bool PlotWidget::removeSeries(QSharedPointer<DataSeries> series)
+bool PlotWidget::removeSeries(DataSeriesPointer series)
 {
     for (int idx = 0; idx < curves.size(); idx++)
     {
@@ -1677,7 +1709,7 @@ int PlotWidget::getHorizontalPixels() const
  * @brief PlotWidget::generateNewWorker - Create a new curve sampling worker
  * @return
  */
-PlotCurveUpdater* PlotWidget::generateNewWorker(QSharedPointer<DataSeries> series)
+PlotCurveUpdater* PlotWidget::generateNewWorker(DataSeriesPointer series)
 {
     return new PlotCurveUpdater(*series);
 }

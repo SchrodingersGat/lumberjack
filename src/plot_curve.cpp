@@ -13,7 +13,7 @@
  * @param s - the source data series
  * @param updater - the worker which resamples the data
  */
-PlotCurve::PlotCurve(QSharedPointer<DataSeries> s, PlotCurveUpdater *updater) : QwtPlotCurve(), series(s)
+PlotCurve::PlotCurve(DataSeriesPointer s, PlotCurveUpdater *updater) : QwtPlotCurve(), series(s)
 {
 
     // Create a new worker thread
@@ -31,11 +31,7 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s, PlotCurveUpdater *updater) : 
         connect(&(*series), &DataSeries::styleUpdated, this, &PlotCurve::updateLineStyle);
         connect(&(*series), &DataSeries::styleUpdated, this, &PlotCurve::updateLabel);
 
-#ifdef CI_UNIT_TEST
-        qDebug() << "Skipping GUI steps for unit testing";
-#else
         updateLineStyle();
-#endif
     }
 
     worker->moveToThread(&workerThread);
@@ -45,16 +41,12 @@ PlotCurve::PlotCurve(QSharedPointer<DataSeries> s, PlotCurveUpdater *updater) : 
 
 PlotCurve::~PlotCurve()
 {
-    qDebug() << "Deleting PlotCurve";
-
     // Wait for the resampling thread to complete
     workerThread.quit();
     workerThread.wait();
 
     // Delete the worker thread
     delete worker;
-
-    qDebug() << "~PlotCurve() complete";
 }
 
 
@@ -67,17 +59,17 @@ void PlotCurve::onDataResampled(const QVector<double> &t_data, const QVector<dou
 
 void PlotCurve::resampleData(double t_min, double t_max, unsigned int n_pixels)
 {
-    if (!series.isNull() && worker != nullptr)
+    if (series.isNull())
     {
-        worker->updateCurveSamples(t_min, t_max, n_pixels);
-    }
-    else if (series.isNull())
-    {
-        qDebug() << "resampleData:" << "series is null";
+        qWarning() << "PlotCurve::resampleData:" << "series is null";
     }
     else if (worker == nullptr)
     {
-        qDebug() << "resampleData:" << "worker is null";
+        qWarning() << "PlotCurve::resampleData:" << "worker is null";
+    }
+    else
+    {
+        worker->updateCurveSamples(t_min, t_max, n_pixels);
     }
 }
 

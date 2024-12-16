@@ -52,11 +52,11 @@ signals:
 public slots:
     int getHorizontalPixels(void) const;
 
-    bool addSeries(QSharedPointer<DataSeries> series, int axis_id = QwtPlot::yLeft);
-    bool addSeries(DataSeries *series) { return addSeries(QSharedPointer<DataSeries>(series)); }
+    bool addSeries(DataSeriesPointer series, int axis_id = QwtPlot::yLeft);
+    bool addSeries(DataSeries *series) { return addSeries(DataSeriesPointer(series)); }
 
-    bool removeSeries(QSharedPointer<DataSeries> series);
-    bool removeSeries(DataSeries *series) { return removeSeries(QSharedPointer<DataSeries>(series)); }
+    bool removeSeries(DataSeriesPointer series);
+    bool removeSeries(DataSeries *series) { return removeSeries(DataSeriesPointer(series)); }
     bool removeSeries(QString label);
     void removeAllSeries();
 
@@ -78,6 +78,8 @@ public slots:
     void yGridEnable(bool en) { grid->enableY(en); }
 
     void selectBackgroundColor();
+
+    void exportDataToFile();
 
     void saveImageToClipboard();
     void saveImageToFile();
@@ -114,7 +116,7 @@ protected:
     void initCrosshairs(void);
     void initGrid(void);
 
-    virtual PlotCurveUpdater* generateNewWorker(QSharedPointer<DataSeries> series);
+    virtual PlotCurveUpdater* generateNewWorker(DataSeriesPointer series);
 
     virtual void resampleCurves(int axis_id = yBoth);
 

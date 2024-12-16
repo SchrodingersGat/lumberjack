@@ -18,7 +18,7 @@ public:
     StatsWidget(QWidget *parent = nullptr);
 
 public slots:
-    void updateStats(const QList<QSharedPointer<DataSeries>> &series, const QwtInterval &interval);
+    void updateStats(const QList<DataSeriesPointer> &series, const QwtInterval &interval);
 
 protected:
     Ui::stats_form ui;

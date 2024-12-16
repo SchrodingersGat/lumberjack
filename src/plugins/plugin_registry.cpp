@@ -1,13 +1,18 @@
 #include <QCoreApplication>
 #include <QApplication>
+#include <QFileDialog>
+#include <QDialog>
 #include <QPluginLoader>
 #include <QDir>
 
 #include "plugin_registry.hpp"
+#include "lumberjack_settings.hpp"
 
-PluginRegistry::PluginRegistry(QObject *parent) : QObject(parent)
+PluginRegistry* PluginRegistry::instance = 0;
+
+
+PluginRegistry::PluginRegistry() : QObject()
 {
-
 }
 
 
@@ -56,10 +61,6 @@ void PluginRegistry::loadPlugins()
             }
         }
     }
-
-    qDebug() << "Loading plugins:";
-    qDebug() << "Importer:" << m_ImportPlugins.count();
-    qDebug() << "Exporter:" << m_ExportPlugins.count();
 }
 
 
@@ -113,4 +114,114 @@ bool PluginRegistry::loadFilterPlugin(QObject *instance)
     }
 
     return false;
+}
+
+
+/**
+ * @brief PluginRegistry::getFilenameForImport - Select a file for importing
+ * @return
+ */
+QString PluginRegistry::getFilenameForImport(void) const
+{
+    auto settings = LumberjackSettings::getInstance();
+
+    QStringList filePatterns;
+
+    for (QSharedPointer<ImportPlugin> plugin : m_ImportPlugins)
+    {
+        if (plugin.isNull()) continue;
+
+        filePatterns.append(plugin->fileFilter());
+    }
+
+    filePatterns.append("Any files (*)");
+
+    QFileDialog dialog;
+
+    dialog.setWindowTitle(tr("Import Data from File"));
+
+    QString lastDir = settings->loadSetting("import", "lastDirectory", QString()).toString();
+
+    if (!lastDir.isEmpty())
+    {
+        dialog.setDirectory(lastDir);
+    }
+
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilters(filePatterns);
+    dialog.setViewMode(QFileDialog::Detail);
+
+    int result = dialog.exec();
+
+
+    if (result != QDialog::Accepted)
+    {
+        // User cancelled the import process
+        return QString();
+    }
+
+    // Determine which plugin loaded the data
+    QString filter = dialog.selectedNameFilter();
+    QStringList files = dialog.selectedFiles();
+
+    QString filename;
+
+    if (!filter.isEmpty() && files.length() >= 1)
+    {
+        filename = files.first();
+    }
+
+    return filename;
+}
+
+
+QString PluginRegistry::getFilenameForExport(void) const
+{
+    auto settings = LumberjackSettings::getInstance();
+
+    QStringList filePatterns;
+
+    for (QSharedPointer<ExportPlugin> plugin : m_ExportPlugins)
+    {
+        if (plugin.isNull()) continue;
+
+        filePatterns.append(plugin->fileFilter());
+    }
+
+    filePatterns.append("Any Files (*)");
+
+    QFileDialog dialog;
+
+    dialog.setWindowTitle(tr("Export Data to File"));
+
+    QString lastDir = settings->loadSetting("export", "lastDirectory", QString()).toString();
+
+    if (!lastDir.isEmpty())
+    {
+        dialog.setDirectory(lastDir);
+    }
+
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilters(filePatterns);
+    dialog.setViewMode(QFileDialog::Detail);
+    dialog.setLabelText(QFileDialog::DialogLabel::Accept, tr("Export"));
+
+    int result = dialog.exec();
+
+    if (result != QDialog::Accepted)
+    {
+        return QString();
+    }
+
+    QString filter = dialog.selectedNameFilter();
+    QStringList files = dialog.selectedFiles();
+
+    QString filename;
+
+    if (!filter.isEmpty() && files.length() >= 1)
+    {
+        filename = files.first();
+    }
+
+    return filename;
 }
