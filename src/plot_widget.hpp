@@ -68,6 +68,7 @@ public slots:
     void autoScale(QSharedPointer<PlotCurve> curve);
 
     void setBackgroundColor(QColor color);
+    void setPlotTitle(QString title = QString());
 
     void onContextMenu(const QPoint &pos);
 

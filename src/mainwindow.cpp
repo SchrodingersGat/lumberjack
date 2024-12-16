@@ -444,7 +444,10 @@ void MainWindow::addPlot()
 
     PlotWidget *plot = new PlotWidget();
 
-    QDockWidget *dock = new QDockWidget(tr("Plot") + QString(" ") + QString::number(plotIndex), this);
+    QString title = tr("Plot") + QString(" ") + QString::number(plotIndex);
+
+    QDockWidget *dock = new QDockWidget(title, this);
+    dock->setWindowTitle(title);
     dock->setObjectName("plot-" + QString::number(plotIndex));
     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
     plot->setParent(dock);
