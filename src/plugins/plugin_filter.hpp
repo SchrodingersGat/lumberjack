@@ -3,6 +3,7 @@
 
 #include <QtPlugin>
 
+#include "data_series.hpp"
 #include "plugin_base.hpp"
 
 #define FilterInterface_iid "org.lumberjack.plugins.FilterPlugin/1.0"
@@ -24,8 +25,23 @@ public:
         return QString(FilterInterface_iid);
     }
 
+    // Return the minimum number of inputs supported by this plugin
+    virtual unsigned int getMinInputCount(void) const = 0;
 
-    // TODO
+    // Return the maximum number of inputs supported by this plugin
+    virtual unsigned int getMaxInputCount(void) const = 0;
+
+    // Set the filter inputs
+    virtual bool setFilterInputs(QList<DataSeriesPointer> inputs, QStringList &errors);
+
+    // Perform filtering operations on the provided set of inputs
+    virtual bool filterInputs(QStringList &errors) = 0;
+
+    // Return the generated data series
+    virtual DataSeriesPointer getOutput(void) = 0;
+
+protected:
+    QList<DataSeriesPointer> m_inputs;
 };
 
 typedef QList<QSharedPointer<FilterPlugin>> FilterPluginList;
