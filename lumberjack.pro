@@ -32,6 +32,7 @@ INCLUDEPATH += src \
     plugins/cobsr
 
 SOURCES += \
+    plugins/todo_cedat_importer/cedat_packet.cpp \
     src/data_source_manager.cpp \
     src/fft_sampler.cpp \
     src/fft_widget.cpp \

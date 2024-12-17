@@ -34,6 +34,9 @@ public:
     // Load data from the provided filename
     virtual bool importData(QStringList &errors) = 0;
 
+    // Return the progress of the data import process (as a percentage {0:100})
+    virtual uint8_t getImportProgress(void) const = 0;
+
     // After import, plugin must return a list of DataSeries objects
     virtual QList<DataSeriesPointer> getDataSeries(void) const = 0;
 
