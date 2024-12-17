@@ -56,17 +56,10 @@ int main(int argc, char *argv[])
         // registerLumberjackDebugHandler();
     }
 
-    qDebug() << "Starting lumberjack application:" << LUMBERJACK_VERSION_STRING;
+    qDebug() << "Lumberjack:" << LUMBERJACK_VERSION_STRING;
 
     MainWindow w;
     w.show();
-
-    // Load dummy data if required
-    if (parser.isSet(dummyDataOption))
-    {
-        qDebug() << "Loading dummy data";
-        w.loadDummyData();
-    }
 
     // Import data from specified files
     for (auto file : parser.values(loadFilesOption))

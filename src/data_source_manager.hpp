@@ -1,7 +1,67 @@
 #ifndef DATA_SOURCE_MANAGER_HPP
 #define DATA_SOURCE_MANAGER_HPP
 
+#include <QThread>
+
 #include "data_source.hpp"
+#include "plugin_importer.hpp"
+#include "plugin_exporter.hpp"
+
+
+class DataIOWorker : public QObject
+{
+public:
+    bool getResult(void) const { return m_result; }
+    QStringList getErrors(void) const { return m_errors; }
+    bool isComplete(void) const { return m_complete; }
+protected:
+    QStringList m_errors;
+    bool m_complete = false;
+    bool m_result = false;
+};
+
+
+/**
+ * @brief The DataImportWorker class manages a data import session
+ */
+class DataImportWorker : public DataIOWorker
+{
+    Q_OBJECT
+
+public:
+    DataImportWorker(QSharedPointer<ImportPlugin> plugin);
+
+public slots:
+    void runImport(void);
+    void cancelImport(void);
+
+signals:
+    void importCompleted(void);
+
+protected:
+    QSharedPointer<ImportPlugin> m_plugin;
+};
+
+
+class DataExportWorker : public DataIOWorker
+{
+    Q_OBJECT
+
+public:
+    DataExportWorker(QSharedPointer<ExportPlugin> plugin, QList<DataSeriesPointer> &series);
+
+public slots:
+    void runExport(void);
+    void cancelExport(void);
+
+signals:
+    void exportCompleted(void);
+
+protected:
+    QSharedPointer<ExportPlugin> m_plugin;
+    QList<DataSeriesPointer> m_series;
+};
+
 
 /*
  * Data source manager class:

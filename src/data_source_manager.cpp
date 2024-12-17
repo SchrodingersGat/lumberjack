@@ -1,11 +1,90 @@
 #include <QDir>
 #include <QFileInfo>
-
+#include <QProgressDialog>
+#include <QApplication>
+#include <QThread>
 
 #include "data_source_manager.hpp"
 
 #include "plugin_registry.hpp"
 #include "lumberjack_settings.hpp"
+
+
+
+DataImportWorker::DataImportWorker(QSharedPointer<ImportPlugin> plugin) : m_plugin(plugin)
+{
+}
+
+
+void DataImportWorker::runImport()
+{
+    m_errors.clear();
+
+    if (m_plugin)
+    {
+        m_result = m_plugin->importData(m_errors);
+    }
+    else
+    {
+        m_result = false;
+    }
+
+    m_complete = true;
+
+    emit importCompleted();
+}
+
+
+void DataImportWorker::cancelImport()
+{
+    if (m_plugin)
+    {
+        m_plugin->cancelImport();
+        m_result = false;
+    }
+
+    m_errors.append(tr("Import process cancelled"));
+
+    m_complete = true;
+}
+
+
+DataExportWorker::DataExportWorker(QSharedPointer<ExportPlugin> plugin, QList<DataSeriesPointer> &series)
+    : m_plugin(plugin), m_series(series)
+{
+}
+
+
+void DataExportWorker::runExport()
+{
+    m_errors.clear();
+
+    if (m_plugin)
+    {
+        m_result = m_plugin->exportData(m_series, m_errors);
+    }
+    else
+    {
+        m_result = false;
+    }
+
+    m_complete = true;
+    emit exportCompleted();
+}
+
+
+void DataExportWorker::cancelExport()
+{
+    if (m_plugin)
+    {
+        m_plugin->cancelExport();
+        m_result = false;
+    }
+
+    m_errors.append(tr("Export process cancelled"));
+
+    m_complete = true;
+}
 
 
 DataSourceManager *DataSourceManager::instance = 0;
@@ -260,13 +339,6 @@ bool DataSourceManager::importData(QString filename)
         importer = importers.first();
     }
 
-    // Create a new instance of the provided importer
-    DataSource *source = new DataSource(
-        importer->pluginName(),
-        fi.fileName(),
-        fi.absoluteFilePath()
-    );
-
     QStringList errors;
 
     if (!importer->validateFile(filename, errors))
@@ -285,33 +357,81 @@ bool DataSourceManager::importData(QString filename)
         return false;
     }
 
-    errors.clear();
+    QProgressDialog progress;
 
-    bool result = importer->importData(errors);
+    progress.setWindowTitle(tr("Importing Data"));
+    progress.setMinimum(0);
+    progress.setMaximum(100);
+    progress.setValue(0);
+    progress.setLabelText(tr("Importing data from file"));
 
-    if (!result)
+    progress.show();
+
+    QApplication::processEvents();
+
+    // Spawn a new thread for importing
+    auto worker = DataImportWorker(importer);
+    auto *thread = new QThread;
+
+    worker.moveToThread(thread);
+
+    connect(&worker, &DataImportWorker::importCompleted, thread, &QThread::quit);
+    connect(thread, &QThread::started, &worker, &DataImportWorker::runImport);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
+    thread->start();
+
+    qDebug() << "Importing data from" << filename;
+
+    while (!thread->isFinished() && !worker.isComplete())
     {
-        // TODO: Display errors
+        // Check for manual cancel of import process
+        if (progress.wasCanceled())
+        {
+            worker.cancelImport();
+            thread->wait();
+        }
 
-        delete source;
-        return false;
+        progress.setValue(importer->getImportProgress());
+
+        QApplication::processEvents();
+        QThread::msleep(100);
     }
 
-    auto seriesList = importer->getDataSeries();
+    progress.cancel();
+    progress.close();
 
-    if (seriesList.count() == 0)
+    for (QString err : worker.getErrors())
     {
-        // TODO: Error msg - no data imported
-        delete source;
-        return false;
+        // TODO: Display these better?
+        qWarning() << "Import err:" << err;
     }
 
-    for (auto series : importer->getDataSeries())
+    if (worker.getResult())
     {
-        source->addSeries(series);
-    }
+        // Create a new instance of the provided importer
+        DataSource *source = new DataSource(
+            importer->pluginName(),
+            fi.fileName(),
+            fi.absoluteFilePath()
+        );
 
-    addSource(source);
+
+        auto seriesList = importer->getDataSeries();
+
+        if (seriesList.count() == 0)
+        {
+            delete source;
+            return false;
+        }
+
+        for (auto series : importer->getDataSeries())
+        {
+            source->addSeries(series);
+        }
+
+        addSource(source);
+    }
 
     return true;
 }
@@ -376,11 +496,62 @@ bool DataSourceManager::exportData(QList<DataSeriesPointer> &series, QString fil
 
     exporter->setFilename(filename);
 
-    QStringList errors;
+    if (!exporter->beforeExport())
+    {
+        // TODO: error mesage?
+        return false;
+    }
 
-    bool result = exporter->exportData(series, errors);
+    QProgressDialog progress;
 
-    // TODO: Display errors?
+    progress.setWindowTitle(tr("Importing Data"));
+    progress.setMinimum(0);
+    progress.setMaximum(100);
+    progress.setValue(0);
+    progress.setLabelText(tr("Importing data from file"));
+
+    progress.show();
+
+    QApplication::processEvents();
+
+    // Spawn a new thread for data export
+    auto worker = DataExportWorker(exporter, series);
+    auto *thread = new QThread();
+
+    worker.moveToThread(thread);
+
+    connect(&worker, &DataExportWorker::exportCompleted, thread, &QThread::quit);
+    connect(thread, &QThread::started, &worker, &DataExportWorker::runExport);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
+    thread->start();
+
+    qDebug() << "Exporting data to" << filename;
+
+    while (!thread->isFinished() && !worker.isComplete())
+    {
+        if (progress.wasCanceled())
+        {
+            worker.cancelExport();
+            thread->wait();
+        }
+
+        progress.setValue(exporter->getExportProgress());
+
+        QApplication::processEvents();
+        QThread::msleep(100);
+    }
+
+    progress.cancel();
+    progress.close();
+
+    for (QString err : worker.getErrors())
+    {
+        // TODO: Display these better?
+        qWarning() << "Export err:" << err;
+    }
+
+    bool result = worker.getResult();
 
     return result;
 }
