@@ -34,6 +34,12 @@ public:
     // Load data from the provided filename
     virtual bool importData(QStringList &errors) = 0;
 
+    // Optional function called after data import
+    virtual void afterImport(void) {}
+
+    // Cancel import process - plugin is expected to perform cleanup
+    virtual void cancelImport(void) = 0;
+
     // Return the progress of the data import process (as a percentage {0:100})
     virtual uint8_t getImportProgress(void) const = 0;
 
@@ -52,7 +58,6 @@ public:
 
     void setFilename(QString filename) { m_filename = filename; }
     QString getFilename(void) const { return m_filename; }
-
 
 protected:
     // Stored filename, source of imported data

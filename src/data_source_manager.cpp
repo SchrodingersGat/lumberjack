@@ -1,11 +1,52 @@
 #include <QDir>
 #include <QFileInfo>
-
+#include <QProgressDialog>
+#include <QApplication>
+#include <QThread>
 
 #include "data_source_manager.hpp"
 
 #include "plugin_registry.hpp"
 #include "lumberjack_settings.hpp"
+
+
+
+DataImportWorker::DataImportWorker(QSharedPointer<ImportPlugin> plugin) : m_plugin(plugin)
+{
+}
+
+
+void DataImportWorker::runImport()
+{
+    m_errors.clear();
+
+    if (m_plugin)
+    {
+        m_result = m_plugin->importData(m_errors);
+    }
+    else
+    {
+        m_result = false;
+    }
+
+    m_complete = true;
+
+    emit importCompleted();
+}
+
+
+void DataImportWorker::cancelImport()
+{
+    if (m_plugin)
+    {
+        m_plugin->cancelImport();
+        m_result = false;
+    }
+
+    m_errors.append(tr("Import process cancelled"));
+
+    m_complete = true;
+}
 
 
 DataSourceManager *DataSourceManager::instance = 0;
@@ -260,13 +301,6 @@ bool DataSourceManager::importData(QString filename)
         importer = importers.first();
     }
 
-    // Create a new instance of the provided importer
-    DataSource *source = new DataSource(
-        importer->pluginName(),
-        fi.fileName(),
-        fi.absoluteFilePath()
-    );
-
     QStringList errors;
 
     if (!importer->validateFile(filename, errors))
@@ -285,33 +319,77 @@ bool DataSourceManager::importData(QString filename)
         return false;
     }
 
-    errors.clear();
+    QProgressDialog progress;
 
-    bool result = importer->importData(errors);
+    progress.setWindowTitle(tr("Importing Data"));
+    progress.setMinimum(0);
+    progress.setMaximum(100);
+    progress.setValue(0);
+    progress.setLabelText(tr("Importing data from file"));
 
-    if (!result)
+    progress.show();
+
+    QApplication::processEvents();
+
+    // Spawn a new thread for importing
+    auto *worker = new DataImportWorker(importer);
+    auto *thread = new QThread;
+
+    worker->moveToThread(thread);
+
+    connect(thread, &QThread::started, worker, &DataImportWorker::runImport);
+    connect(thread, &QThread::finished, worker, &DataImportWorker::cancelImport);
+    connect(worker, &DataImportWorker::importCompleted, thread, &QThread::quit);
+
+    thread->start();
+
+    while (!thread->isFinished() && !worker->isComplete())
     {
-        // TODO: Display errors
+        // Check for manual cancel of import process
+        if (progress.wasCanceled())
+        {
+            worker->cancelImport();
+            thread->wait();
+        }
 
-        delete source;
-        return false;
+        progress.setValue(importer->getImportProgress());
+
+        QApplication::processEvents();
+        QThread::msleep(100);
     }
 
-    auto seriesList = importer->getDataSeries();
+    progress.cancel();
+    progress.close();
 
-    if (seriesList.count() == 0)
+    if (worker->getResult())
     {
-        // TODO: Error msg - no data imported
-        delete source;
-        return false;
+        // Create a new instance of the provided importer
+        DataSource *source = new DataSource(
+            importer->pluginName(),
+            fi.fileName(),
+            fi.absoluteFilePath()
+        );
+
+
+        auto seriesList = importer->getDataSeries();
+
+        if (seriesList.count() == 0)
+        {
+            // TODO: Error msg - no data imported
+            delete source;
+            return false;
+        }
+
+        for (auto series : importer->getDataSeries())
+        {
+            source->addSeries(series);
+        }
+
+        addSource(source);
     }
 
-    for (auto series : importer->getDataSeries())
-    {
-        source->addSeries(series);
-    }
-
-    addSource(source);
+    thread->deleteLater();
+    worker->deleteLater();
 
     return true;
 }
