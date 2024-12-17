@@ -23,6 +23,8 @@ public:
 
     virtual bool beforeExport(void) override;
     virtual bool exportData(QList<DataSeriesPointer> &series, QStringList &errors) override;
+    virtual void cancelExport(void) override;
+    virtual uint8_t getExportProgress(void) const override;
 
 protected:
     const QString m_name = "CSV Exporter";
@@ -31,6 +33,12 @@ protected:
 
     QList<DataSeriesPointer> m_data;
     QList<uint64_t> m_indices;
+
+    bool m_isExporting = false;
+
+    double m_currentTimestamp = 0;
+    double m_minTimestamp = 0;
+    double m_maxTimestamp = 0;
 
     // Data export options
     QString m_delimiter = ",";

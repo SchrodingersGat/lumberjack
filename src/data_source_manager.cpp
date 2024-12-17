@@ -49,6 +49,45 @@ void DataImportWorker::cancelImport()
 }
 
 
+DataExportWorker::DataExportWorker(QSharedPointer<ExportPlugin> plugin, QList<DataSeriesPointer> &series)
+    : m_plugin(plugin), m_series(series)
+{
+}
+
+
+void DataExportWorker::runExport()
+{
+    m_errors.clear();
+
+    if (m_plugin)
+    {
+        m_result = m_plugin->exportData(m_series, m_errors);
+    }
+    else
+    {
+        m_result = false;
+    }
+
+    m_complete = true;
+
+    emit exportCompleted();
+}
+
+
+void DataExportWorker::cancelExport()
+{
+    if (m_plugin)
+    {
+        m_plugin->cancelExport();
+        m_result = false;
+    }
+
+    m_errors.append(tr("Export process cancelled"));
+
+    m_complete = true;
+}
+
+
 DataSourceManager *DataSourceManager::instance = 0;
 
 
@@ -361,6 +400,12 @@ bool DataSourceManager::importData(QString filename)
     progress.cancel();
     progress.close();
 
+    for (QString err : worker->getErrors())
+    {
+        // TODO: Display these better?
+        qWarning() << "Import err:" << err;
+    }
+
     if (worker->getResult())
     {
         // Create a new instance of the provided importer
@@ -375,7 +420,6 @@ bool DataSourceManager::importData(QString filename)
 
         if (seriesList.count() == 0)
         {
-            // TODO: Error msg - no data imported
             delete source;
             return false;
         }
@@ -454,11 +498,72 @@ bool DataSourceManager::exportData(QList<DataSeriesPointer> &series, QString fil
 
     exporter->setFilename(filename);
 
-    QStringList errors;
+    if (!exporter->beforeExport())
+    {
+        // TODO: error mesage?
+        return false;
+    }
 
-    bool result = exporter->exportData(series, errors);
+    QProgressDialog progress;
 
-    // TODO: Display errors?
+    progress.setWindowTitle(tr("Importing Data"));
+    progress.setMinimum(0);
+    progress.setMaximum(100);
+    progress.setValue(0);
+    progress.setLabelText(tr("Importing data from file"));
+
+    progress.show();
+
+    QApplication::processEvents();
+
+    // Spawn a new thread for data export
+    auto *worker = new DataExportWorker(exporter, series);
+    auto *thread = new QThread;
+
+    worker->moveToThread(thread);
+
+    connect(thread, &QThread::started, worker, &DataExportWorker::runExport);
+    connect(thread, &QThread::finished, worker, &DataExportWorker::cancelExport);
+    connect(worker, &DataExportWorker::exportCompleted, thread, &QThread::quit);
+
+    thread->start();
+
+    qDebug() << "Exporting data to:" << filename;
+
+    while (!thread->isFinished() && !worker->isComplete())
+    {
+        if (progress.wasCanceled())
+        {
+            qDebug() << "export cancelled";
+            worker->cancelExport();
+            thread->wait();
+        }
+
+        progress.setValue(exporter->getExportProgress());
+
+        qDebug() << "- progress -" << exporter->getExportProgress();
+
+        QApplication::processEvents();
+        QThread::msleep(100);
+    }
+
+    progress.cancel();
+    progress.close();
+
+    qDebug() << "A";
+
+    for (QString err : worker->getErrors())
+    {
+        // TODO: Display these better?
+        qWarning() << "Export err:" << err;
+    }
+
+    bool result = worker->getResult();
+
+    thread->deleteLater();
+    worker->deleteLater();
+
+    qDebug() << "B";
 
     return result;
 }

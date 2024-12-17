@@ -7,20 +7,29 @@
 #include "plugin_importer.hpp"
 #include "plugin_exporter.hpp"
 
+
+class DataIOWorker : public QObject
+{
+public:
+    bool getResult(void) const { return m_result; }
+    QStringList getErrors(void) const { return m_errors; }
+    bool isComplete(void) const { return m_complete; }
+protected:
+    QStringList m_errors;
+    bool m_complete = false;
+    bool m_result = false;
+};
+
+
 /**
  * @brief The DataImportWorker class manages a data import session
  */
-class DataImportWorker : public QObject
+class DataImportWorker : public DataIOWorker
 {
     Q_OBJECT
 
 public:
     DataImportWorker(QSharedPointer<ImportPlugin> plugin);
-
-    bool getResult(void) const { return m_result; }
-    QStringList getErrors(void) const { return m_errors; }
-
-    bool isComplete(void) const { return m_complete; }
 
 public slots:
     void runImport(void);
@@ -31,10 +40,26 @@ signals:
 
 protected:
     QSharedPointer<ImportPlugin> m_plugin;
-    QStringList m_errors;
+};
 
-    bool m_complete = false;
-    bool m_result = false;
+
+class DataExportWorker : public DataIOWorker
+{
+    Q_OBJECT
+
+public:
+    DataExportWorker(QSharedPointer<ExportPlugin> plugin, QList<DataSeriesPointer> &series);
+
+public slots:
+    void runExport(void);
+    void cancelExport(void);
+
+signals:
+    void exportCompleted(void);
+
+protected:
+    QSharedPointer<ExportPlugin> m_plugin;
+    QList<DataSeriesPointer> m_series;
 };
 
 
