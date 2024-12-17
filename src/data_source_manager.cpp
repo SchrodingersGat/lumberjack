@@ -69,7 +69,6 @@ void DataExportWorker::runExport()
     }
 
     m_complete = true;
-
     emit exportCompleted();
 }
 
@@ -371,23 +370,25 @@ bool DataSourceManager::importData(QString filename)
     QApplication::processEvents();
 
     // Spawn a new thread for importing
-    auto *worker = new DataImportWorker(importer);
+    auto worker = DataImportWorker(importer);
     auto *thread = new QThread;
 
-    worker->moveToThread(thread);
+    worker.moveToThread(thread);
 
-    connect(thread, &QThread::started, worker, &DataImportWorker::runImport);
-    connect(thread, &QThread::finished, worker, &DataImportWorker::cancelImport);
-    connect(worker, &DataImportWorker::importCompleted, thread, &QThread::quit);
+    connect(&worker, &DataImportWorker::importCompleted, thread, &QThread::quit);
+    connect(thread, &QThread::started, &worker, &DataImportWorker::runImport);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 
     thread->start();
 
-    while (!thread->isFinished() && !worker->isComplete())
+    qDebug() << "Importing data from" << filename;
+
+    while (!thread->isFinished() && !worker.isComplete())
     {
         // Check for manual cancel of import process
         if (progress.wasCanceled())
         {
-            worker->cancelImport();
+            worker.cancelImport();
             thread->wait();
         }
 
@@ -400,13 +401,13 @@ bool DataSourceManager::importData(QString filename)
     progress.cancel();
     progress.close();
 
-    for (QString err : worker->getErrors())
+    for (QString err : worker.getErrors())
     {
         // TODO: Display these better?
         qWarning() << "Import err:" << err;
     }
 
-    if (worker->getResult())
+    if (worker.getResult())
     {
         // Create a new instance of the provided importer
         DataSource *source = new DataSource(
@@ -431,9 +432,6 @@ bool DataSourceManager::importData(QString filename)
 
         addSource(source);
     }
-
-    thread->deleteLater();
-    worker->deleteLater();
 
     return true;
 }
@@ -517,31 +515,28 @@ bool DataSourceManager::exportData(QList<DataSeriesPointer> &series, QString fil
     QApplication::processEvents();
 
     // Spawn a new thread for data export
-    auto *worker = new DataExportWorker(exporter, series);
-    auto *thread = new QThread;
+    auto worker = DataExportWorker(exporter, series);
+    auto *thread = new QThread();
 
-    worker->moveToThread(thread);
+    worker.moveToThread(thread);
 
-    connect(thread, &QThread::started, worker, &DataExportWorker::runExport);
-    connect(thread, &QThread::finished, worker, &DataExportWorker::cancelExport);
-    connect(worker, &DataExportWorker::exportCompleted, thread, &QThread::quit);
+    connect(&worker, &DataExportWorker::exportCompleted, thread, &QThread::quit);
+    connect(thread, &QThread::started, &worker, &DataExportWorker::runExport);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 
     thread->start();
 
-    qDebug() << "Exporting data to:" << filename;
+    qDebug() << "Exporting data to" << filename;
 
-    while (!thread->isFinished() && !worker->isComplete())
+    while (!thread->isFinished() && !worker.isComplete())
     {
         if (progress.wasCanceled())
         {
-            qDebug() << "export cancelled";
-            worker->cancelExport();
+            worker.cancelExport();
             thread->wait();
         }
 
         progress.setValue(exporter->getExportProgress());
-
-        qDebug() << "- progress -" << exporter->getExportProgress();
 
         QApplication::processEvents();
         QThread::msleep(100);
@@ -550,20 +545,13 @@ bool DataSourceManager::exportData(QList<DataSeriesPointer> &series, QString fil
     progress.cancel();
     progress.close();
 
-    qDebug() << "A";
-
-    for (QString err : worker->getErrors())
+    for (QString err : worker.getErrors())
     {
         // TODO: Display these better?
         qWarning() << "Export err:" << err;
     }
 
-    bool result = worker->getResult();
-
-    thread->deleteLater();
-    worker->deleteLater();
-
-    qDebug() << "B";
+    bool result = worker.getResult();
 
     return result;
 }

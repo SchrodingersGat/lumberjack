@@ -32,9 +32,6 @@ bool LumberjackCSVExporter::beforeExport(void)
  */
 bool LumberjackCSVExporter::exportData(QList<DataSeriesPointer> &series, QStringList &errors)
 {
-
-    qDebug() << "LumberjackCSVExporter:" << "exportData";
-
     if (m_filename.isEmpty())
     {
         errors.append(tr("Filename is empty"));
@@ -108,8 +105,6 @@ bool LumberjackCSVExporter::exportData(QList<DataSeriesPointer> &series, QString
     }
 
     outputFile.close();
-
-    qDebug() << "LumberjackCSVExporter:" << "export complete";
 
     return true;
 }
