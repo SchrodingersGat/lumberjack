@@ -26,5 +26,8 @@ release/
 unit_test/debug
 unit_test/release
 
+# Custom plugins directory - ignore
+custom/
+
 # Project files, workspaces, etc
 .vscode/
