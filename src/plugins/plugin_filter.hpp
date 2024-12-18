@@ -35,10 +35,10 @@ public:
     virtual bool setFilterInputs(QList<DataSeriesPointer> inputs, QStringList &errors);
 
     // Perform filtering operations on the provided set of inputs
-    virtual bool filterInputs(QStringList &errors) = 0;
+    virtual bool filterData(QStringList &errors) = 0;
 
     // Return the generated data series output(s)
-    virtual QList<DataSeriesPointer> getOutputs(void) = 0;
+    virtual QList<DataSeriesPointer> getFilterOutputs(void) = 0;
 
 protected:
     QList<DataSeriesPointer> m_inputs;
