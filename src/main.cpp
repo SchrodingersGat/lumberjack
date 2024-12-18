@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
     // Configure application properties
     a.setApplicationName("lumberjack");
     a.setApplicationDisplayName("lumberjack");
-    a.setApplicationVersion(LUMBERJACK_VERSION_STRING);
+    a.setApplicationVersion(getLumberjackVersion());
 
     QCoreApplication::setApplicationName("Lumberjack");
-    QCoreApplication::setApplicationVersion(LUMBERJACK_VERSION_STRING);
+    QCoreApplication::setApplicationVersion(getLumberjackVersion());
 
     // Command line parser
     QCommandLineParser parser;
@@ -53,10 +53,10 @@ int main(int argc, char *argv[])
     if (!parser.isSet(debugCmdOption))
     {
         // Install custom debug handler
-        // registerLumberjackDebugHandler();
+        registerLumberjackDebugHandler();
     }
 
-    qDebug() << "Lumberjack:" << LUMBERJACK_VERSION_STRING;
+    qDebug() << "Lumberjack:" << getLumberjackVersion();
 
     MainWindow w;
     w.show();

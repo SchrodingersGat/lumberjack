@@ -1,6 +1,6 @@
-# Build lumberjack application and plugins
+# Compile windows installer
 
-name: Build
+name: Windows Installer
 
 on:
   push:
@@ -9,38 +9,8 @@ on:
   release:
     types:
       - created
-  
 jobs:
-  linux:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: '6.8.1'
-        cache: true
-    - name: Build Qwt
-      run: |
-        cd qwt
-        qmake qwt.pro
-        make
-        sudo make install
-    - name: Build Lumberjack
-      run: |
-        qmake lumberjack.pro
-        make
-    - name: Build Plugins
-      run: |
-        cd plugins
-        qmake plugins.pro
-        make
-
-  windows:
+  installer:
     runs-on: windows-latest
 
     steps:
@@ -67,10 +37,14 @@ jobs:
         mingw32-make install
     - name: Build Lumberjack
       run: |
-        qmake lumberjack.pro
+        qmake lumberjack.pro CONFIG+=release
         mingw32-make
     - name: Build Plugins
       run: |
         cd plugins
-        qmake plugins.pro
+        qmake plugins.pro CONFIG+=release
         mingw32-make
+    - name: Build Installer
+      uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+      with:
+        path: lumberjack.iss

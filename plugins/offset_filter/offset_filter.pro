@@ -33,7 +33,7 @@ CONFIG(debug, debug|release) {
 
 } else {
     CONFIG += release
-    DESTDIR = build/release
+    DESTDIR = ../build/release
 }
 
 RCC_DIR = $$DESDIR
