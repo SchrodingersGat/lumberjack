@@ -4,7 +4,6 @@
 #include <math.h>
 
 #include <QDialog>
-#include <QProgressDialog>
 
 #include "lumberjack_csv_importer.hpp"
 #include "import_options_dialog.hpp"
@@ -61,57 +60,41 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
     incrementingTimestamp = 0;
     initialTimestampSeen = false;
 
-    QFile f(m_filename);
     QFileInfo fi(m_filename);
 
-    qint64 fileSize = fi.size();
-
-    // Open the file
-    if (!f.exists() || !f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable())
+    if (!fi.exists() || !fi.isFile())
     {
-        errors.append(tr("Could not open file for reading"));
-        f.close();
+        errors.append(tr("File does not exist"));
         return false;
     }
 
-    QElapsedTimer elapsed;
-    QProgressDialog progress;
+    m_bytesRead = 0;
+    m_fileSize = fi.size();
 
-    progress.setWindowTitle(tr("Reading file"));
-    progress.setLabelText(tr("Reading data - ") + m_filename);
+    m_file = new QFile(m_filename);
 
-    progress.setMinimum(0);
-    progress.setMaximum(fileSize);
-    progress.setValue(0);
-
-    elapsed.restart();
-
-    progress.show();
+    if (!m_file->open(QIODevice::ReadOnly) || !m_file->isOpen() || !m_file->isReadable())
+    {
+        errors.append(tr("Could not open file for reading"));
+        m_file->close();
+        return false;
+    }
 
     QString delimiter = m_options.getDelimiterString();
 
-    qint64 byteCount = 0;
     qint64 lineCount = 0;
     qint64 badLineCount = 0;
 
     // Ensure we are at the start of the file
-    f.seek(0);
+    m_file->seek(0);
 
     QStringList row;
 
-    while (!f.atEnd() && !progress.wasCanceled())
+    m_isImporting = true;
+
+    while (!m_file->atEnd() && m_isImporting && m_file != nullptr)
     {
-        // Update progress bar periodically
-        if (elapsed.elapsed() > 250)
-        {
-            progress.setValue(byteCount);
-
-            QApplication::processEvents();
-
-            elapsed.restart();
-        }
-
-        QByteArray bytes = f.readLine();
+        QByteArray bytes = m_file->readLine();
 
         QString line(bytes);
 
@@ -129,27 +112,19 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
             badLineCount++;
         }
 
-        byteCount += line.length();
+        m_bytesRead += line.length();
 
         lineCount++;
     }
 
     // Ensure file object is closed
-    f.close();
+    m_file->close();
+
+    m_isImporting = false;
 
     if (badLineCount > 0)
     {
         errors.append(QString("Lines with errors: " + QString::number(badLineCount)));
-    }
-
-    if (progress.wasCanceled())
-    {
-        errors.append(tr("File import was cancelled"));
-        return false;
-    }
-    else
-    {
-        progress.close();
     }
 
     return true;
@@ -225,8 +200,6 @@ bool LumberjackCSVImporter::extractHeaders(int rowIndex, const QStringList &row,
         // Check that we don't have a duplicate header already
         if (!columnMap.contains(header))
         {
-            qDebug() << "CSV: New data series:" << header;
-
             columnMap.insert(
                 header,
                 QSharedPointer<DataSeries>(new DataSeries(header))
@@ -444,6 +417,38 @@ bool LumberjackCSVImporter::extractTimestamp(int rowIndex, const QStringList &ro
     return result;
 }
 
+
+void LumberjackCSVImporter::afterImport(void)
+{
+    if (m_file)
+    {
+        if (m_file->isOpen())
+        {
+            m_file->close();
+        }
+
+        delete m_file;
+        m_file = nullptr;
+    }
+}
+
+
+void LumberjackCSVImporter::cancelImport(void)
+{
+    m_isImporting = false;
+}
+
+
+uint8_t LumberjackCSVImporter::getImportProgress(void) const
+{
+    if (!m_isImporting) return 0;
+
+    if (m_bytesRead == 0 || m_fileSize == 0) return 0;
+
+    float progress = (float) m_bytesRead / (float) m_fileSize;
+
+    return (uint8_t) (progress * 100);
+}
 
 
 /**

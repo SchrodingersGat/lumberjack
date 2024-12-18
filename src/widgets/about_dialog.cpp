@@ -10,9 +10,9 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
     setWindowModality(Qt::ApplicationModal);
 
-    setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
+    setWindowTitle("Lumberjack v" + getLumberjackVersion());
 
-    ui.softwareVersion->setText(LUMBERJACK_VERSION_STRING);
+    ui.softwareVersion->setText(getLumberjackVersion());
     ui.buildDate->setText(__DATE__);
 
     QString compileInfo = QString(COMPILER);

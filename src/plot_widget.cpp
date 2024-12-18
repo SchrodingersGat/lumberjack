@@ -1,5 +1,7 @@
 #include <QApplication>
 #include <QMimeData>
+#include <QDockWidget>
+#include <QInputDialog>
 #include <qcolordialog.h>
 #include <qmenu.h>
 #include <qaction.h>
@@ -397,6 +399,7 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     syncAction->setChecked(isTimescaleSynced());
 
     QAction *bgColor = plotMenu->addAction(tr("Set Color"));
+    QAction *plotTitle = plotMenu->addAction(tr("Set Title"));
 
     menu.addMenu(plotMenu);
 
@@ -476,6 +479,10 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     {
         selectBackgroundColor();
     }
+    else if (action == plotTitle)
+    {
+        setPlotTitle();
+    }
 }
 
 
@@ -541,6 +548,37 @@ void PlotWidget::selectBackgroundColor()
 
     // Save the background color as 'default'
     settings->saveSetting("graph", "defaultBackgroundColor", c.name());
+}
+
+
+void PlotWidget::setPlotTitle(QString title)
+{
+    bool ok = true;
+
+    QDockWidget *dock = qobject_cast<QDockWidget*>(parent());
+
+    QString currentTitle = !!dock ? dock->windowTitle() : windowTitle();
+
+    if (title.isEmpty())
+    {
+        title = QInputDialog::getText(
+            this,
+            tr("Set Title"),
+            tr("Set plot tile"),
+            QLineEdit::Normal,
+            windowTitle()
+        );
+    }
+
+    if (ok && !title.isEmpty())
+    {
+        setWindowTitle(title);
+
+        if (dock)
+        {
+            dock->setWindowTitle(title);
+        }
+    }
 }
 
 

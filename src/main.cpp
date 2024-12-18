@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
     // Configure application properties
     a.setApplicationName("lumberjack");
     a.setApplicationDisplayName("lumberjack");
-    a.setApplicationVersion(LUMBERJACK_VERSION_STRING);
+    a.setApplicationVersion(getLumberjackVersion());
 
     QCoreApplication::setApplicationName("Lumberjack");
-    QCoreApplication::setApplicationVersion(LUMBERJACK_VERSION_STRING);
+    QCoreApplication::setApplicationVersion(getLumberjackVersion());
 
     // Command line parser
     QCommandLineParser parser;
@@ -53,25 +53,23 @@ int main(int argc, char *argv[])
     if (!parser.isSet(debugCmdOption))
     {
         // Install custom debug handler
-        // registerLumberjackDebugHandler();
+        registerLumberjackDebugHandler();
     }
 
-    qDebug() << "Starting lumberjack application:" << LUMBERJACK_VERSION_STRING;
+    qDebug() << "Lumberjack:" << getLumberjackVersion();
 
     MainWindow w;
     w.show();
-
-    // Load dummy data if required
-    if (parser.isSet(dummyDataOption))
-    {
-        qDebug() << "Loading dummy data";
-        w.loadDummyData();
-    }
 
     // Import data from specified files
     for (auto file : parser.values(loadFilesOption))
     {
         w.loadDataFromFile(file);
+    }
+
+    if (parser.isSet(dummyDataOption))
+    {
+        w.loadDummyData();
     }
 
     return a.exec();

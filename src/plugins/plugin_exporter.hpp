@@ -27,6 +27,15 @@ public:
     // Export data to the provided filename
     virtual bool exportData(QList<DataSeriesPointer> &series, QStringList &errors) = 0;
 
+    // Optional function called after data export
+    virtual void afterExport(void) {}
+
+    // Cancel import process - plugin is expected to perform cleanup
+    virtual void cancelExport(void) = 0;
+
+    // Return the progress of the data export process (as a percentage {0:100})
+    virtual uint8_t getExportProgress(void) const = 0;
+
     virtual QString pluginIID(void) const override
     {
         return QString(ExporterInterface_iid);

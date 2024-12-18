@@ -32,7 +32,7 @@ bool LumberjackCSVExporter::beforeExport(void)
  */
 bool LumberjackCSVExporter::exportData(QList<DataSeriesPointer> &series, QStringList &errors)
 {
-   if (m_filename.isEmpty())
+    if (m_filename.isEmpty())
     {
         errors.append(tr("Filename is empty"));
         return false;
@@ -71,9 +71,30 @@ bool LumberjackCSVExporter::exportData(QList<DataSeriesPointer> &series, QString
         outputFile.write(rowToString(row));
     }
 
+    // Extract min/max timestamps (for progress bar)
+    double tMin = LONG_MAX;
+    double tMax = -LONG_MAX;
+
+    for (auto s : series)
+    {
+        if (s.isNull()) continue;
+        if (s->size() == 0) continue;
+
+        DataPoint p1 = s->getDataPoint(0);
+        DataPoint p2 = s->getDataPoint(s->size() - 1);
+
+        if (p1.timestamp < tMin) tMin = p1.timestamp;
+        if (p2.timestamp > tMax) tMax = p2.timestamp;
+    }
+
+    m_minTimestamp = tMin;
+    m_maxTimestamp = tMax;
+
     bool valid = true;
 
-    while (valid)
+    m_isExporting = true;
+
+    while (valid && m_isExporting)
     {
         row = nextDataRow(valid);
 
@@ -176,6 +197,8 @@ QStringList LumberjackCSVExporter::nextDataRow(bool &valid)
         }
     }
 
+    m_currentTimestamp = nextTimestamp;
+
     // No more data available
     if (!dataAvailable)
     {
@@ -212,4 +235,25 @@ QStringList LumberjackCSVExporter::nextDataRow(bool &valid)
 
     valid = true;
     return values;
+}
+
+
+void LumberjackCSVExporter::cancelExport()
+{
+    m_isExporting = false;
+}
+
+
+uint8_t LumberjackCSVExporter::getExportProgress(void) const
+{
+    double dt = m_maxTimestamp - m_minTimestamp;
+
+    if (dt == 0) return 0;
+
+    double progress = (m_currentTimestamp - m_minTimestamp) / dt;
+
+    if (progress < 0) progress = 0;
+    if (progress > 1) progress = 1;
+
+    return (uint8_t) (progress * 100);
 }

@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
+    setWindowTitle("Lumberjack v" + getLumberjackVersion());
 
     initMenus();
     initDocks();
@@ -77,13 +77,11 @@ void MainWindow::loadDummyData()
      * TODO: Reimplement this as a plugin
      */
 
-    /*
-
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
 
-    manager->addSource(new DataSource("Source A"));
-    manager->addSource(new DataSource("Source B"));
+    manager->addSource(new DataSource("Dummy", "Source A"));
+    manager->addSource(new DataSource("Dummy", "Source B"));
 
     auto src = manager->getSourceByLabel("Source B");
 
@@ -145,7 +143,6 @@ void MainWindow::loadDummyData()
     src->addSeries(series_5);
     src->addSeries(series_6);
     src->addSeries(series_7);
-    */
 }
 
 
@@ -444,7 +441,10 @@ void MainWindow::addPlot()
 
     PlotWidget *plot = new PlotWidget();
 
-    QDockWidget *dock = new QDockWidget(tr("Plot") + QString(" ") + QString::number(plotIndex), this);
+    QString title = tr("Plot") + QString(" ") + QString::number(plotIndex);
+
+    QDockWidget *dock = new QDockWidget(title, this);
+    dock->setWindowTitle(title);
     dock->setObjectName("plot-" + QString::number(plotIndex));
     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
     plot->setParent(dock);
