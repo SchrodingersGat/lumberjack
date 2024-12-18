@@ -13,12 +13,14 @@ INCLUDEPATH += \
     ../../src/plugins
 
 HEADERS += \
+    ../../src/data_series.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_filter.hpp \
     offset_scaler_filter_global.h \
     offset_scaler_filter.hpp \
 
 SOURCES += \
+    ../../src/data_series.cpp \
     ../../src/plugins/plugin_filter.cpp \
     offset_scaler_filter.cpp
 

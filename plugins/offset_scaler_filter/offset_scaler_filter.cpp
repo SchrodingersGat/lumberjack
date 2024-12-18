@@ -23,28 +23,63 @@ void OffsetScalerFilter::cancelProcessing()
 
 uint8_t OffsetScalerFilter::getProgress() const
 {
-    // TODO
-    return 0;
+    if (m_input.isNull() || m_output.isNull()) return 0;
+    if (m_input->size() == 0) return 0;
+
+    float progress = (float) m_output->size() / (float) m_input->size();
+
+    return (uint8_t) (progress * 100);
 }
 
 
 bool OffsetScalerFilter::setFilterInputs(QList<DataSeriesPointer> inputs, QStringList &errors)
 {
-    bool result = FilterPlugin::setFilterInputs(inputs, errors);
+    if (!FilterPlugin::setFilterInputs(inputs, errors))
+    {
+        return false;
+    }
 
-    // TODO: Custom checks here?
-    return result;
+    m_input = inputs.first();
+
+    if (m_input.isNull())
+    {
+        errors.append(tr("Null data series provided"));
+        return false;
+    }
+
+    return true;
 }
 
 
 bool OffsetScalerFilter::filterData(QStringList &errors)
 {
-    // TODO - Filter the data!
+    QString label = m_input->getLabel() + " - Scale + Offset";
+    m_output = DataSeriesPointer(new DataSeries(label));
+
+    uint64_t idx = 0;
+
+    m_processing = true;
+
+    while (m_processing && idx < m_input->size())
+    {
+        DataPoint point = m_input->getDataPoint(idx);
+
+        point.value *= m_scaler;
+        point.value += m_offset;
+
+        m_output->addData(point);
+    }
+
+    m_processing = false;
     return true;
+
 }
 
 
 QList<DataSeriesPointer> OffsetScalerFilter::getFilterOutputs(void)
 {
-    return m_outputs;
+    QList<DataSeriesPointer> outputs;
+
+    outputs.append(m_output);
+    return outputs;
 }

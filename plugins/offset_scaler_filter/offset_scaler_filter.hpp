@@ -39,10 +39,13 @@ protected:
     const QString m_description = "Apply custom offset and scaler to a dataset";
     const QString m_version = "0.1.0";
 
+    double m_scaler = 1.0;
+    double m_offset = 0.0;
+
     bool m_processing = false;
 
-    QList<DataSeriesPointer> m_outputs;
-
+    DataSeriesPointer m_input;
+    DataSeriesPointer m_output;
 };
 
 #endif // LUMBERJACK_CSV_IMPORTER_HPP
