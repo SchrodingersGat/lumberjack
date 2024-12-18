@@ -170,12 +170,12 @@ COPIES += dllFiles
 CONFIG(debug, debug | release) {
     win32 {
         # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
     }
 } else {
     win32 {
         # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
     }
 }
 
