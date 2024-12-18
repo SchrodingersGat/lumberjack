@@ -13,7 +13,7 @@
 /**
  * @brief The ImportPlugin class defines an interface for importing data
  */
-class ImportPlugin : public PluginBase
+class ImportPlugin : public DataProcessingPlugin
 {
     Q_OBJECT
 public:
@@ -26,22 +26,6 @@ public:
     // Note: The default implementation performs basic functionality,
     //       but this can be extended by the plugin
     virtual bool validateFile(QString filename, QStringList &errors) const;
-
-    // Optional function called before data import
-    // Return False to cancel the data import process
-    virtual bool beforeImport() { return true; }
-
-    // Load data from the provided filename
-    virtual bool importData(QStringList &errors) = 0;
-
-    // Optional function called after data import
-    virtual void afterImport(void) {}
-
-    // Cancel import process - plugin is expected to perform cleanup
-    virtual void cancelImport(void) = 0;
-
-    // Return the progress of the data import process (as a percentage {0:100})
-    virtual uint8_t getImportProgress(void) const = 0;
 
     // After import, plugin must return a list of DataSeries objects
     virtual QList<DataSeriesPointer> getDataSeries(void) const = 0;

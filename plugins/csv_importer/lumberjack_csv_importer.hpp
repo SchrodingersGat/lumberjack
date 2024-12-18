@@ -25,12 +25,13 @@ public:
     // Importer plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
 
-    virtual bool beforeImport(void) override;
-    virtual bool importData(QStringList &errors) override;
-    virtual void afterImport(void) override;
-    virtual void cancelImport(void) override;
+    virtual bool processData(void) override;
 
-    virtual uint8_t getImportProgress(void) const override;
+    virtual bool beforeProcessStep(void) override;
+    virtual void afterProcessStep(void) override;
+    virtual void cancelProcessing(void) override;
+
+    virtual uint8_t getProgress(void) const override;
 
     virtual QList<QSharedPointer<DataSeries>> getDataSeries(void) const override;
 
@@ -46,9 +47,9 @@ protected:
     QStringList m_headers;
 
     //! Internal functions for processing data
-    bool processRow(int rowIndex, const QStringList &row, QStringList &errors);
-    bool extractHeaders(int rowIndex, const QStringList &row, QStringList &errors);
-    bool extractData(int rowIndex, const QStringList &row, QStringList &errors);
+    bool processRow(int rowIndex, const QStringList &row);
+    bool extractHeaders(int rowIndex, const QStringList &row);
+    bool extractData(int rowIndex, const QStringList &row);
     bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
 
     // Keep track of data columns while loading

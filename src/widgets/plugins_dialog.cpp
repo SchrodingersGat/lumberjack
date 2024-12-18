@@ -8,6 +8,8 @@ PluginsDialog::PluginsDialog(QWidget *parent) : QDialog(parent)
 
     initPluginsTable();
 
+    ui.iid->clear();
+
     // Add in each type of plugin interface
     ui.plugin_select->addItem(tr("Data Import"));
     ui.plugin_select->addItem(tr("Data Export"));
@@ -17,7 +19,15 @@ PluginsDialog::PluginsDialog(QWidget *parent) : QDialog(parent)
     connect(ui.closeButton, &QPushButton::released, this, &PluginsDialog::close);
 
     // Display plugin locations
-    QStringList paths = QCoreApplication::libraryPaths();
+    QStringList paths;
+
+    for (QString path : QCoreApplication::libraryPaths())
+    {
+        if (!paths.contains(path))
+        {
+            paths.append(path);
+        }
+    }
 
     ui.library_paths->setText(
         tr("Library Paths") + ":\n- " + paths.join("\n- ")
@@ -72,30 +82,45 @@ void PluginsDialog::selectPluginType(int idx)
 
     PluginList plugins;
 
+    QString iid;
+
     switch (idx)
     {
     case 1:  // Importer plugins
+        iid = QString(ImporterInterface_iid);
         for (auto plugin : registry->ImportPlugins())
         {
             plugins.append(plugin);
         }
         break;
     case 2:  // Exporter plugins
+        iid = QString(ExporterInterface_iid);
         for (auto plugin : registry->ExportPlugins())
         {
             plugins.append(plugin);
         }
         break;
     case 3: // Filter plugins
+        iid = QString(FilterInterface_iid);
         for (auto plugin : registry->FilterPlugins())
         {
             plugins.append(plugin);
         }
         break;
     default:
+        iid = QString();
         break;
     }
 
     loadPluginsTable(plugins);
+
+    if (iid.isEmpty())
+    {
+        ui.iid->clear();
+    }
+    else
+    {
+        ui.iid->setText(tr("Plugin Version") + ": " + iid);
+    }
 }
 
