@@ -67,5 +67,10 @@ int main(int argc, char *argv[])
         w.loadDataFromFile(file);
     }
 
+    if (parser.isSet(dummyDataOption))
+    {
+        w.loadDummyData();
+    }
+
     return a.exec();
 }

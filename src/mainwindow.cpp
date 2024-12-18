@@ -77,13 +77,11 @@ void MainWindow::loadDummyData()
      * TODO: Reimplement this as a plugin
      */
 
-    /*
-
     // Construct some sources
     auto *manager = DataSourceManager::getInstance();
 
-    manager->addSource(new DataSource("Source A"));
-    manager->addSource(new DataSource("Source B"));
+    manager->addSource(new DataSource("Dummy", "Source A"));
+    manager->addSource(new DataSource("Dummy", "Source B"));
 
     auto src = manager->getSourceByLabel("Source B");
 
@@ -145,7 +143,6 @@ void MainWindow::loadDummyData()
     src->addSeries(series_5);
     src->addSeries(series_6);
     src->addSeries(series_7);
-    */
 }
 
 
