@@ -39,7 +39,7 @@ void DataImportWorker::cancelImport()
 {
     if (m_plugin)
     {
-        m_plugin->cancelImport();
+        m_plugin->cancelProcessing();
         m_result = false;
     }
 
@@ -77,7 +77,7 @@ void DataExportWorker::cancelExport()
 {
     if (m_plugin)
     {
-        m_plugin->cancelExport();
+        m_plugin->cancelProcessing();
         m_result = false;
     }
 
@@ -351,7 +351,7 @@ bool DataSourceManager::importData(QString filename)
 
     importer->setFilename(filename);
 
-    if (!importer->beforeImport())
+    if (!importer->beforeProcessStep())
     {
         // TODO: error message?
         return false;
@@ -392,7 +392,7 @@ bool DataSourceManager::importData(QString filename)
             thread->wait();
         }
 
-        progress.setValue(importer->getImportProgress());
+        progress.setValue(importer->getProgress());
 
         QApplication::processEvents();
         QThread::msleep(100);
@@ -496,7 +496,7 @@ bool DataSourceManager::exportData(QList<DataSeriesPointer> &series, QString fil
 
     exporter->setFilename(filename);
 
-    if (!exporter->beforeExport())
+    if (!exporter->beforeProcessStep())
     {
         // TODO: error mesage?
         return false;
@@ -536,7 +536,7 @@ bool DataSourceManager::exportData(QList<DataSeriesPointer> &series, QString fil
             thread->wait();
         }
 
-        progress.setValue(exporter->getExportProgress());
+        progress.setValue(exporter->getProgress());
 
         QApplication::processEvents();
         QThread::msleep(100);

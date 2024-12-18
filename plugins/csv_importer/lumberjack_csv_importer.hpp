@@ -25,12 +25,13 @@ public:
     // Importer plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
 
-    virtual bool beforeImport(void) override;
     virtual bool importData(QStringList &errors) override;
-    virtual void afterImport(void) override;
-    virtual void cancelImport(void) override;
 
-    virtual uint8_t getImportProgress(void) const override;
+    virtual bool beforeProcessStep(void) override;
+    virtual void afterProcessStep(void) override;
+    virtual void cancelProcessing(void) override;
+
+    virtual uint8_t getProgress(void) const override;
 
     virtual QList<QSharedPointer<DataSeries>> getDataSeries(void) const override;
 

@@ -11,30 +11,17 @@
 /**
  * @brief The ExportPlugin class defines an interface for exporting data
  */
-class ExportPlugin : public PluginBase
+class ExportPlugin : public DataProcessingPlugin
 {
     Q_OBJECT
 public:
     virtual ~ExportPlugin() = default;
 
     // Return a list of the support file types e.g. ['csv', 'tsv']
-    virtual QStringList supportedFileTypes(void) const = 0;
-
-    // Optional function called before data export
-    // Return False to cancel the data export process
-    virtual bool beforeExport(void) { return true; }
+    virtual QStringList supportedFileTypes(void) const = 0;  
 
     // Export data to the provided filename
     virtual bool exportData(QList<DataSeriesPointer> &series, QStringList &errors) = 0;
-
-    // Optional function called after data export
-    virtual void afterExport(void) {}
-
-    // Cancel import process - plugin is expected to perform cleanup
-    virtual void cancelExport(void) = 0;
-
-    // Return the progress of the data export process (as a percentage {0:100})
-    virtual uint8_t getExportProgress(void) const = 0;
 
     virtual QString pluginIID(void) const override
     {

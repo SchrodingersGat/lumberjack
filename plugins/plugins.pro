@@ -5,6 +5,6 @@ TEMPLATE = subdirs
 SUBDIRS += \
     csv_importer \
     csv_exporter \
-    offset_filter \
-    scaler_filter \
+    #offset_filter \
+    #scaler_filter \
 

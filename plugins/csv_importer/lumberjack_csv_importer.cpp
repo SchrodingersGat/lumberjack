@@ -31,7 +31,7 @@ QStringList LumberjackCSVImporter::supportedFileTypes() const
  * @brief LumberjackCSVImporter::beforeLoadData - Open configuration dialog
  * @return
  */
-bool LumberjackCSVImporter::beforeImport(void)
+bool LumberjackCSVImporter::beforeProcessStep(void)
 {
     CSVImportOptionsDialog dlg(m_filename);
 
@@ -418,7 +418,7 @@ bool LumberjackCSVImporter::extractTimestamp(int rowIndex, const QStringList &ro
 }
 
 
-void LumberjackCSVImporter::afterImport(void)
+void LumberjackCSVImporter::afterProcessStep(void)
 {
     if (m_file)
     {
@@ -433,13 +433,13 @@ void LumberjackCSVImporter::afterImport(void)
 }
 
 
-void LumberjackCSVImporter::cancelImport(void)
+void LumberjackCSVImporter::cancelProcessing(void)
 {
     m_isImporting = false;
 }
 
 
-uint8_t LumberjackCSVImporter::getImportProgress(void) const
+uint8_t LumberjackCSVImporter::getProgress(void) const
 {
     if (!m_isImporting) return 0;
 

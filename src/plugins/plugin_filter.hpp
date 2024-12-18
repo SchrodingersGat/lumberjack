@@ -13,7 +13,7 @@
 /**
  * @brief The FilterPlugin class defines an interface for applying custom data filters
  */
-class FilterPlugin : public PluginBase
+class FilterPlugin : public DataProcessingPlugin
 {
     Q_OBJECT
 public:
@@ -37,8 +37,8 @@ public:
     // Perform filtering operations on the provided set of inputs
     virtual bool filterInputs(QStringList &errors) = 0;
 
-    // Return the generated data series
-    virtual DataSeriesPointer getOutput(void) = 0;
+    // Return the generated data series output(s)
+    virtual QList<DataSeriesPointer> getOutputs(void) = 0;
 
 protected:
     QList<DataSeriesPointer> m_inputs;

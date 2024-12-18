@@ -20,7 +20,7 @@ QStringList LumberjackCSVExporter::supportedFileTypes() const
 }
 
 
-bool LumberjackCSVExporter::beforeExport(void)
+bool LumberjackCSVExporter::beforeProcessStep(void)
 {
     // TODO: Set export options
     return true;
@@ -238,13 +238,13 @@ QStringList LumberjackCSVExporter::nextDataRow(bool &valid)
 }
 
 
-void LumberjackCSVExporter::cancelExport()
+void LumberjackCSVExporter::cancelProcessing()
 {
     m_isExporting = false;
 }
 
 
-uint8_t LumberjackCSVExporter::getExportProgress(void) const
+uint8_t LumberjackCSVExporter::getProgress(void) const
 {
     double dt = m_maxTimestamp - m_minTimestamp;
 
