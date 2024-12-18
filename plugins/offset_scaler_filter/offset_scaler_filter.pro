@@ -13,13 +13,14 @@ INCLUDEPATH += \
     ../../src/plugins
 
 HEADERS += \
-    scaler_filter_global.h \
-    scaler_filter.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_filter.hpp \
+    offset_scaler_filter_global.h \
+    offset_scaler_filter.hpp \
 
 SOURCES += \
-    scaler_filter.cpp
+    ../../src/plugins/plugin_filter.cpp \
+    offset_scaler_filter.cpp
 
 # Default rules for deployment.
 unix {
@@ -30,7 +31,6 @@ unix {
 CONFIG(debug, debug|release) {
     CONFIG += debug
     DESTDIR = build/debug
-
 } else {
     CONFIG += release
     DESTDIR = ../build/release
@@ -46,4 +46,4 @@ UI_DIR = build/ui
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    scaler_filter.json
+    offset_scaler_filter.json
