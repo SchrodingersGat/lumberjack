@@ -51,6 +51,9 @@ Source: "{#BuildDir}\lumberjack.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; DLL files
 Source: "{#BuildDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 
+; Plugins
+Source: "plugins\build\release\*.dll"; DestDir: "{app}\plugins"; Flags: ignoreversion
+
 ; Qt directories
 Source: "{#BuildDir}\generic\*"; DestDir: "{app}\generic"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BuildDir}\iconengines\*"; DestDir: "{app}\iconengines"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -66,7 +69,7 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-; Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
 //   The following code is to optionally allow multiple versions to be
