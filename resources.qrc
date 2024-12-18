@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>logo/lumberjack.svg</file>
+        <file>resource/version.ini</file>
     </qresource>
 </RCC>

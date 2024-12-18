@@ -40,6 +40,7 @@ SOURCES += \
     src/data_source.cpp \
     src/lumberjack_debug.cpp \
     src/lumberjack_settings.cpp \
+    src/lumberjack_version.cpp \
     src/plot_curve.cpp \
     src/plot_legend.cpp \
     src/plot_widget.cpp \

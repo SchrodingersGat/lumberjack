@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setWindowTitle("Lumberjack v" + LUMBERJACK_VERSION_STRING);
+    setWindowTitle("Lumberjack v" + getLumberjackVersion());
 
     initMenus();
     initDocks();
