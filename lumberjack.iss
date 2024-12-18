@@ -111,9 +111,9 @@ begin
   Result := True;
      
   AppId := '{#MyBaseAppId}';
-  DefaultDirName := ExpandConstant('{autopf}\Currawong\{#MyAppName}');
+  DefaultDirName := ExpandConstant('{autopf}\Lumberjack\{#MyAppName}');
 
-  // Look in the registry to see if CEquip is already installed      
+  // Look in the registry to see if program is already installed      
   if RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#MyBaseAppId}_is1', 'DisplayVersion', PrevVersion) or
      RegQueryStringValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyBaseAppId}_is1', 'DisplayVersion', PrevVersion) or
      RegQueryStringValue(HKLM, 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#MyBaseAppId}_is1', 'DisplayVersion', PrevVersion) or
