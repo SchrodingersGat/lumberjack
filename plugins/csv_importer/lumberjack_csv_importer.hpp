@@ -25,7 +25,7 @@ public:
     // Importer plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
 
-    virtual bool importData(QStringList &errors) override;
+    virtual bool processData(void) override;
 
     virtual bool beforeProcessStep(void) override;
     virtual void afterProcessStep(void) override;
@@ -47,9 +47,9 @@ protected:
     QStringList m_headers;
 
     //! Internal functions for processing data
-    bool processRow(int rowIndex, const QStringList &row, QStringList &errors);
-    bool extractHeaders(int rowIndex, const QStringList &row, QStringList &errors);
-    bool extractData(int rowIndex, const QStringList &row, QStringList &errors);
+    bool processRow(int rowIndex, const QStringList &row);
+    bool extractHeaders(int rowIndex, const QStringList &row);
+    bool extractData(int rowIndex, const QStringList &row);
     bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
 
     // Keep track of data columns while loading

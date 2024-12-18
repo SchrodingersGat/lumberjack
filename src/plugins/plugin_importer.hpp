@@ -27,9 +27,6 @@ public:
     //       but this can be extended by the plugin
     virtual bool validateFile(QString filename, QStringList &errors) const;
 
-    // Load data from the provided filename
-    virtual bool importData(QStringList &errors) = 0;
-
     // After import, plugin must return a list of DataSeries objects
     virtual QList<DataSeriesPointer> getDataSeries(void) const = 0;
 

@@ -31,7 +31,7 @@ public:
     virtual unsigned int getMinInputCount(void) const override { return 1; }
     virtual unsigned int getMaxInputCount(void) const override { return 1; }
     virtual bool setFilterInputs(QList<DataSeriesPointer> inputs, QStringList &errors) override;
-    virtual bool filterData(QStringList &errors) override;
+    virtual bool processData(void) override;
     virtual QList<DataSeriesPointer> getFilterOutputs(void) override;
 
 protected:

@@ -18,10 +18,7 @@ public:
     virtual ~ExportPlugin() = default;
 
     // Return a list of the support file types e.g. ['csv', 'tsv']
-    virtual QStringList supportedFileTypes(void) const = 0;  
-
-    // Export data to the provided filename
-    virtual bool exportData(QList<DataSeriesPointer> &series, QStringList &errors) = 0;
+    virtual QStringList supportedFileTypes(void) const = 0;
 
     virtual QString pluginIID(void) const override
     {
@@ -32,12 +29,15 @@ public:
 
     bool supportsFileType(QString fileType) const;
 
-    void setFilename(QString filename) { m_filename = filename; }
+    virtual void setFilename(QString filename) { m_filename = filename; }
+    virtual void setDataSeries(QList<DataSeriesPointer> seriesList) { m_series = seriesList; }
     QString getFilename(void) const { return m_filename; }
 
 protected:
     // Stored filename, destination of exported data
     QString m_filename;
+
+    QList<DataSeriesPointer> m_series;
 };
 
 typedef QList<QSharedPointer<ExportPlugin>> ExportPluginList;

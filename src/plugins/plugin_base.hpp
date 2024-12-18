@@ -41,6 +41,9 @@ public:
     // Return False to cancel the process before it begins
     virtual bool beforeProcessStep(void) { return true; }
 
+    // Run the actual data processing
+    virtual bool processData(void) = 0;
+
     // Optional function which is called after running the data processing step
     virtual void afterProcessStep(void) {}
 

@@ -21,7 +21,7 @@ public:
     // Exporter plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
 
-    virtual bool exportData(QList<DataSeriesPointer> &series, QStringList &errors) override;
+    virtual bool processData(void) override;
 
     virtual bool beforeProcessStep(void) override;
     virtual void cancelProcessing(void) override;

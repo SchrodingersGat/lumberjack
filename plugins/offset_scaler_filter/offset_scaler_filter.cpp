@@ -59,7 +59,7 @@ bool OffsetScalerFilter::setFilterInputs(QList<DataSeriesPointer> inputs, QStrin
 }
 
 
-bool OffsetScalerFilter::filterData(QStringList &errors)
+bool OffsetScalerFilter::processData()
 {
     QString label = m_input->getLabel() + " - Scale + Offset";
     m_output = DataSeriesPointer(new DataSeries(label));
@@ -67,6 +67,8 @@ bool OffsetScalerFilter::filterData(QStringList &errors)
     uint64_t idx = 0;
 
     m_processing = true;
+
+    qDebug() << "filtering data";
 
     while (m_processing && idx < m_input->size())
     {
@@ -76,7 +78,11 @@ bool OffsetScalerFilter::filterData(QStringList &errors)
         point.value += m_offset;
 
         m_output->addData(point);
+
+        idx++;
     }
+
+    qDebug() << "Done:" << m_input->size() << m_output->size();
 
     m_processing = false;
     return true;

@@ -34,9 +34,6 @@ public:
     // Set the filter inputs
     virtual bool setFilterInputs(QList<DataSeriesPointer> inputs, QStringList &errors);
 
-    // Perform filtering operations on the provided set of inputs
-    virtual bool filterData(QStringList &errors) = 0;
-
     // Return the generated data series output(s)
     virtual QList<DataSeriesPointer> getFilterOutputs(void) = 0;
 
