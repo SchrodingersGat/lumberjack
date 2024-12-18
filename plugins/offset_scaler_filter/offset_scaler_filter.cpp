@@ -1,9 +1,17 @@
+#include <qrandom.h>
+
+
 #include "offset_scaler_filter.hpp"
 
 
 bool OffsetScalerFilter::beforeProcessStep()
 {
-    // TODO - set filter options
+    // TODO - set filter options manually
+    auto gen = QRandomGenerator();
+
+    m_scaler = (double) gen.bounded(-10, 10) / 10;
+    m_offset = (double) gen.bounded(-100, 100) / 10;
+
     return true;
 }
 
