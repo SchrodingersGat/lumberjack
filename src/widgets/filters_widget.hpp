@@ -20,8 +20,8 @@ public:
 
 public slots:
     void addSeries(DataSeriesPointer series);
+    void loadPlugins(void);
 
-    void refresh(void);
     void clearItems(void);
     void applyFilter(void);
 
@@ -36,6 +36,8 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *event) override;
     virtual void dragMoveEvent(QDragMoveEvent *event) override;
     virtual void dropEvent(QDropEvent *event) override;
+
+    void refresh(void);
 };
 
 #endif // FILTERS_WIDGET_H

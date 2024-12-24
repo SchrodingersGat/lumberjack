@@ -58,7 +58,7 @@ PlotWidget::PlotWidget() : QwtPlot()
 
     auto *settings = LumberjackSettings::getInstance();
 
-    QString bgColor = settings->loadSetting("graph", "defaultBackgroundColor", "#F0F0F0").toString();
+    QString bgColor = settings->loadString("graph", "defaultBackgroundColor", "#F0F0F0");
 
     if (QColor::isValidColorName(bgColor))
     {

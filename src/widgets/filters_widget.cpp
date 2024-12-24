@@ -1,6 +1,9 @@
 #include <QMimeData>
 
 #include "filters_widget.hpp"
+
+#include "plugin_registry.hpp"
+#include "lumberjack_settings.hpp"
 #include "data_source_manager.hpp"
 
 
@@ -9,8 +12,36 @@ FiltersWidget::FiltersWidget(QWidget *parent) : QWidget(parent)
     ui.setupUi(this);
     setAcceptDrops(true);
 
+    refresh();
+
     connect(ui.applyFilterButton, &QPushButton::released, this, &FiltersWidget::applyFilter);
     connect(ui.clearItemsButton, &QPushButton::released, this, &FiltersWidget::clearItems);
+}
+
+
+void FiltersWidget::loadPlugins()
+{
+    auto registry = PluginRegistry::getInstance();
+    auto settings = LumberjackSettings::getInstance();
+
+    ui.filterSelect->clear();
+
+    QString selectedPlugin = settings->loadString("filters", "selectedFilter");
+
+    for (auto plugin : registry->FilterPlugins())
+    {
+        ui.filterSelect->addItem(plugin->pluginName());
+    }
+
+
+    for (int idx = 0; idx < ui.filterSelect->count(); idx++)
+    {
+        if (ui.filterSelect->itemText(idx) == selectedPlugin)
+        {
+            ui.filterSelect->setCurrentIndex(idx);
+            break;
+        }
+    }
 
     refresh();
 }

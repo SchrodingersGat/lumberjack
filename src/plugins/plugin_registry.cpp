@@ -61,6 +61,8 @@ void PluginRegistry::loadPlugins()
             }
         }
     }
+
+    emit pluginsLoaded();
 }
 
 
@@ -140,7 +142,7 @@ QString PluginRegistry::getFilenameForImport(void) const
 
     dialog.setWindowTitle(tr("Import Data from File"));
 
-    QString lastDir = settings->loadSetting("import", "lastDirectory", QString()).toString();
+    QString lastDir = settings->loadString("import", "lastDirectory");
 
     if (!lastDir.isEmpty())
     {
@@ -194,7 +196,7 @@ QString PluginRegistry::getFilenameForExport(void) const
 
     dialog.setWindowTitle(tr("Export Data to File"));
 
-    QString lastDir = settings->loadSetting("export", "lastDirectory", QString()).toString();
+    QString lastDir = settings->loadString("export", "lastDirectory");
 
     if (!lastDir.isEmpty())
     {

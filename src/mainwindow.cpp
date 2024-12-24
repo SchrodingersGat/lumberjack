@@ -54,7 +54,11 @@ MainWindow::MainWindow(QWidget *parent)
     loadWorkspaceSettings();
 
     // Load plugins
-    PluginRegistry::getInstance()->loadPlugins();
+    auto registry = PluginRegistry::getInstance();
+
+    connect(registry, &PluginRegistry::pluginsLoaded, &filtersView, &FiltersWidget::loadPlugins);
+
+    registry->loadPlugins();
 }
 
 

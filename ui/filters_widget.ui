@@ -49,6 +49,9 @@
          <height>0</height>
         </size>
        </property>
+       <property name="editable">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
     </layout>
