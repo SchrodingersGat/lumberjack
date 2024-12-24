@@ -2,6 +2,11 @@
 #define FILTERS_WIDGET_H
 
 #include <QWidget>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
+
+#include "data_series.hpp"
 
 #include "ui_filters_widget.h"
 
@@ -14,11 +19,23 @@ public:
     FiltersWidget(QWidget *parent = nullptr);
 
 public slots:
+    void addSeries(DataSeriesPointer series);
+
+    void refresh(void);
+    void clearItems(void);
+    void applyFilter(void);
 
 signals:
 
 protected:
     Ui::filtersview ui;
+
+    QList<DataSeriesPointer> seriesList;
+
+    // Drag-n-drop actions
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
+    virtual void dragMoveEvent(QDragMoveEvent *event) override;
+    virtual void dropEvent(QDropEvent *event) override;
 };
 
 #endif // FILTERS_WIDGET_H
