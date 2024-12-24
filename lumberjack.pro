@@ -56,6 +56,7 @@ SOURCES += \
     src/widgets/dataview_tree.cpp \
     src/widgets/dataview_widget.cpp \
     src/widgets/debug_widget.cpp \
+    src/widgets/filters_widget.cpp \
     src/widgets/plot_sampler.cpp \
     src/widgets/plugins_dialog.cpp \
     src/widgets/series_editor_dialog.cpp \
@@ -88,11 +89,12 @@ HEADERS += \
     src/widgets/dataview_tree.hpp \
     src/widgets/dataview_widget.hpp \
     src/widgets/debug_widget.hpp \
+    src/widgets/filters_widget.hpp \
     src/widgets/plot_sampler.hpp \
     src/widgets/plugins_dialog.hpp \
     src/widgets/series_editor_dialog.hpp \
     src/widgets/stats_widget.hpp \
-    src/widgets/timeline_widget.hpp \
+    src/widgets/timeline_widget.hpp
 
 # simple-fft includes
 HEADERS += \
@@ -110,6 +112,7 @@ FORMS += \
     ui/curve_editor_dialog.ui \
     ui/dataview_widget.ui \
     ui/debug_widget.ui \
+    ui/filters_widget.ui \
     ui/mainwindow.ui \
     ui/plugins_dialog.ui \
     ui/stats_view.ui

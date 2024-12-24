@@ -3,8 +3,6 @@
 
 #include <QWidget>
 
-#include "data_source.hpp"
-
 #include "ui_dataview_widget.h"
 
 class DataviewWidget : public QWidget
@@ -30,9 +28,6 @@ protected:
 
     virtual void dropEvent(QDropEvent *event) override;
     virtual void dragEnterEvent(QDragEnterEvent *event) override;
-
-//    virtual void dragMoveEvent(QDragMoveEvent *event) override;
-//    virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
 };
 
 
