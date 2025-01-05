@@ -53,6 +53,26 @@ void FiltersWidget::refresh()
 
     ui.applyFilterButton->setEnabled(hasItems);
     ui.clearItemsButton->setEnabled(hasItems);
+
+    updateSeriesList();
+}
+
+
+void FiltersWidget::updateSeriesList(void)
+{
+    auto *list = ui.seriesList;
+
+    list->clear();
+
+    list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    for (auto series : seriesList)
+    {
+        if (series.isNull()) continue;
+
+        QListWidgetItem *item = new QListWidgetItem(series->getLabel(), list);
+        list->addItem(item);
+    }
 }
 
 

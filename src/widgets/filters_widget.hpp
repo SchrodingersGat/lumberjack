@@ -38,6 +38,7 @@ protected:
     virtual void dropEvent(QDropEvent *event) override;
 
     void refresh(void);
+    void updateSeriesList(void);
 };
 
 #endif // FILTERS_WIDGET_H
