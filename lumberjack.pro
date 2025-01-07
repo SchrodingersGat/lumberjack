@@ -176,11 +176,11 @@ win32 {
     QT_LIB = "--core --opengl --openglwidgets --qml --quick --quickwidgets --widgets --compiler-runtime"
 
     CONFIG(release, debug|release) {
-        # Release mode
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force $$quote($$QT_LIB) $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+        # Release mode - run windeployqt
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --force $$quote($$QT_LIB) $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
     } else {
-        # Debug mode
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --force $$quote($$QT_LIB) $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+        # Debug mode - do not run windeployqt
+        # Expectation is that the code is run from within QtCreator
     }
 }
 
