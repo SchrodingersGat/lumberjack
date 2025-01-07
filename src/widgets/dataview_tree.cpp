@@ -4,6 +4,7 @@
 #include <qaction.h>
 #include <qheaderview.h>
 
+#include "plugin_registry.hpp"
 #include "datatable_widget.hpp"
 #include "series_editor_dialog.hpp"
 #include "dataview_tree.hpp"
@@ -129,6 +130,8 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         // Edit series
         QAction *editSeries = new QAction(tr("Edit Series"), &menu);
 
+        QAction *filterSeries = new QAction(tr("Apply Filter"), &menu);
+
         // View data
         QAction *viewSeriesData = new QAction(tr("View Data"), &menu);
 
@@ -138,6 +141,7 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         menu.addAction(exportSeries);
         menu.addSeparator();
         menu.addAction(editSeries);
+        menu.addAction(filterSeries);
         menu.addAction(viewSeriesData);
         menu.addSeparator();
         menu.addAction(deleteSeries);
@@ -154,6 +158,14 @@ void DataViewTree::onContextMenu(const QPoint &pos)
         else if (action == editSeries)
         {
             editDataSeries(series);
+        }
+        else if (action == filterSeries)
+        {
+            QList<DataSeriesPointer> seriesList;
+            seriesList << series;
+
+            auto manager = DataSourceManager::getInstance();
+            manager->filterData(seriesList);
         }
         else if (action == viewSeriesData)
         {

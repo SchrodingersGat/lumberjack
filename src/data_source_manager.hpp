@@ -3,64 +3,34 @@
 
 #include <QThread>
 
+#include "plugin_base.hpp"
 #include "data_source.hpp"
-#include "plugin_importer.hpp"
-#include "plugin_exporter.hpp"
 
-
-class DataIOWorker : public QObject
+/**
+ * @brief The DataProcessWorker class is a simple worker class for managing data processing
+ */
+class DataProcessWorker : public QObject
 {
+    Q_OBJECT
 public:
+    DataProcessWorker(QSharedPointer<DataProcessingPlugin> plugin);
+
     bool getResult(void) const { return m_result; }
-    QStringList getErrors(void) const { return m_errors; }
     bool isComplete(void) const { return m_complete; }
+
+public slots:
+    void run();
+    void cancel();
+
+signals:
+    void processingComplete();
+
 protected:
-    QStringList m_errors;
+    QSharedPointer<DataProcessingPlugin> m_plugin;
     bool m_complete = false;
     bool m_result = false;
 };
 
-
-/**
- * @brief The DataImportWorker class manages a data import session
- */
-class DataImportWorker : public DataIOWorker
-{
-    Q_OBJECT
-
-public:
-    DataImportWorker(QSharedPointer<ImportPlugin> plugin);
-
-public slots:
-    void runImport(void);
-    void cancelImport(void);
-
-signals:
-    void importCompleted(void);
-
-protected:
-    QSharedPointer<ImportPlugin> m_plugin;
-};
-
-
-class DataExportWorker : public DataIOWorker
-{
-    Q_OBJECT
-
-public:
-    DataExportWorker(QSharedPointer<ExportPlugin> plugin, QList<DataSeriesPointer> &series);
-
-public slots:
-    void runExport(void);
-    void cancelExport(void);
-
-signals:
-    void exportCompleted(void);
-
-protected:
-    QSharedPointer<ExportPlugin> m_plugin;
-    QList<DataSeriesPointer> m_series;
-};
 
 
 /*
@@ -125,6 +95,9 @@ public slots:
     // Data export functionality
     bool exportData(QList<DataSeriesPointer> &series, QString filename = QString());
 
+    // Data filtering functionality
+    bool filterData(QList<DataSeriesPointer> &series);
+
     void update(void) { emit sourcesChanged(); }
 
 signals:
@@ -135,6 +108,8 @@ protected slots:
 
 protected:
     QVector<DataSourcePointer> sources;
+
+    bool runDataProcess(QSharedPointer<DataProcessingPlugin> plugin, QString title, QString message);
 };
 
 

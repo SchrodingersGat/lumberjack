@@ -28,4 +28,32 @@ public:
 
 typedef QList<QSharedPointer<PluginBase>> PluginList;
 
+
+// Base plugin class which provides data processing functionality
+class DataProcessingPlugin : public PluginBase
+{
+    Q_OBJECT
+
+public:
+    virtual ~DataProcessingPlugin() = default;
+
+    // Optional function which is called before running data processing step
+    // Return False to cancel the process before it begins
+    virtual bool beforeProcessStep(void) { return true; }
+
+    // Run the actual data processing
+    virtual bool processData(void) = 0;
+
+    // Optional function which is called after running the data processing step
+    virtual void afterProcessStep(void) {}
+
+    // Function to cancel the process step
+    // MUST be implemented by the particular plugin class
+    virtual void cancelProcessing(void) = 0;
+
+    // Return the progress of the data processing stage (as a percentage {0:100})
+    virtual uint8_t getProgress(void) const = 0;
+
+};
+
 #endif // PLUGIN_BASE_HPP

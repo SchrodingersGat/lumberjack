@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -54,6 +54,7 @@
     <addaction name="action_FFT"/>
     <addaction name="action_Timeline"/>
     <addaction name="action_Statistics"/>
+    <addaction name="action_Filters"/>
    </widget>
    <widget class="QMenu" name="menu_Graph">
     <property name="title">
@@ -121,6 +122,11 @@
   <action name="action_Plugins">
    <property name="text">
     <string>&amp;Plugins</string>
+   </property>
+  </action>
+  <action name="action_Filters">
+   <property name="text">
+    <string>F&amp;ilters</string>
    </property>
   </action>
  </widget>

@@ -37,6 +37,7 @@ public:
     }
 
     QVariant loadSetting(QString group, QString key, QVariant defaultValue);
+    QString loadString(QString group, QString key, QString defaultValue = QString());
     bool loadBoolean(QString group, QString key, bool defaultValue = false);
 
     void saveSetting(QString group, QString key, QVariant value);

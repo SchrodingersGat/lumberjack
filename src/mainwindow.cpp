@@ -54,7 +54,11 @@ MainWindow::MainWindow(QWidget *parent)
     loadWorkspaceSettings();
 
     // Load plugins
-    PluginRegistry::getInstance()->loadPlugins();
+    auto registry = PluginRegistry::getInstance();
+
+    connect(registry, &PluginRegistry::pluginsLoaded, &filtersView, &FiltersWidget::loadPlugins);
+
+    registry->loadPlugins();
 }
 
 
@@ -169,6 +173,7 @@ void MainWindow::saveWorkspaceSettings()
     auto *settings = LumberjackSettings::getInstance();
 
     settings->saveSetting("mainwindow", "showDataView", dataView.isVisible());
+    settings->saveSetting("mainwindow", "showFiltersView", filtersView.isVisible());
     settings->saveSetting("mainwindow", "showTimelineView", timelineView.isVisible());
     settings->saveSetting("mainwindow", "showStatsView", statsView.isVisible());
     settings->saveSetting("mainwindow", "showDebugView", debugWidget.isVisible());
@@ -190,6 +195,7 @@ void MainWindow::initMenus()
 
     // View menu
     connect(ui->action_Data_View, &QAction::triggered, this, &MainWindow::toggleDataView);
+    connect(ui->action_Filters, &QAction::triggered, this, &MainWindow::toggleFiltersView);
     connect(ui->action_Timeline, &QAction::triggered, this, &MainWindow::toggleTimelineView);
     connect(ui->action_Statistics, &QAction::triggered, this, &MainWindow::toggleStatisticsView);
     connect(ui->action_FFT, &QAction::triggered, this, &MainWindow::toggleFftView);
@@ -221,6 +227,11 @@ void MainWindow::initDocks()
     if (settings->loadBoolean("mainwindow", "showDataView"))
     {
         toggleDataView();
+    }
+
+    if (settings->loadBoolean("mainwindow", "showFiltersView"))
+    {
+        toggleFiltersView();
     }
 
     if (settings->loadBoolean("mainwindow", "showTimelineView"))
@@ -497,6 +508,31 @@ void MainWindow::toggleFftView(void)
         addDockWidget(Qt::LeftDockWidgetArea, dock);
 
         ui->action_Data_View->setChecked(true);
+    }
+}
+
+/**
+ * @brief MainWindow::toggleFiltersView toggles visibility of the "filters view" dock
+ */
+void MainWindow::toggleFiltersView(void)
+{
+    ui->action_Filters->setCheckable(true);
+
+    if (filtersView.isVisible())
+    {
+        hideDockedWidget(&filtersView);
+        ui->action_Filters->setChecked(false);
+    }
+    else
+    {
+        QDockWidget* dock = new QDockWidget(tr("Filters View"), this);
+        dock->setObjectName("filters-view");
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setWidget(&filtersView);
+
+        addDockWidget(Qt::LeftDockWidgetArea, dock);
+
+        ui->action_Filters->setChecked(true);
     }
 }
 

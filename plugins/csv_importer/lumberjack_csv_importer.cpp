@@ -31,7 +31,7 @@ QStringList LumberjackCSVImporter::supportedFileTypes() const
  * @brief LumberjackCSVImporter::beforeLoadData - Open configuration dialog
  * @return
  */
-bool LumberjackCSVImporter::beforeImport(void)
+bool LumberjackCSVImporter::beforeProcessStep(void)
 {
     CSVImportOptionsDialog dlg(m_filename);
 
@@ -47,12 +47,12 @@ bool LumberjackCSVImporter::beforeImport(void)
 
 
 /**
- * @brief LumberjackCSVImporter::loadDataFile
+ * @brief LumberjackCSVImporter::processData
  * @param filename - The filename to load
  * @param errors -
  * @return
  */
-bool LumberjackCSVImporter::importData(QStringList &errors)
+bool LumberjackCSVImporter::processData(void)
 {
     // Reset importer to initial conditions
     m_headers.clear();
@@ -64,7 +64,7 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
 
     if (!fi.exists() || !fi.isFile())
     {
-        errors.append(tr("File does not exist"));
+        qCritical() << tr("File does not exist");
         return false;
     }
 
@@ -75,7 +75,7 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
 
     if (!m_file->open(QIODevice::ReadOnly) || !m_file->isOpen() || !m_file->isReadable())
     {
-        errors.append(tr("Could not open file for reading"));
+        qCritical() << tr("Could not open file for reading");
         m_file->close();
         return false;
     }
@@ -107,7 +107,7 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
 
         row = line.split(delimiter);
 
-        if (!processRow(lineCount, row, errors))
+        if (!processRow(lineCount, row))
         {
             badLineCount++;
         }
@@ -124,7 +124,7 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
 
     if (badLineCount > 0)
     {
-        errors.append(QString("Lines with errors: " + QString::number(badLineCount)));
+        qWarning() << QString("Lines with errors: " + QString::number(badLineCount));
     }
 
     return true;
@@ -138,15 +138,12 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
  * @param errors
  * @return
  */
-bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& errors)
+bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row)
 {
-
-    // TODO: error messages
-    Q_UNUSED(errors)
 
     if (rowIndex == m_options.rowHeaders)
     {
-        return extractHeaders(rowIndex, row, errors);
+        return extractHeaders(rowIndex, row);
     }
     else if (rowIndex == m_options.rowUnits)
     {
@@ -156,7 +153,7 @@ bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QSt
     }
     else if (rowIndex >= m_options.rowDataStart)
     {
-        return extractData(rowIndex, row, errors);
+        return extractData(rowIndex, row);
     }
 }
 
@@ -168,12 +165,9 @@ bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QSt
  * @param errors
  * @return
  */
-bool LumberjackCSVImporter::extractHeaders(int rowIndex, const QStringList &row, QStringList &errors)
+bool LumberjackCSVImporter::extractHeaders(int rowIndex, const QStringList &row)
 {
     Q_UNUSED(rowIndex);
-
-    // TODO: Error messages
-    Q_UNUSED(errors);
 
     m_headers.clear();
 
@@ -219,11 +213,8 @@ bool LumberjackCSVImporter::extractHeaders(int rowIndex, const QStringList &row,
  * @param errors
  * @return
  */
-bool LumberjackCSVImporter::extractData(int rowIndex, const QStringList &row, QStringList &errors)
+bool LumberjackCSVImporter::extractData(int rowIndex, const QStringList &row)
 {
-    // TODO: Error messages
-    Q_UNUSED(errors)
-
     double timestamp = 0;
 
     QString text;
@@ -418,7 +409,7 @@ bool LumberjackCSVImporter::extractTimestamp(int rowIndex, const QStringList &ro
 }
 
 
-void LumberjackCSVImporter::afterImport(void)
+void LumberjackCSVImporter::afterProcessStep(void)
 {
     if (m_file)
     {
@@ -433,13 +424,13 @@ void LumberjackCSVImporter::afterImport(void)
 }
 
 
-void LumberjackCSVImporter::cancelImport(void)
+void LumberjackCSVImporter::cancelProcessing(void)
 {
     m_isImporting = false;
 }
 
 
-uint8_t LumberjackCSVImporter::getImportProgress(void) const
+uint8_t LumberjackCSVImporter::getProgress(void) const
 {
     if (!m_isImporting) return 0;
 

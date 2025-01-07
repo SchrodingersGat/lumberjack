@@ -21,10 +21,11 @@ public:
     // Exporter plugin functionality
     virtual QStringList supportedFileTypes(void) const override;
 
-    virtual bool beforeExport(void) override;
-    virtual bool exportData(QList<DataSeriesPointer> &series, QStringList &errors) override;
-    virtual void cancelExport(void) override;
-    virtual uint8_t getExportProgress(void) const override;
+    virtual bool processData(void) override;
+
+    virtual bool beforeProcessStep(void) override;
+    virtual void cancelProcessing(void) override;
+    virtual uint8_t getProgress(void) const override;
 
 protected:
     const QString m_name = "CSV Exporter";

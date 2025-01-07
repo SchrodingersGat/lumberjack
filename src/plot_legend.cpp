@@ -131,8 +131,8 @@ bool PlotLegend::handleMousePressEvent(const QMouseEvent *event)
     // Ignore if the legend is not displayed
     if (rect.width() < 0 || rect.height() < 0) return false;
 
-    int x = event->x();
-    int y = event->y();
+    int x = (int) event->position().x();
+    int y = (int) event->position().y();
 
     // Return early if click is outside legend bounds
     if (x < rect.left() || x > rect.right()) return false;

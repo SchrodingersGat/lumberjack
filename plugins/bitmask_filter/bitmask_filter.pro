@@ -13,13 +13,16 @@ INCLUDEPATH += \
     ../../src/plugins
 
 HEADERS += \
-    offset_filter_global.h \
-    offset_filter.hpp \
+    ../../src/data_series.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_filter.hpp \
+    bitmask_filter_global.h \
+    bitmask_filter.hpp \
 
 SOURCES += \
-    offset_filter.cpp
+    ../../src/data_series.cpp \
+    ../../src/plugins/plugin_filter.cpp \
+    bitmask_filter.cpp
 
 # Default rules for deployment.
 unix {
@@ -30,7 +33,6 @@ unix {
 CONFIG(debug, debug|release) {
     CONFIG += debug
     DESTDIR = build/debug
-
 } else {
     CONFIG += release
     DESTDIR = ../build/release
@@ -46,4 +48,4 @@ UI_DIR = build/ui
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    offset_filter.json
+    bitmask_filter.json

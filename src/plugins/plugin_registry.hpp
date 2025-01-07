@@ -37,8 +37,6 @@ public:
         }
     }
 
-    void loadPlugins(void);
-    void clearRegistry(void);
 
     const ImportPluginList& ImportPlugins(void) { return m_ImportPlugins; }
     const ExportPluginList& ExportPlugins(void) { return m_ExportPlugins; }
@@ -46,6 +44,13 @@ public:
 
     QString getFilenameForImport(void) const;
     QString getFilenameForExport(void) const;
+
+public slots:
+    void loadPlugins(void);
+    void clearRegistry(void);
+
+signals:
+    void pluginsLoaded();
 
 protected:
 

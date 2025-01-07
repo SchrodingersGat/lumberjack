@@ -11,6 +11,7 @@
 #include "fft_widget.hpp"
 #include "stats_widget.hpp"
 #include "dataview_widget.hpp"
+#include "filters_widget.hpp"
 #include "timeline_widget.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -53,6 +54,7 @@ protected slots:
 
     void toggleDebugView(void);
     void toggleDataView(void);
+    void toggleFiltersView(void);
     void toggleFftView(void);
     void toggleTimelineView(void);
     void toggleStatisticsView(void);
@@ -77,6 +79,7 @@ private:
     StatsWidget statsView;
     TimelineWidget timelineView;
     FFTWidget fftView;
+    FiltersWidget filtersView;
 
     DebugWidget debugWidget;
 };

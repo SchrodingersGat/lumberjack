@@ -47,6 +47,7 @@ SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
     src/plugins/plugin_exporter.cpp \
+    src/plugins/plugin_filter.cpp \
     src/plugins/plugin_importer.cpp \
     src/plugins/plugin_registry.cpp \
     src/widgets/about_dialog.cpp \
@@ -55,6 +56,7 @@ SOURCES += \
     src/widgets/dataview_tree.cpp \
     src/widgets/dataview_widget.cpp \
     src/widgets/debug_widget.cpp \
+    src/widgets/filters_widget.cpp \
     src/widgets/plot_sampler.cpp \
     src/widgets/plugins_dialog.cpp \
     src/widgets/series_editor_dialog.cpp \
@@ -87,11 +89,12 @@ HEADERS += \
     src/widgets/dataview_tree.hpp \
     src/widgets/dataview_widget.hpp \
     src/widgets/debug_widget.hpp \
+    src/widgets/filters_widget.hpp \
     src/widgets/plot_sampler.hpp \
     src/widgets/plugins_dialog.hpp \
     src/widgets/series_editor_dialog.hpp \
     src/widgets/stats_widget.hpp \
-    src/widgets/timeline_widget.hpp \
+    src/widgets/timeline_widget.hpp
 
 # simple-fft includes
 HEADERS += \
@@ -109,6 +112,7 @@ FORMS += \
     ui/curve_editor_dialog.ui \
     ui/dataview_widget.ui \
     ui/debug_widget.ui \
+    ui/filters_widget.ui \
     ui/mainwindow.ui \
     ui/plugins_dialog.ui \
     ui/stats_view.ui
@@ -167,17 +171,19 @@ CONFIG(debug, debug|release) {
 
 COPIES += dllFiles
 
-CONFIG(debug, debug | release) {
-    win32 {
-        # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
-    }
-} else {
-    win32 {
-        # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+win32 {
+    # Qt libraries required by windeployqt
+    QT_LIB = "--core --opengl --openglwidgets --qml --quick --quickwidgets --widgets --compiler-runtime"
+
+    CONFIG(release, debug|release) {
+        # Release mode - run windeployqt
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --force $$quote($$QT_LIB) $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+    } else {
+        # Debug mode - do not run windeployqt
+        # Expectation is that the code is run from within QtCreator
     }
 }
+
 
 RESOURCES += \
     resources.qrc

@@ -20,8 +20,9 @@ QStringList LumberjackCSVExporter::supportedFileTypes() const
 }
 
 
-bool LumberjackCSVExporter::beforeExport(void)
+bool LumberjackCSVExporter::beforeProcessStep(void)
 {
+
     // TODO: Set export options
     return true;
 }
@@ -30,19 +31,13 @@ bool LumberjackCSVExporter::beforeExport(void)
 /*
  * Export the provided series to a CSV file
  */
-bool LumberjackCSVExporter::exportData(QList<DataSeriesPointer> &series, QStringList &errors)
+bool LumberjackCSVExporter::processData()
 {
-    if (m_filename.isEmpty())
-    {
-        errors.append(tr("Filename is empty"));
-        return false;
-    }
-
     QFile outputFile(m_filename);
 
     if (!outputFile.open(QIODevice::WriteOnly) || !outputFile.isOpen() || !outputFile.isWritable())
     {
-        errors.append(tr("Could not open file for writing"));
+        qCritical() << tr("Could not open file for writing");
         return false;
     }
 
@@ -50,7 +45,7 @@ bool LumberjackCSVExporter::exportData(QList<DataSeriesPointer> &series, QString
     m_data.clear();
     m_indices.clear();
 
-    for (auto s : series)
+    for (auto s : m_series)
     {
         if (!s.isNull())
         {
@@ -75,7 +70,7 @@ bool LumberjackCSVExporter::exportData(QList<DataSeriesPointer> &series, QString
     double tMin = LONG_MAX;
     double tMax = -LONG_MAX;
 
-    for (auto s : series)
+    for (auto s : m_series)
     {
         if (s.isNull()) continue;
         if (s->size() == 0) continue;
@@ -238,13 +233,13 @@ QStringList LumberjackCSVExporter::nextDataRow(bool &valid)
 }
 
 
-void LumberjackCSVExporter::cancelExport()
+void LumberjackCSVExporter::cancelProcessing()
 {
     m_isExporting = false;
 }
 
 
-uint8_t LumberjackCSVExporter::getExportProgress(void) const
+uint8_t LumberjackCSVExporter::getProgress(void) const
 {
     double dt = m_maxTimestamp - m_minTimestamp;
 
