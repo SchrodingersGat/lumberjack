@@ -171,17 +171,19 @@ CONFIG(debug, debug|release) {
 
 COPIES += dllFiles
 
-CONFIG(debug, debug | release) {
-    win32 {
-        # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
-    }
-} else {
-    win32 {
-        # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+win32 {
+    # Qt libraries required by windeployqt
+    QT_LIB = "--core --opengl --openglwidgets --qml --quick --quickwidgets --widgets --compiler-runtime"
+
+    CONFIG(release, debug|release) {
+        # Release mode
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --release --force $$quote($$QT_LIB) $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+    } else {
+        # Debug mode
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --force $$quote($$QT_LIB) $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
     }
 }
+
 
 RESOURCES += \
     resources.qrc
