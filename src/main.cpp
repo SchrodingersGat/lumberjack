@@ -40,11 +40,10 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
 
     // Command line options
-    QCommandLineOption loadFilesOption(QStringList() << "f" << "file", "Load data file", "file");
     QCommandLineOption dummyDataOption(QStringList() << "d" << "dummy", "Load dummy test data");
     QCommandLineOption debugCmdOption(QStringList() << "c" << "Debug to command line");
 
-    parser.addOption(loadFilesOption);
+    parser.addPositionalArgument("files", "Load data files, optionally", "[files...]");
     parser.addOption(dummyDataOption);
     parser.addOption(debugCmdOption);
 
@@ -62,7 +61,7 @@ int main(int argc, char *argv[])
     w.show();
 
     // Import data from specified files
-    for (auto file : parser.values(loadFilesOption))
+    for (auto file : parser.positionalArguments())
     {
         w.loadDataFromFile(file);
     }
