@@ -262,6 +262,9 @@ void MainWindow::initStatusBar()
 {
     ui->statusbar->showMessage("lumberjack");
 
+    ui->statusbar->addPermanentWidget(&dt_pos);
+    dt_pos.setHidden(true);
+
     ui->statusbar->addPermanentWidget(&t_pos);
     ui->statusbar->addPermanentWidget(&y1_pos);
     ui->statusbar->addPermanentWidget(&y2_pos);
@@ -333,6 +336,17 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
     t_pos.setText("t: " + fixedWidthNumber(t));
     y1_pos.setText("y1: " + fixedWidthNumber(y1));
     y2_pos.setText("y2: " + fixedWidthNumber(y2));
+}
+
+void MainWindow::updateDifferences(double dt)
+{
+    dt_pos.setHidden(false);
+    dt_pos.setText("dt: " + fixedWidthNumber(dt));
+}
+
+void MainWindow::hideDifferences()
+{
+    dt_pos.setHidden(true);
 }
 
 
@@ -457,6 +471,8 @@ void MainWindow::addPlot()
 
     // Connect signals/slots for the new plot
     connect(plot, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
+    connect(plot, &PlotWidget::markerAdded, this, &MainWindow::updateDifferences);
+    connect(plot, &PlotWidget::markersRemoved, this, &MainWindow::hideDifferences);
     connect(plot, &PlotWidget::viewChanged, this, &MainWindow::onTimescaleChanged);
     connect(plot, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
     connect(plot, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);

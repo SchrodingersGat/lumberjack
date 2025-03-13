@@ -314,6 +314,8 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     QPoint canvas_pos = canvas()->mapFromGlobal(mapToGlobal(pos));
 
     double timestamp = canvasMap(QwtPlot::xBottom).invTransform(canvas_pos.x());
+    double y1Val = canvasMap(QwtPlot::yLeft).invTransform(canvas_pos.y());
+    double y2Val = canvasMap(QwtPlot::yRight).invTransform(canvas_pos.y());
 
     // Fit / zoom submenu
     QMenu *fitMenu = new QMenu(tr("Fit"), &menu);
@@ -472,6 +474,7 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     else if (action == clearMarkers)
     {
         removeAllMarkers();
+        emit markersRemoved();
     }
     else if (action == syncAction)
     {
@@ -497,7 +500,7 @@ void PlotWidget::addMarker(double timestamp)
     QwtPlotMarker *marker = new QwtPlotMarker();
 
     // TODO: Custom text
-    marker->setLabel(QString("---"));
+    marker->setLabel("#"+QString::number(markers.size()));
 
     // TODO: Custom line color, style, etc
 
@@ -509,6 +512,14 @@ void PlotWidget::addMarker(double timestamp)
     marker->attach(this);
 
     markers.append(marker);
+
+    double dt = 0;
+    if (markers.size() > 1)
+    {
+        dt = timestamp - markers.at(markers.size()-2)->xValue();
+    }
+
+    emit markerAdded(dt);
 
     replot();
 }
@@ -530,6 +541,8 @@ void PlotWidget::removeAllMarkers()
     }
 
     markers.clear();
+
+    // Hide dt
 
     replot();
 }

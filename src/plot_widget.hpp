@@ -49,6 +49,9 @@ signals:
 
     void cursorPositionChanged(double &t, double &y1, double &y2);
 
+    void markerAdded(double &dt);
+    void markersRemoved();
+
 public slots:
     int getHorizontalPixels(void) const;
 
