@@ -1102,6 +1102,16 @@ bool PlotWidget::eventFilter(QObject *target, QEvent *event)
 
             break;
         }
+        case QEvent::KeyPress:
+        {
+            const QKeyEvent *keyEvent = dynamic_cast<QKeyEvent*>(event);
+
+            if (keyEvent && keyEvent->key() == Qt::Key_Space && crosshair)
+            {
+                this->addMarker(crosshair->xValue());
+            }
+            break;
+        }
         default:
             break;
         }
