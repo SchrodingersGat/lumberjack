@@ -49,7 +49,7 @@ signals:
 
     void cursorPositionChanged(double &t, double &y1, double &y2);
 
-    void markerAdded(double &dt);
+    void markerAdded(double dt, double dy);
     void markersRemoved();
 
 public slots:
@@ -63,7 +63,7 @@ public slots:
     bool removeSeries(QString label);
     void removeAllSeries();
 
-    void addMarker(double timestamp);
+    void addMarker(double timestamp, double value = std::numeric_limits<double>::quiet_NaN(), int axis_id = QwtPlot::yLeft);
     void removeAllMarkers();
 
     void autoScale(int axis_id = yBoth);

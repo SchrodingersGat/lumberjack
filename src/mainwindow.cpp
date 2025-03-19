@@ -261,9 +261,11 @@ void MainWindow::initSignalsSlots()
 void MainWindow::initStatusBar()
 {
     ui->statusbar->showMessage("lumberjack");
-
-    ui->statusbar->addPermanentWidget(&dt_pos);
+    ui->statusbar->addWidget(&dt_pos);
     dt_pos.setHidden(true);
+
+    ui->statusbar->addWidget(&dy_pos);
+    dy_pos.setHidden(true);
 
     ui->statusbar->addPermanentWidget(&t_pos);
     ui->statusbar->addPermanentWidget(&y1_pos);
@@ -338,15 +340,19 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
     y2_pos.setText("y2: " + fixedWidthNumber(y2));
 }
 
-void MainWindow::updateDifferences(double dt)
+void MainWindow::updateDifferences(double dt, double dy)
 {
     dt_pos.setHidden(false);
     dt_pos.setText("dt: " + fixedWidthNumber(dt));
+
+    dy_pos.setHidden(std::isnan(dy));
+    dy_pos.setText("dy: " + fixedWidthNumber(dy));
 }
 
 void MainWindow::hideDifferences()
 {
     dt_pos.setHidden(true);
+    dy_pos.setHidden(true);
 }
 
 
