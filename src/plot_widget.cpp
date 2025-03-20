@@ -14,10 +14,10 @@
 #include <qwt_text.h>
 #include <qwt_symbol.h>
 
+#include "plot_widget.hpp"
+
 #include "axis_edit_dialog.hpp"
 #include "series_editor_dialog.hpp"
-
-#include "plot_widget.hpp"
 
 #include "data_source_manager.hpp"
 #include "lumberjack_settings.hpp"
@@ -390,7 +390,7 @@ void PlotWidget::onContextMenu(const QPoint &pos)
 
     QAction *addMarker = markerMenu->addAction(tr("Add Marker"));
     // This shortcut isn't actually triggered from here, as the menu goes out of scope once the context menu is closed
-    // But it looks nice :)
+    // But it looks nice to show the shortcut key :)
     addMarker->setShortcut(QKeySequence(Qt::Key_Space));
 
     markerMenu->addSeparator();
@@ -474,8 +474,7 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     {
         if (isCurveTracked())
         {
-            double yVal = tracking_curve->getDataSeries()->getValueAtTime(timestamp);
-            this->addMarker(timestamp, yVal, tracking_curve->yAxis());
+            this->addMarker(timestamp, tracking_curve);
         }
         else
         {
@@ -485,7 +484,6 @@ void PlotWidget::onContextMenu(const QPoint &pos)
     else if (action == clearMarkers)
     {
         removeAllMarkers();
-        emit markersRemoved();
     }
     else if (action == syncAction)
     {
@@ -504,35 +502,37 @@ void PlotWidget::onContextMenu(const QPoint &pos)
 /**
  * @brief PlotWidget::addMarker adds a new marker at the specified timestamp
  * @param timestamp - X-axis value for new marker
- * @param value - Y-axis value for new marker (vertical line if none provided)
- * @param axis_id - Vertical axis to attach marker to (QwtAxisId::yLeft or QwtAxisId::yRight)
+ * @param curve - If provided, adds marker as a point on the curve
  */
-void PlotWidget::addMarker(double timestamp, double value, int axis_id)
+void PlotWidget::addMarker(double timestamp, QSharedPointer<PlotCurve> curve)
 {
-    QwtPlotMarker *marker = new QwtPlotMarker();
+    auto *marker = new PlotMarker(curve);
 
-    // TODO: Custom text
-    marker->setLabel("#"+QString::number(markers.size()));
-
+    double value = std::numeric_limits<double>::quiet_NaN();
     // TODO: Custom line color, style, etc
+    if (!curve.isNull())
+    {
+        // Point
+        value = curve->getDataSeries()->getValueAtTime(timestamp);
 
-    marker->setValue(timestamp, value);
-    marker->setLabelAlignment(Qt::AlignBottom | Qt::AlignRight);
-    marker->setYAxis(axis_id);
-    if (std::isnan(value))
+        marker->setLineStyle(QwtPlotMarker::NoLine);
+        marker->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, QBrush(Qt::cyan), QPen(Qt::cyan), QSize(4, 4)));
+        marker->setLabelOrientation(Qt::Horizontal);
+        marker->setYAxis(curve->yAxis());
+    }
+    else
     {
         // Vertical "cursor" line
         marker->setLineStyle(QwtPlotMarker::VLine);
         marker->setLinePen(QPen(Qt::cyan));
         marker->setLabelOrientation(Qt::Vertical);
     }
-    else
-    {
-        // Point
-        marker->setLineStyle(QwtPlotMarker::NoLine);
-        marker->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, QBrush(Qt::cyan), QPen(Qt::cyan), QSize(4, 4)));
-        marker->setLabelOrientation(Qt::Horizontal);
-    }
+
+    // TODO: Custom text
+    marker->setLabel("#"+QString::number(markers.size()));
+
+    marker->setValue(timestamp, value);
+    marker->setLabelAlignment(Qt::AlignBottom | Qt::AlignRight);
 
     marker->attach(this);
 
@@ -579,7 +579,6 @@ void PlotWidget::addMarker(double timestamp, double value, int axis_id)
     replot();
 }
 
-
 /**
  * @brief PlotWidget::removeAllMarkers removes all displayed markers
  */
@@ -587,17 +586,17 @@ void PlotWidget::removeAllMarkers()
 {
     for (int idx = 0; idx < markers.count(); idx++)
     {
-        QwtPlotMarker* marker = markers.at(idx);
+        auto marker = markers.at(idx);
 
         if (!marker) continue;
 
         marker->detach();
+
         delete marker;
     }
-
     markers.clear();
 
-    // Hide dt
+    emit markersRemoved();
 
     replot();
 }
@@ -1008,23 +1007,62 @@ void PlotWidget::legendClicked(const QwtPlotItem *item)
                 // Toggle curve visibility
                 curve->setVisible(!curve->isVisible());
 
+                for (auto point : markers)
+                {
+                    if (point->curve == curve)
+                    {
+                        point->setVisible(curve->isVisible());
+                    }
+                }
+
                 updateTimestampLimits();
             }
             else if (modifiers == Qt::ControlModifier)
             {
+                // Remove the markers associated with this series
+                QList<PlotMarker*> toDelete;
+                for (auto point : markers)
+                {
+                    if (point->curve == curve) toDelete << point;
+                }
+                for (auto point : toDelete)
+                {
+                    point->detach();
+                    markers.removeAll(point);
+                    delete point;
+                }
+
                 // Remove the data series
                 removeSeries(series);
             }
             else if (modifiers == Qt::AltModifier)
             {
                 // Switch curve to the other axis
+                int axis_id = curve->yAxis() == QwtPlot::yLeft ? QwtPlot::yRight : QwtPlot::yLeft;
+
                 curve->detach();
-                curve->setYAxis(curve->yAxis() == QwtPlot::yLeft ? QwtPlot::yRight : QwtPlot::yLeft);
+                curve->setYAxis(axis_id);
                 curve->attach(this);
+
+                // Switch any markers assigned to this curve
+                for (auto point : markers)
+                {
+                    if (point->curve == curve)
+                    {
+                        point->setYAxis(curve->yAxis());
+                    }
+                }
             }
             else
             {
-                trackCurve(curve);
+                if (tracking_curve == curve)
+                {
+                    untrackCurve();
+                }
+                else
+                {
+                    trackCurve(curve);
+                }
             }
 
             // Exit once we have processed the matching item
@@ -1171,8 +1209,7 @@ bool PlotWidget::eventFilter(QObject *target, QEvent *event)
 
                     if (isCurveTracked())
                     {
-                        double yVal = tracking_curve->getDataSeries()->getValueAtTime(timestamp);
-                        this->addMarker(timestamp, yVal, tracking_curve->yAxis());
+                        this->addMarker(timestamp, tracking_curve);
                     }
                     else
                     {

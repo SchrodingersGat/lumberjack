@@ -260,7 +260,6 @@ void MainWindow::initSignalsSlots()
  */
 void MainWindow::initStatusBar()
 {
-    ui->statusbar->showMessage("lumberjack");
     ui->statusbar->addWidget(&dt_pos);
     dt_pos.setHidden(true);
 
@@ -340,6 +339,11 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
     y2_pos.setText("y2: " + fixedWidthNumber(y2));
 }
 
+/**
+ * @brief MainWindow::updateDifferences - callback to display the delta values between two points in the status bar
+ * @param dt
+ * @param dy - set to NaN to hide dy text
+ */
 void MainWindow::updateDifferences(double dt, double dy)
 {
     dt_pos.setHidden(false);
@@ -349,6 +353,9 @@ void MainWindow::updateDifferences(double dt, double dy)
     dy_pos.setText("dy: " + fixedWidthNumber(dy));
 }
 
+/**
+ * @brief MainWindow::hideDifferences - callback to hide the delta values in the status bar when no markers are present
+ */
 void MainWindow::hideDifferences()
 {
     dt_pos.setHidden(true);
