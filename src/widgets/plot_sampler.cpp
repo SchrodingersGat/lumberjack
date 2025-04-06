@@ -75,6 +75,8 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
     bool sample_left = idx_min > 0;
     bool sample_right = idx_max < (N - 1);
 
+    DataPoint point;
+
     // If the number of available points is *not greater* than the number of pixels,
     // simple return *all* samples within the specified timespan
     if (n_samples <= n_pixels)
@@ -85,13 +87,14 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
         if (sample_left)
         {
-            t_data.push_back(series.getTimestamp(idx_min - 1));
-            y_data.push_back(series.getValue(idx_min - 1));
+            point = series.getDataPoint(idx_min - 1);
+            t_data.push_back(point.timestamp);
+            y_data.push_back(point.value);
         }
 
         for (auto idx = idx_min; (idx <= idx_max) && (idx < N); idx++)
         {
-            auto point = series.getDataPoint(idx);
+            point = series.getDataPoint(idx);
 
             t_data.push_back(point.timestamp);
             y_data.push_back(point.value);
@@ -99,8 +102,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
         if (sample_right)
         {
-            t_data.push_back(series.getTimestamp(idx_max + 1));
-            y_data.push_back(series.getValue(idx_max + 1));
+            point = series.getDataPoint(idx_max + 1);
+            t_data.push_back(point.timestamp);
+            y_data.push_back(point.value);
         }
 
         emit sampleComplete(t_data, y_data);
@@ -116,8 +120,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
     if (sample_left)
     {
-        t_data.push_back(series.getTimestamp(idx_min - 1));
-        y_data.push_back(series.getValue(idx_min - 1));
+        point = series.getDataPoint(idx_min - 1);
+        t_data.push_back(point.timestamp);
+        y_data.push_back(point.value);
     }
 
     // Time delta per pixel
@@ -263,8 +268,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
     // If there is a point "off screen" to the right, add it
     if (sample_right)
     {
-        t_data.push_back(series.getTimestamp(idx_max + 1));
-        y_data.push_back(series.getValue(idx_max + 1));
+        point = series.getDataPoint(idx_max + 1);
+        t_data.push_back(point.timestamp);
+        y_data.push_back(point.value);
     }
 
     // Reduce the allocated memory to fit
