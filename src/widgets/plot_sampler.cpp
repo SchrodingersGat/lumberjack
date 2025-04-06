@@ -21,9 +21,12 @@ PlotCurveUpdater::PlotCurveUpdater(DataSeries &data_series) : QObject(), series(
  */
 void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned int n_pixels)
 {
+    if (!mutex.tryLock()) return;
+
     // If the arguments are the same as last time, ignore
     if (t_min == t_min_latest && t_max == t_max_latest && n_pixels == n_pixels_latest)
     {
+        mutex.unlock();
         return;
     }
 
@@ -43,8 +46,11 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
     if (series.size() == 0 || n_pixels == 0)
     {
         emit sampleComplete(t_data, y_data);
+        mutex.unlock();
         return;
     }
+
+    const size_t N = series.size();
 
     // Ensure that the timestamp values are ordered correctly
     if (t_min > t_max)
@@ -67,7 +73,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
      */
 
     bool sample_left = idx_min > 0;
-    bool sample_right = idx_max < (series.size() - 1);
+    bool sample_right = idx_max < (N - 1);
+
+    DataPoint point;
 
     // If the number of available points is *not greater* than the number of pixels,
     // simple return *all* samples within the specified timespan
@@ -79,13 +87,14 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
         if (sample_left)
         {
-            t_data.push_back(series.getTimestamp(idx_min - 1));
-            y_data.push_back(series.getValue(idx_min - 1));
+            point = series.getDataPoint(idx_min - 1);
+            t_data.push_back(point.timestamp);
+            y_data.push_back(point.value);
         }
 
-        for (auto idx = idx_min; (idx <= idx_max) && (idx < series.size()); idx++)
+        for (auto idx = idx_min; (idx <= idx_max) && (idx < N); idx++)
         {
-            auto point = series.getDataPoint(idx);
+            point = series.getDataPoint(idx);
 
             t_data.push_back(point.timestamp);
             y_data.push_back(point.value);
@@ -93,12 +102,14 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
         if (sample_right)
         {
-            t_data.push_back(series.getTimestamp(idx_max + 1));
-            y_data.push_back(series.getValue(idx_max + 1));
+            point = series.getDataPoint(idx_max + 1);
+            t_data.push_back(point.timestamp);
+            y_data.push_back(point.value);
         }
 
         emit sampleComplete(t_data, y_data);
 
+        mutex.unlock();
         return;
     }
 
@@ -109,8 +120,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
     if (sample_left)
     {
-        t_data.push_back(series.getTimestamp(idx_min - 1));
-        y_data.push_back(series.getValue(idx_min - 1));
+        point = series.getDataPoint(idx_min - 1);
+        t_data.push_back(point.timestamp);
+        y_data.push_back(point.value);
     }
 
     // Time delta per pixel
@@ -129,9 +141,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
     int pt_counter = 1;
 
-    if (idx_max >= series.size())
+    if (idx_max >= N)
     {
-        idx_max = series.size() - 1;
+        idx_max = N - 1;
     }
 
     bool min_value_found = false;
@@ -256,8 +268,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
     // If there is a point "off screen" to the right, add it
     if (sample_right)
     {
-        t_data.push_back(series.getTimestamp(idx_max + 1));
-        y_data.push_back(series.getValue(idx_max + 1));
+        point = series.getDataPoint(idx_max + 1);
+        t_data.push_back(point.timestamp);
+        y_data.push_back(point.value);
     }
 
     // Reduce the allocated memory to fit
@@ -266,4 +279,6 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
     // Signal that the downsampling process is now complete
     emit sampleComplete(t_data, y_data);
+
+    mutex.unlock();
 }

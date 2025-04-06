@@ -36,6 +36,10 @@ PlotCurve::PlotCurve(DataSeriesPointer s, PlotCurveUpdater *updater) : QwtPlotCu
 
     worker->moveToThread(&workerThread);
     connect(worker, &PlotCurveUpdater::sampleComplete, this, &PlotCurve::onDataResampled);
+
+    setPaintAttribute(QwtPlotCurve::PaintAttribute::ClipPolygons, true);
+    setPaintAttribute(QwtPlotCurve::FilterPoints, true);
+    setPaintAttribute(QwtPlotCurve::FilterPointsAggressive, true);
 }
 
 

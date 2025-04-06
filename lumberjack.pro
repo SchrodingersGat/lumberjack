@@ -12,6 +12,9 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -
 QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
 QMAKE_LFLAGS += --verbose
 
+INCLUDEPATH += ./qwt/src
+DEPENDPATH += ./qwt/src
+
 # Dynamic linking for qwt libraries
 include(qwt/qwt.prf)
 
@@ -20,8 +23,6 @@ CONFIG (debug, debug|release) {
 } else {
     LIBS += -L./qwt/lib -lqwt
 }
-
-INCLUDEPATH += ./qwt/src
 
 INCLUDEPATH += src \
     src/plugins \
@@ -129,19 +130,22 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-# Specify output directory
+# Configure output directories
 CONFIG(debug, debug|release) {
     CONFIG += debug
     DESTDIR = build/debug
+    UI_DIR = build/tmp/debug/ui
+    MOC_DIR = build/tmp/debug/moc
+    OBJECTS_DIR = build/tmp/debug/objects
+    RCC_DIR = build/tmp/debug/rcc
 } else {
     CONFIG += release
     DESTDIR = build/release
+    UI_DIR = build/tmp/release/ui
+    MOC_DIR = build/tmp/release/moc
+    OBJECTS_DIR = build/tmp/release/objects
+    RCC_DIR = build/tmp/release/rcc
 }
-
-RCC_DIR = $$DESTDIR
-MOC_DIR = $$DESTDIR/moc
-OBJECTS_DIR = $$DESTDIR/objects
-
 dllFiles.path = $$DESTDIR
 
 COPIES += dllFiles
@@ -170,7 +174,7 @@ COPIES += dllFiles
 CONFIG(debug, debug | release) {
     win32 {
         # Copy required .DLL files
-        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --debug --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
+        QMAKE_POST_LINK += $$[QT_INSTALL_BINS]\windeployqt --opengl --openglwidgets --widgets --compiler-runtime $$shell_path($$quote($$DESTDIR))\lumberjack.exe $$escape_expand(\n\t)
     }
 } else {
     win32 {

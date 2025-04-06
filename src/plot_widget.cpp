@@ -41,6 +41,8 @@ PlotWidget::PlotWidget() : QwtPlot()
     policy.setVerticalStretch(1);
     setSizePolicy(policy);
 
+    setAttribute(Qt::WA_PaintOnScreen, false);
+
     // Setup custom graph interactions
     initZoomer();
     initPanner();

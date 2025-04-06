@@ -1,7 +1,8 @@
 #ifndef PLOT_CURVE_H
 #define PLOT_CURVE_H
 
-#include <qthread.h>
+#include <QThread>
+
 #include <qwt_plot_curve.h>
 
 #include "data_series.hpp"
