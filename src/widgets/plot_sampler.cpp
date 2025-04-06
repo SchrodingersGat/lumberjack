@@ -21,9 +21,12 @@ PlotCurveUpdater::PlotCurveUpdater(DataSeries &data_series) : QObject(), series(
  */
 void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned int n_pixels)
 {
+    if (!mutex.tryLock()) return;
+
     // If the arguments are the same as last time, ignore
     if (t_min == t_min_latest && t_max == t_max_latest && n_pixels == n_pixels_latest)
     {
+        mutex.unlock();
         return;
     }
 
@@ -43,6 +46,7 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
     if (series.size() == 0 || n_pixels == 0)
     {
         emit sampleComplete(t_data, y_data);
+        mutex.unlock();
         return;
     }
 
@@ -99,6 +103,7 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
         emit sampleComplete(t_data, y_data);
 
+        mutex.unlock();
         return;
     }
 
@@ -266,4 +271,6 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
     // Signal that the downsampling process is now complete
     emit sampleComplete(t_data, y_data);
+
+    mutex.unlock();
 }

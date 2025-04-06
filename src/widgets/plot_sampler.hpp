@@ -1,8 +1,7 @@
 #ifndef PLOT_SAMPLER_HPP
 #define PLOT_SAMPLER_HPP
 
-
-#include <qmutex.h>
+#include <QMutex>
 
 #include "data_series.hpp"
 
@@ -30,8 +29,6 @@ protected:
 
     //! Mutex to prevent simultaneous sampling
     mutable QMutex mutex;
-
-    bool is_sampling = false;
 
     double t_min_latest = -1;
     double t_max_latest = -1;
