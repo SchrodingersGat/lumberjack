@@ -50,6 +50,8 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
         return;
     }
 
+    const size_t N = series.size();
+
     // Ensure that the timestamp values are ordered correctly
     if (t_min > t_max)
     {
@@ -71,7 +73,7 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
      */
 
     bool sample_left = idx_min > 0;
-    bool sample_right = idx_max < (series.size() - 1);
+    bool sample_right = idx_max < (N - 1);
 
     // If the number of available points is *not greater* than the number of pixels,
     // simple return *all* samples within the specified timespan
@@ -87,7 +89,7 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
             y_data.push_back(series.getValue(idx_min - 1));
         }
 
-        for (auto idx = idx_min; (idx <= idx_max) && (idx < series.size()); idx++)
+        for (auto idx = idx_min; (idx <= idx_max) && (idx < N); idx++)
         {
             auto point = series.getDataPoint(idx);
 
@@ -134,9 +136,9 @@ void PlotCurveUpdater::updateCurveSamples(double t_min, double t_max, unsigned i
 
     int pt_counter = 1;
 
-    if (idx_max >= series.size())
+    if (idx_max >= N)
     {
-        idx_max = series.size() - 1;
+        idx_max = N - 1;
     }
 
     bool min_value_found = false;
