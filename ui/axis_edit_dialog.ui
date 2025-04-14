@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>352</width>
-    <height>178</height>
+    <width>279</width>
+    <height>171</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,10 +71,24 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="maxValue"/>
+       <widget class="QLineEdit" name="maxValue">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="axisTitle"/>
+       <widget class="QLineEdit" name="axisTitle">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label">
@@ -91,7 +105,14 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="minValue"/>
+       <widget class="QLineEdit" name="minValue">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
