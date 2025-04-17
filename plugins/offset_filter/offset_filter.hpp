@@ -1,18 +1,15 @@
-#ifndef LUMBERJACK_CSV_IMPORTER_HPP
-#define LUMBERJACK_CSV_IMPORTER_HPP
+#ifndef LUMBERJACK_OFFSET_FILTER_HPP
+#define LUMBERJACK_OFFSET_FILTER_HPP
 
-#include "offset_filter_global.h"
 #include "plugin_filter.hpp"
 
 
 /**
  * @brief The ScaleOffsetFilter class provides simple scaling and offset functionality
  */
-class CUSTOM_FILTER_EXPORT OffsetFilter : public FilterPlugin
+class OffsetFilter : public FilterPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID FilterInterface_iid)
-    Q_INTERFACES(FilterPlugin)
 public:
     OffsetFilter();
 
@@ -28,4 +25,4 @@ protected:
 
 };
 
-#endif // LUMBERJACK_CSV_IMPORTER_HPP
+#endif // LUMBERJACK_OFFSET_FILTER_HPP

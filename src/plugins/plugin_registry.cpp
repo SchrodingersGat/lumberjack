@@ -8,6 +8,12 @@
 #include "plugin_registry.hpp"
 #include "lumberjack_settings.hpp"
 
+// Imports for built-in plugin classes
+#include "plugins/csv_importer/lumberjack_csv_importer.hpp"
+#include "plugins/csv_exporter/lumberjack_csv_exporter.hpp"
+#include "plugins/offset_filter/offset_filter.hpp"
+#include "plugins/scaler_filter/scaler_filter.hpp"
+
 PluginRegistry* PluginRegistry::instance = 0;
 
 
@@ -22,13 +28,32 @@ PluginRegistry::~PluginRegistry()
 }
 
 
+/**
+ * Load a set of "default" or "builtin" plugins
+ * These plugins are distributed with the source code
+ */
+void PluginRegistry::loadBuiltinPlugins()
+{
+    // Builtin importer plugins
+    m_ImportPlugins.append(QSharedPointer<ImportPlugin>(new LumberjackCSVImporter()));
+
+    // Builtin exporter plugins
+    m_ExportPlugins.append(QSharedPointer<ExportPlugin>(new LumberjackCSVExporter()));
+
+    // Builtin filter plugins
+    m_FilterPlugins.append(QSharedPointer<FilterPlugin>(new OffsetFilter()));
+    m_FilterPlugins.append(QSharedPointer<FilterPlugin>(new ScalerFilter()));
+}
+
+
 /*
  * Load all dynamic plugins
  * - Iterates through specified plugin dirs
  */
 void PluginRegistry::loadPlugins()
 {
-    QList<PluginBase*> pluginInstances;
+
+    loadBuiltinPlugins();
 
     QList<QString> checkedPaths;
 
@@ -67,6 +92,8 @@ void PluginRegistry::loadPlugins()
 void PluginRegistry::clearRegistry()
 {
     m_ImportPlugins.clear();
+    m_ExportPlugins.clear();
+    m_FilterPlugins.clear();
 }
 
 

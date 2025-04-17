@@ -140,8 +140,6 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
  */
 bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QStringList& errors)
 {
-
-    // TODO: error messages
     Q_UNUSED(errors)
 
     if (rowIndex == m_options.rowHeaders)
@@ -157,6 +155,10 @@ bool LumberjackCSVImporter::processRow(int rowIndex, const QStringList &row, QSt
     else if (rowIndex >= m_options.rowDataStart)
     {
         return extractData(rowIndex, row, errors);
+    }
+    else
+    {
+        return false;
     }
 }
 

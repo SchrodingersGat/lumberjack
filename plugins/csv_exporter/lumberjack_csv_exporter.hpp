@@ -1,15 +1,13 @@
-#ifndef LUMBERJACK_CSV_IMPORTER_HPP
-#define LUMBERJACK_CSV_IMPORTER_HPP
+#ifndef LUMBERJACK_CSV_EXPORTER_HPP
+#define LUMBERJACK_CSV_EXPORTER_HPP
 
-#include "csv_exporter_global.h"
 #include "plugin_exporter.hpp"
 
 
-class CSV_EXPORTER_EXPORT LumberjackCSVExporter : public ExportPlugin
+class LumberjackCSVExporter : public ExportPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID ExporterInterface_iid)
-    Q_INTERFACES(ExportPlugin)
+
 public:
     LumberjackCSVExporter();
 
@@ -55,4 +53,4 @@ protected:
 
 };
 
-#endif // LUMBERJACK_CSV_IMPORTER_HPP
+#endif // LUMBERJACK_CSV_EXPORTER_HPP

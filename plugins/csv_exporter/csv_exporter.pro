@@ -14,6 +14,7 @@ INCLUDEPATH += \
 
 HEADERS += \
     csv_exporter_global.h \
+    lumberjack_csv_export_plugin.hpp \
     lumberjack_csv_exporter.hpp \
     ../../src/data_series.hpp \
     ../../src/plugins/plugin_base.hpp \

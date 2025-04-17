@@ -38,6 +38,7 @@ public:
     }
 
     void loadPlugins(void);
+    void loadBuiltinPlugins(void);
     void clearRegistry(void);
 
     const ImportPluginList& ImportPlugins(void) { return m_ImportPlugins; }

@@ -17,6 +17,7 @@ HEADERS += \
     scaler_filter.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_filter.hpp \
+    scaler_filter_plugin.hpp
 
 SOURCES += \
     scaler_filter.cpp

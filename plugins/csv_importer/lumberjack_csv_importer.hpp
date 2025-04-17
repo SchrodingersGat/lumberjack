@@ -4,16 +4,12 @@
 #include <QFile>
 
 #include "plugin_importer.hpp"
-
-#include "csv_importer_global.h"
 #include "csv_import_options.hpp"
 
 
-class CSV_IMPORTER_EXPORT LumberjackCSVImporter : public ImportPlugin
+class LumberjackCSVImporter : public ImportPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID ImporterInterface_iid)
-    Q_INTERFACES(ImportPlugin)
 public:
     LumberjackCSVImporter();
 
