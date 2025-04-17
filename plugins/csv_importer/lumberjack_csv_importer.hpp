@@ -48,7 +48,7 @@ protected:
     bool extractTimestamp(int rowIndex, const QStringList &row, double &timestamp);
 
     // Keep track of data columns while loading
-    QHash<QString, QSharedPointer<DataSeries>> columnMap;
+    QHash<QString, QSharedPointer<DataSeries>> m_columnMap;
 
     // Keep track of first timestamp value
     double initialTimetamp = 0;

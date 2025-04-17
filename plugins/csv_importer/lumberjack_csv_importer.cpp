@@ -9,7 +9,7 @@
 #include "import_options_dialog.hpp"
 
 
-LumberjackCSVImporter::LumberjackCSVImporter()
+LumberjackCSVImporter::LumberjackCSVImporter() : ImportPlugin()
 {
 
 }
@@ -56,7 +56,7 @@ bool LumberjackCSVImporter::importData(QStringList &errors)
 {
     // Reset importer to initial conditions
     m_headers.clear();
-    columnMap.clear();
+    m_columnMap.clear();
     incrementingTimestamp = 0;
     initialTimestampSeen = false;
 
@@ -200,11 +200,11 @@ bool LumberjackCSVImporter::extractHeaders(int rowIndex, const QStringList &row,
         }
 
         // Check that we don't have a duplicate header already
-        if (!columnMap.contains(header))
+        if (!m_columnMap.contains(header))
         {
-            columnMap.insert(
+            m_columnMap.insert(
                 header,
-                QSharedPointer<DataSeries>(new DataSeries(header))
+                QSharedPointer<DataSeries>::create(header)
             );
         }
     }
@@ -303,13 +303,13 @@ bool LumberjackCSVImporter::extractData(int rowIndex, const QStringList &row, QS
 
         QSharedPointer<DataSeries> series;
 
-        if (columnMap.contains(header))
+        if (m_columnMap.contains(header))
         {
-            series = columnMap.value(header);
+            series = m_columnMap.value(header);
         }
-        else if (columnMap.contains(backupHeader))
+        else if (m_columnMap.contains(backupHeader))
         {
-            series = columnMap.value(backupHeader);
+            series = m_columnMap.value(backupHeader);
         }
 
         if (series.isNull())
@@ -458,5 +458,5 @@ uint8_t LumberjackCSVImporter::getImportProgress(void) const
  */
 QList<QSharedPointer<DataSeries>> LumberjackCSVImporter::getDataSeries(void) const
 {
-    return columnMap.values();
+    return m_columnMap.values();
 }

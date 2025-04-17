@@ -1,6 +1,5 @@
-#include <qprogressdialog.h>
-#include <qelapsedtimer.h>
-#include <qapplication.h>
+#include <QFile>
+#include <QFileInfo>
 
 #include "mavlink_importer.hpp"
 
@@ -39,22 +38,16 @@ MavlinkFormatMessage::MavlinkFormatMessage(QByteArray bytes)
 }
 
 
-MavlinkImporter::MavlinkImporter() : FileDataSource("Mavlink Importer")
+MavlinkImporter::MavlinkImporter() : ImportPlugin()
 {
-    // TODO
 }
 
-
-MavlinkImporter::~MavlinkImporter()
-{
-    // TODO
-}
 
 
 /*
  * Return a list of support file extensions for this importer class
  */
-QStringList MavlinkImporter::getSupportedFileTypes() const
+QStringList MavlinkImporter::supportedFileTypes() const
 {
     QStringList fileTypes;
 
@@ -67,7 +60,7 @@ QStringList MavlinkImporter::getSupportedFileTypes() const
 /*
  * Specify mavlink import options
  */
-bool MavlinkImporter::setImportOptions()
+bool MavlinkImporter::beforeImport()
 {
     // TODO: Maybe a custom dialog here?
     return true;
@@ -77,17 +70,26 @@ bool MavlinkImporter::setImportOptions()
 /*
  * Read mavlink data from the selected file
  */
-bool MavlinkImporter::loadDataFromFile(QStringList &errors)
+bool MavlinkImporter::importData(QStringList &errors)
 {
-    QFile f(filename);
+    QFileInfo fi(m_filename);
 
-    qint64 fileSize = getFileSize();
+    if (!fi.exists() || !fi.isFile())
+    {
+        errors.append(tr("File does not exist"));
+        return false;
+    }
 
-    if (fileSize < 100)
+    m_bytesRead = 0;
+    m_fileSize = fi.size();
+
+    if (m_fileSize < 100)
     {
         errors.append(tr("File size is too small"));
         return false;
     }
+
+    QFile f(m_filename);
 
     // Attempt to open the file
     if (!f.exists() || !f.open(QIODevice::ReadOnly) || !f.isOpen() || !f.isReadable())
@@ -97,60 +99,41 @@ bool MavlinkImporter::loadDataFromFile(QStringList &errors)
         return false;
     }
 
-    QElapsedTimer elapsed;
-    QElapsedTimer totalTime;
-    QProgressDialog progress;
-
-    totalTime.restart();
-
-    progress.setWindowTitle(tr("Reading file"));
-    progress.setLabelText(tr("Reading data - ") + filename);
-
-    progress.setMinimum(0);
-    progress.setMaximum(fileSize);
-    progress.setValue(0);
-
-    elapsed.restart();
-    progress.show();
-
     f.seek(0);
 
     QByteArray bytes;
 
-    int64_t byteCount = 0;
+    // Check the header bytes
+    bytes = f.read(2);
 
-    while (!f.atEnd() && !progress.wasCanceled())
+    if ((bytes.at(0) != HEAD_BYTE_1) ||
+        (bytes.at(1) != HEAD_BYTE_2))
+    {
+        errors.append(tr("Header bytes do not match expected format"));
+        return false;
+    }
+
+    f.seek(0);
+
+    m_isImporting = true;
+
+
+    while (!f.atEnd() && m_isImporting)
     {
         // Read a chunk of bytes
         bytes = f.read(2048);
 
         processChunk(bytes);
 
-        byteCount += bytes.length();
-
-        // Update the progress bar periodically
-        if (elapsed.elapsed() > 250)
-        {
-            progress.setValue(byteCount);
-            QApplication::processEvents();
-            elapsed.restart();
-        }
+        m_bytesRead += bytes.length();
     }
 
     // Ensure the file is closed
     f.close();
 
-    if (progress.wasCanceled())
-    {
-        errors.append(tr("File import was cancelled"));
-        return false;
-    }
-    else
-    {
-        progress.close();
-    }
+    qDebug() << "Decoded" << messageCount << "messages from" << m_filename;
 
-    qDebug() << "Decoded" << messageCount << "messages from" << filename << "in" << QString::number((double) totalTime.elapsed() / 1000, 'f', 2) + "s";
+    m_isImporting = false;
 
     return true;
 }
@@ -254,6 +237,7 @@ void MavlinkImporter::processData(const MavlinkFormatMessage &format, QByteArray
 
     double timestamp = 0;
     double value = 0;
+
     QSharedPointer<DataSeries> series;
 
     int n = format.labels.count();
@@ -339,16 +323,20 @@ void MavlinkImporter::processData(const MavlinkFormatMessage &format, QByteArray
         }
         else
         {
-            // Find graph matching each label
-            series = getSeriesByLabel(graphName);
-
-            if (series.isNull())
+            if (m_columnMap.contains(graphName))
             {
-                addSeries(graphName);
-                series = getSeriesByLabel(graphName);
+                series = m_columnMap.value(graphName);
+            }
+            else
+            {
+                series = QSharedPointer<DataSeries>::create(graphName);
+                m_columnMap.insert(graphName, series);
             }
 
-            series->addData(timestamp, value);
+            if (!series.isNull())
+            {
+                series->addData(timestamp, value);
+            }
         }
     }
 }
@@ -361,6 +349,38 @@ void MavlinkImporter::reset()
 {
     data.clear();
     state = HEAD_1;
+}
+
+
+void MavlinkImporter::afterImport(void)
+{
+}
+
+
+void MavlinkImporter::cancelImport(void)
+{
+    m_isImporting = false;
+}
+
+
+uint8_t MavlinkImporter::getImportProgress(void) const
+{
+    if (!m_isImporting) return 0;
+
+    if (m_bytesRead == 0 || m_fileSize == 0) return 0;
+
+    float progress = (float) m_bytesRead / (float) m_fileSize;
+
+    return (uint8_t) (progress * 100);
+}
+
+
+/**
+ * Return the list of imported data series
+ */
+QList<QSharedPointer<DataSeries>> MavlinkImporter::getDataSeries(void) const
+{
+    return m_columnMap.values();
 }
 
 

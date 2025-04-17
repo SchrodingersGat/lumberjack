@@ -8,9 +8,13 @@
 #include "plugin_registry.hpp"
 #include "lumberjack_settings.hpp"
 
-// Imports for built-in plugin classes
+/* Imports for built-in plugin classes */
+// Data import
 #include "plugins/csv_importer/lumberjack_csv_importer.hpp"
+#include "plugins/mavlink_importer/mavlink_importer.hpp"
+// Data export
 #include "plugins/csv_exporter/lumberjack_csv_exporter.hpp"
+// Data filter
 #include "plugins/offset_filter/offset_filter.hpp"
 #include "plugins/scaler_filter/scaler_filter.hpp"
 
@@ -36,6 +40,7 @@ void PluginRegistry::loadBuiltinPlugins()
 {
     // Builtin importer plugins
     m_ImportPlugins.append(QSharedPointer<ImportPlugin>(new LumberjackCSVImporter()));
+    m_ImportPlugins.append(QSharedPointer<ImportPlugin>(new MavlinkImporter()));
 
     // Builtin exporter plugins
     m_ExportPlugins.append(QSharedPointer<ExportPlugin>(new LumberjackCSVExporter()));
