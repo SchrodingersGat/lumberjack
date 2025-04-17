@@ -1,6 +1,6 @@
 #include <windows.h>
 
-IDI_ICON1	ICON	".\\logo\\lumberjack.ico"
+IDI_ICON1	ICON	"C:\\Users\\Oliver\\lumberjack\\logo\\lumberjack.ico"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION 0,0,0,0

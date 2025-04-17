@@ -8,6 +8,11 @@
 #include "plugin_registry.hpp"
 #include "lumberjack_settings.hpp"
 
+
+// Imports for built-in plugin classes
+#include "plugins/csv_importer/lumberjack_csv_importer.hpp"
+
+
 PluginRegistry* PluginRegistry::instance = 0;
 
 
@@ -22,13 +27,29 @@ PluginRegistry::~PluginRegistry()
 }
 
 
+/**
+ * Load a set of "default" or "builtin" plugins
+ * These plugins are distributed with the source code
+ */
+void PluginRegistry::loadBuiltinPlugins()
+{
+    // Builtin importer plugins
+    m_ImportPlugins.append(QSharedPointer<ImportPlugin>(new LumberjackCSVImporter()));
+
+    // Builtin exporter plugins
+
+    // Builtin filter plugins
+}
+
+
 /*
  * Load all dynamic plugins
  * - Iterates through specified plugin dirs
  */
 void PluginRegistry::loadPlugins()
 {
-    QList<PluginBase*> pluginInstances;
+
+    loadBuiltinPlugins();
 
     QList<QString> checkedPaths;
 
@@ -67,6 +88,8 @@ void PluginRegistry::loadPlugins()
 void PluginRegistry::clearRegistry()
 {
     m_ImportPlugins.clear();
+    m_ExportPlugins.clear();
+    m_FilterPlugins.clear();
 }
 
 

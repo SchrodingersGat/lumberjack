@@ -9,7 +9,7 @@ CONFIG += file_copies
 CONFIG -= debug_and_release
 
 QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
-QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare -Wno-unused-but-set-variable
+QMAKE_CXXFLAGS += -Wreturn-type -Werror=return-type
 QMAKE_LFLAGS += --verbose
 
 INCLUDEPATH += ./qwt/src
@@ -23,6 +23,9 @@ CONFIG (debug, debug|release) {
 } else {
     LIBS += -L./qwt/lib -lqwt
 }
+
+# Includes for default plugins
+include("plugins/plugins.pri")
 
 INCLUDEPATH += src \
     src/plugins \
