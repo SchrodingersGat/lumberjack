@@ -8,10 +8,9 @@
 #include "plugin_registry.hpp"
 #include "lumberjack_settings.hpp"
 
-
 // Imports for built-in plugin classes
 #include "plugins/csv_importer/lumberjack_csv_importer.hpp"
-
+#include "plugins/csv_exporter/lumberjack_csv_exporter.hpp"
 
 PluginRegistry* PluginRegistry::instance = 0;
 
@@ -37,6 +36,7 @@ void PluginRegistry::loadBuiltinPlugins()
     m_ImportPlugins.append(QSharedPointer<ImportPlugin>(new LumberjackCSVImporter()));
 
     // Builtin exporter plugins
+    m_ExportPlugins.append(QSharedPointer<ExportPlugin>(new LumberjackCSVExporter()));
 
     // Builtin filter plugins
 }
