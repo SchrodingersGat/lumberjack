@@ -17,6 +17,7 @@ HEADERS += \
     offset_filter.hpp \
     ../../src/plugins/plugin_base.hpp \
     ../../src/plugins/plugin_filter.hpp \
+    offset_filter_plugin.hpp
 
 SOURCES += \
     offset_filter.cpp

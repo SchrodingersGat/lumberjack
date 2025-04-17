@@ -1,5 +1,9 @@
 # Importer plugins
-include("csv_importer/csv_importer.pri")
+include("csv_importer/plugin.pri")
 
 # Exporter plugins
-include("csv_exporter/csv_exporter.pri")
+include("csv_exporter/plugin.pri")
+
+# Filter plugins
+include("offset_filter/plugin.pri")
+include("scaler_filter/plugin.pri")
