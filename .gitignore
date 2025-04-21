@@ -16,6 +16,8 @@ Makefile.release
 *.stash
 *.patch
 
+*.rc
+
 # Intermediate UI files
 ui_tmp
 
