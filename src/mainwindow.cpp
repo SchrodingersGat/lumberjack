@@ -453,7 +453,22 @@ void MainWindow::addPlot()
     // Ensure a sensible minimum size
     plot->setMinimumSize(200, 100);
 
-    addDockWidget(Qt::TopDockWidgetArea, dock, Qt::Vertical);
+    // Use "splitDockWidget()" after the first plot is added
+    // This puts the new plot in a more sensible location than "addDockWidget()"
+    bool dockAdded = false;
+    if (plotIndex > 1 && !plots.isEmpty())
+    {
+        auto lastDock = dynamic_cast<QDockWidget *>(plots.last()->parentWidget());
+        if (lastDock)
+        {
+            splitDockWidget(lastDock, dock, Qt::Vertical);
+            dockAdded = true;
+        }
+    }
+    if (!dockAdded)
+    {
+        addDockWidget(Qt::TopDockWidgetArea, dock, Qt::Vertical);
+    }
 
     // Connect signals/slots for the new plot
     connect(plot, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
