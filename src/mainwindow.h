@@ -31,6 +31,8 @@ public slots:
 
     void onTimescaleChanged(const QwtInterval &view);
     void updateCursorPos(double t, double y1, double y2);
+    void updateDifferences(double dt, double dy);
+    void hideDifferences();
     void loadDataFromFile(QString filename = QString());
 
 protected:
@@ -72,6 +74,9 @@ private:
     QLabel t_pos;
     QLabel y1_pos;
     QLabel y2_pos;
+
+    QLabel dt_pos;
+    QLabel dy_pos;
 
     DataviewWidget dataView;
     StatsWidget statsView;

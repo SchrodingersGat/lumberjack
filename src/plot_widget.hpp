@@ -8,13 +8,12 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_legend.h>
-#include <qwt_plot_marker.h>
 #include <qwt_plot_grid.h>
-#include <qwt_plot_marker.h>
 
 #include "plot_legend.hpp"
 #include "plot_panner.hpp"
 #include "plot_curve.hpp"
+#include "plot_marker.hpp"
 
 
 class PlotWidget : public QwtPlot
@@ -49,6 +48,9 @@ signals:
 
     void cursorPositionChanged(double &t, double &y1, double &y2);
 
+    void markerAdded(double dt, double dy);
+    void markersRemoved();
+
 public slots:
     int getHorizontalPixels(void) const;
 
@@ -60,7 +62,7 @@ public slots:
     bool removeSeries(QString label);
     void removeAllSeries();
 
-    void addMarker(double timestamp);
+    void addMarker(double timestamp, QSharedPointer<PlotCurve> curve = nullptr);
     void removeAllMarkers();
 
     void autoScale(int axis_id = yBoth);
@@ -148,7 +150,7 @@ protected:
     QList<QSharedPointer<PlotCurve>> curves;
 
     // List of markers attached to this widget
-    QList<QwtPlotMarker*> markers;
+    QList<PlotMarker*> markers;
 
     QSharedPointer<PlotCurve> tracking_curve;
 

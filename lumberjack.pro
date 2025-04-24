@@ -47,6 +47,7 @@ SOURCES += \
     src/lumberjack_version.cpp \
     src/plot_curve.cpp \
     src/plot_legend.cpp \
+    src/plot_marker.cpp \
     src/plot_widget.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
@@ -78,6 +79,7 @@ HEADERS += \
     src/lumberjack_version.hpp \
     src/plot_curve.hpp \
     src/plot_legend.hpp \
+    src/plot_marker.hpp \
     src/plot_panner.hpp \
     src/plot_widget.hpp \
     src/plugins/plugin_base.hpp \

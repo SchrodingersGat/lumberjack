@@ -260,7 +260,11 @@ void MainWindow::initSignalsSlots()
  */
 void MainWindow::initStatusBar()
 {
-    ui->statusbar->showMessage("lumberjack");
+    ui->statusbar->addWidget(&dt_pos);
+    dt_pos.setHidden(true);
+
+    ui->statusbar->addWidget(&dy_pos);
+    dy_pos.setHidden(true);
 
     ui->statusbar->addPermanentWidget(&t_pos);
     ui->statusbar->addPermanentWidget(&y1_pos);
@@ -333,6 +337,29 @@ void MainWindow::updateCursorPos(double t, double y1, double y2)
     t_pos.setText("t: " + fixedWidthNumber(t));
     y1_pos.setText("y1: " + fixedWidthNumber(y1));
     y2_pos.setText("y2: " + fixedWidthNumber(y2));
+}
+
+/**
+ * @brief MainWindow::updateDifferences - callback to display the delta values between two points in the status bar
+ * @param dt
+ * @param dy - set to NaN to hide dy text
+ */
+void MainWindow::updateDifferences(double dt, double dy)
+{
+    dt_pos.setHidden(false);
+    dt_pos.setText("dt: " + fixedWidthNumber(dt));
+
+    dy_pos.setHidden(std::isnan(dy));
+    dy_pos.setText("dy: " + fixedWidthNumber(dy));
+}
+
+/**
+ * @brief MainWindow::hideDifferences - callback to hide the delta values in the status bar when no markers are present
+ */
+void MainWindow::hideDifferences()
+{
+    dt_pos.setHidden(true);
+    dy_pos.setHidden(true);
 }
 
 
@@ -472,6 +499,8 @@ void MainWindow::addPlot()
 
     // Connect signals/slots for the new plot
     connect(plot, &PlotWidget::cursorPositionChanged, this, &MainWindow::updateCursorPos);
+    connect(plot, &PlotWidget::markerAdded, this, &MainWindow::updateDifferences);
+    connect(plot, &PlotWidget::markersRemoved, this, &MainWindow::hideDifferences);
     connect(plot, &PlotWidget::viewChanged, this, &MainWindow::onTimescaleChanged);
     connect(plot, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
     connect(plot, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
