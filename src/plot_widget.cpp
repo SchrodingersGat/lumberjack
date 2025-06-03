@@ -1792,7 +1792,7 @@ void PlotWidget::autoScale(int axisId, QwtInterval interval)
     double max = interval.maxValue();
 
     // Account for the values being "the same"
-    if (min == max)
+    if (abs(max-min) <= __DBL_MIN__)
     {
         min -= 0.5f;
         max += 0.5f;
