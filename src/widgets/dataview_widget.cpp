@@ -67,6 +67,7 @@ void DataviewWidget::dragEnterEvent(QDragEnterEvent *event)
 void DataviewWidget::clearFilter()
 {
     ui.filterText->clear();
+    refresh();
 }
 
 
