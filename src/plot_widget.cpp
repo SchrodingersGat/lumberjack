@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QDataStream>
 #include <QMimeData>
 #include <QDockWidget>
 #include <QInputDialog>
@@ -793,21 +794,49 @@ void PlotWidget::dropEvent(QDropEvent *event)
         return;
     }
 
-    // DataSeries is dropped onto this PlotWidget
+    // One or more DataSeries are dropped onto this PlotWidget
     if (mime->hasFormat("source") && mime->hasFormat("series"))
     {
-        QString source_lbl = mime->data("source");
-        QString series_lbl = mime->data("series");
+        QStringList source_labels;
+        QStringList series_labels;
 
-        auto series = manager->findSeries(source_lbl, series_lbl);
+        QDataStream source_stream(mime->data("source"));
+        QDataStream series_stream(mime->data("series"));
 
-        if (series.isNull())
+        source_stream >> source_labels;
+        series_stream >> series_labels;
+
+        if (source_labels.isEmpty() || source_labels.count() != series_labels.count())
         {
-            qCritical() << "Could not find graph matching" << source_lbl << ":" << series_lbl;
             return;
         }
 
-        addSeries(series, QwtPlot::yLeft);
+        bool added_any = false;
+
+        for (int ii = 0; ii < source_labels.count(); ii++)
+        {
+            auto series = manager->findSeries(source_labels.at(ii), series_labels.at(ii));
+
+            if (series.isNull())
+            {
+                qCritical() << "Could not find graph matching" << source_labels.at(ii) << ":" << series_labels.at(ii);
+                continue;
+            }
+
+            // Defer the replot until all dropped series have been added
+            if (addSeries(series, QwtPlot::yLeft, false))
+            {
+                added_any = true;
+            }
+        }
+
+        if (added_any)
+        {
+            setAutoReplot(true);
+            replot();
+
+            updateTimestampLimits();
+        }
 
         event->accept();
     }
@@ -1604,7 +1633,7 @@ void PlotWidget::updateCursorShape(QMouseEvent *event)
  * @param axis_id - axis ID (either QwtPlot::yLeft or QwtPlot::yRight)
  * @return true if the series was added
  */
-bool PlotWidget::addSeries(DataSeriesPointer series, int axis_id)
+bool PlotWidget::addSeries(DataSeriesPointer series, int axis_id, bool do_replot)
 {
     if (series.isNull()) return false;
 
@@ -1633,10 +1662,13 @@ bool PlotWidget::addSeries(DataSeriesPointer series, int axis_id)
     // Perform initial data sampling
     curve->resampleData(interval.minValue(), interval.maxValue(), getHorizontalPixels());
 
-    setAutoReplot(true);
-    replot();
+    if (do_replot)
+    {
+        setAutoReplot(true);
+        replot();
 
-    updateTimestampLimits();
+        updateTimestampLimits();
+    }
 
     return true;
 }

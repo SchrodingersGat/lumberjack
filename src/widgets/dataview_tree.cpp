@@ -1,3 +1,4 @@
+#include <QDataStream>
 #include <QDrag>
 #include <QMimeData>
 #include <qmenu.h>
@@ -51,7 +52,7 @@ void DataViewTree::setupTree()
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragDropMode::DragDrop);
 
-    setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+    setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
     setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 
     header()->setSectionResizeMode(0, QHeaderView::Fixed);
@@ -322,40 +323,46 @@ int DataViewTree::refresh(QString filters)
  */
 void DataViewTree::startDrag(Qt::DropActions supported_actions)
 {
-    // TODO
     auto items = selectedItems();
 
-    // Only allow dragging for single items
-    if (items.count() != 1)
+    // Extract source / series information for each selected DataSeries item
+    QStringList source_labels;
+    QStringList series_labels;
+
+    for (auto *item : items)
+    {
+        if (!item) continue;
+
+        auto *parent = item->parent();
+
+        // Prevent top-level items (data sources) from being dragged
+        if (!parent) continue;
+
+        source_labels << parent->text(1);
+        series_labels << item->text(1);
+    }
+
+    // Nothing draggable was selected (e.g. only data sources were selected)
+    if (source_labels.isEmpty())
     {
         return;
     }
 
-    auto *item = items.at(0);
+    QByteArray source_data;
+    QByteArray series_data;
 
-    // null check
-    if (!item) return;
+    QDataStream source_stream(&source_data, QIODevice::WriteOnly);
+    QDataStream series_stream(&series_data, QIODevice::WriteOnly);
 
-    auto *parent = item->parent();
-
-    // Prevent top-level items from being dragged
-    if (!parent)
-    {
-        return;
-    }
-
-    // Extract source / series information from the item being dragged
-    // TODO : A better way of implementing this maybe?
-
-    QString series_label = item->text(1);
-    QString source_label = parent->text(1);
+    source_stream << source_labels;
+    series_stream << series_labels;
 
     QDrag *dragger = new QDrag(this);
 
     auto *mime = new QMimeData();
 
-    mime->setData("source", source_label.toLatin1());
-    mime->setData("series", series_label.toLatin1());
+    mime->setData("source", source_data);
+    mime->setData("series", series_data);
 
     dragger->setMimeData(mime);
 

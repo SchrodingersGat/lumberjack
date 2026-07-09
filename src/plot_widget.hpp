@@ -54,7 +54,7 @@ signals:
 public slots:
     int getHorizontalPixels(void) const;
 
-    bool addSeries(DataSeriesPointer series, int axis_id = QwtPlot::yLeft);
+    bool addSeries(DataSeriesPointer series, int axis_id = QwtPlot::yLeft, bool do_replot = true);
     bool addSeries(DataSeries *series) { return addSeries(DataSeriesPointer(series)); }
 
     bool removeSeries(DataSeriesPointer series);
