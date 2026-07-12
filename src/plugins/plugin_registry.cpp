@@ -18,14 +18,17 @@
 #include "plugins/scaler_filter/scaler_filter.hpp"
 
 /**
- * @brief Check whether a plugin was built against the same Qt version and
- * build type (debug/release) as this application.
+ * @brief Check whether a plugin was built against a compatible Qt version and
+ * the same build type (debug/release) as this application.
  *
- * QPluginLoader/QLibrary's own compatibility check is coarser than this: it can
- * accept a plugin built against a different (but "close enough") Qt version, and
- * does not reliably reject a debug/release mismatch on every platform. Loading an
- * ABI-incompatible plugin doesn't fail cleanly in that case - it corrupts memory
- * the moment the plugin's code actually runs. Require an exact match instead.
+ * QPluginLoader/QLibrary's own compatibility check is coarser than we'd like:
+ * it does not reliably reject a debug/release mismatch on every platform, and
+ * loading an ABI-incompatible plugin doesn't fail cleanly in that case - it
+ * corrupts memory the moment the plugin's code actually runs. Require the
+ * same major.minor Qt series (Qt guarantees ABI compatibility across patch
+ * releases within a minor series, and the metadata's "version" field is only
+ * ever reported at major.minor.0 precision regardless of the actual patch
+ * version used to build the plugin) and an exact debug/release match.
  */
 static bool isPluginCompatible(const QString &pluginPath)
 {
@@ -48,15 +51,17 @@ static bool isPluginCompatible(const QString &pluginPath)
     const int pluginVersion = metaData.value("version").toInt();
     const bool pluginIsDebugBuild = metaData.value("debug").toBool();
 
-    if (pluginVersion != QT_VERSION || pluginIsDebugBuild != hostIsDebugBuild)
+    const int qtMajorMinorMask = 0xFFFF00;
+
+    if ((pluginVersion & qtMajorMinorMask) != (QT_VERSION & qtMajorMinorMask)
+        || pluginIsDebugBuild != hostIsDebugBuild)
     {
         qWarning().noquote() << QString(
-            "Skipping incompatible plugin '%1': built against Qt %2.%3.%4 (%5), "
-            "but this application is Qt %6 (%7)")
+            "Skipping incompatible plugin '%1': built against Qt %2.%3.x (%4), "
+            "but this application is Qt %5 (%6)")
             .arg(pluginPath)
             .arg((pluginVersion >> 16) & 0xFF)
             .arg((pluginVersion >> 8) & 0xFF)
-            .arg(pluginVersion & 0xFF)
             .arg(pluginIsDebugBuild ? "debug" : "release")
             .arg(QT_VERSION_STR)
             .arg(hostIsDebugBuild ? "debug" : "release");
