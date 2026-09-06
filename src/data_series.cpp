@@ -438,7 +438,7 @@ double DataSeries::getMaximumValue(double t_min, double t_max) const
     auto idx_min = getIndexForTimestamp(t_min, SEARCH_RIGHT_TO_LEFT);
     auto idx_max = getIndexForTimestamp(t_max, SEARCH_RIGHT_TO_LEFT);
 
-    double value = __DBL_MIN__;
+    double value = -__DBL_MAX__;
 
     unsigned int length = size();
 

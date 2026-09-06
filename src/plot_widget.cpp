@@ -245,7 +245,7 @@ double PlotWidget::getMinimumValue(bool *ok) const
  */
 double PlotWidget::getMaximumValue(bool *ok) const
 {
-    double maximum = __DBL_MIN__;
+    double maximum = -__DBL_MAX__;
 
     double value = 0;
 
