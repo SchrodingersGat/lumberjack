@@ -17,6 +17,13 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="filterLayout">
      <item>
+      <widget class="QComboBox" name="rangeModeCombo">
+       <property name="toolTip">
+        <string>Whether the Min/Max/Mean columns are calculated over the currently visible time range, or the whole trace</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLineEdit" name="nameFilterEdit">
        <property name="placeholderText">
         <string>Filter by series name...</string>

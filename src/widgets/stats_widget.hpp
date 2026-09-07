@@ -26,6 +26,12 @@ public:
         ColumnCount,
     };
 
+    enum RangeMode
+    {
+        RangeVisible = 0,
+        RangeWholeTrace,
+    };
+
     StatsWidget(QWidget *parent = nullptr);
 
 public slots:
@@ -35,6 +41,7 @@ protected slots:
     void onNameFilterChanged(const QString &text);
     void onValueFilterChanged();
     void onClearFilters();
+    void onRangeModeChanged();
 
 protected:
     Ui::stats_form ui;
@@ -42,7 +49,11 @@ protected:
     QStandardItemModel *model;
     StatsFilterProxyModel *proxyModel;
 
+    QList<DataSeriesPointer> lastSeriesList;
+    QwtInterval lastViewInterval;
+
     void initTable();
+    void recomputeStats();
     void setColumnValue(int row, int column, double value, bool hasData);
 };
 

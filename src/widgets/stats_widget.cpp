@@ -21,6 +21,9 @@ StatsWidget::StatsWidget(QWidget *parent) : QWidget(parent)
 
     initTable();
 
+    ui.rangeModeCombo->addItem(tr("Visible view"), RangeVisible);
+    ui.rangeModeCombo->addItem(tr("Whole trace"), RangeWholeTrace);
+
     ui.valueColumnCombo->addItem(tr("Min"), ColumnMin);
     ui.valueColumnCombo->addItem(tr("Max"), ColumnMax);
     ui.valueColumnCombo->addItem(tr("Mean"), ColumnMean);
@@ -43,6 +46,8 @@ StatsWidget::StatsWidget(QWidget *parent) : QWidget(parent)
     connect(ui.valueThresholdSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &StatsWidget::onValueFilterChanged);
 
     connect(ui.clearFiltersButton, &QPushButton::clicked, this, &StatsWidget::onClearFilters);
+
+    connect(ui.rangeModeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &StatsWidget::onRangeModeChanged);
 }
 
 
@@ -62,30 +67,54 @@ void StatsWidget::initTable()
 
 void StatsWidget::updateStats(const QList<DataSeriesPointer> &seriesList, const QwtInterval &interval)
 {
-    double tMin = interval.minValue();
-    double tMax = interval.maxValue();
+    lastSeriesList = seriesList;
+    lastViewInterval = interval;
 
-    model->setRowCount(seriesList.count());
+    recomputeStats();
+}
+
+
+void StatsWidget::recomputeStats()
+{
+    auto rangeMode = static_cast<RangeMode>(ui.rangeModeCombo->currentData().toInt());
+
+    double tMin = lastViewInterval.minValue();
+    double tMax = lastViewInterval.maxValue();
+
+    model->setRowCount(lastSeriesList.count());
 
     // TODO: Make this a threaded function, could take a long time to calculate
 
-    for (int idx = 0; idx < seriesList.count(); idx++)
+    for (int idx = 0; idx < lastSeriesList.count(); idx++)
     {
-        auto series = seriesList.at(idx);
+        auto series = lastSeriesList.at(idx);
 
         if (series.isNull()) continue;
 
-        // A series only has data "in range" if at least one sample falls between
-        // tMin and tMax - matches the indexing DataSeries::getMinimumValue/getMaximumValue
-        // use internally, since those return meaningless sentinel values otherwise
-        bool hasData = false;
+        bool hasData;
 
-        if (series->size() > 0)
+        if (rangeMode == RangeWholeTrace)
         {
-            auto idxMin = series->getIndexForTimestamp(tMin, DataSeries::SEARCH_RIGHT_TO_LEFT);
-            auto idxMax = series->getIndexForTimestamp(tMax, DataSeries::SEARCH_RIGHT_TO_LEFT);
+            // The whole trace "has data" as long as the series has any
+            // samples at all - DataSeries::getMinimumValue/getMaximumValue/
+            // getMeanValue() (no arguments) already cover the series' full
+            // timestamp range internally
+            hasData = series->size() > 0;
+        }
+        else
+        {
+            // A series only has data "in range" if at least one sample falls between
+            // tMin and tMax - matches the indexing DataSeries::getMinimumValue/getMaximumValue
+            // use internally, since those return meaningless sentinel values otherwise
+            hasData = false;
 
-            hasData = (idxMin + 1) <= idxMax;
+            if (series->size() > 0)
+            {
+                auto idxMin = series->getIndexForTimestamp(tMin, DataSeries::SEARCH_RIGHT_TO_LEFT);
+                auto idxMax = series->getIndexForTimestamp(tMax, DataSeries::SEARCH_RIGHT_TO_LEFT);
+
+                hasData = (idxMin + 1) <= idxMax;
+            }
         }
 
         auto nameItem = new QStandardItem(series->getLabel());
@@ -95,9 +124,18 @@ void StatsWidget::updateStats(const QList<DataSeriesPointer> &seriesList, const 
 
         if (hasData)
         {
-            setColumnValue(idx, ColumnMin, series->getMinimumValue(tMin, tMax), true);
-            setColumnValue(idx, ColumnMax, series->getMaximumValue(tMin, tMax), true);
-            setColumnValue(idx, ColumnMean, series->getMeanValue(tMin, tMax), true);
+            if (rangeMode == RangeWholeTrace)
+            {
+                setColumnValue(idx, ColumnMin, series->getMinimumValue(), true);
+                setColumnValue(idx, ColumnMax, series->getMaximumValue(), true);
+                setColumnValue(idx, ColumnMean, series->getMeanValue(), true);
+            }
+            else
+            {
+                setColumnValue(idx, ColumnMin, series->getMinimumValue(tMin, tMax), true);
+                setColumnValue(idx, ColumnMax, series->getMaximumValue(tMin, tMax), true);
+                setColumnValue(idx, ColumnMean, series->getMeanValue(tMin, tMax), true);
+            }
         }
         else
         {
@@ -152,4 +190,10 @@ void StatsWidget::onClearFilters()
     ui.valueColumnCombo->setCurrentIndex(0);
     ui.valueOpCombo->setCurrentIndex(0);
     ui.valueThresholdSpin->setValue(0.0);
+}
+
+
+void StatsWidget::onRangeModeChanged()
+{
+    recomputeStats();
 }
