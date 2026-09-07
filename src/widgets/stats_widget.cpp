@@ -111,7 +111,7 @@ void StatsWidget::updateStats(const QList<DataSeriesPointer> &seriesList, const 
 
 void StatsWidget::setColumnValue(int row, int column, double value, bool hasData)
 {
-    auto item = new QStandardItem(hasData ? QString::number(value) : QStringLiteral("\xE2\x80\x93"));
+    auto item = new QStandardItem(hasData ? QString::number(value) : QString::fromUtf8("\xE2\x80\x93"));
     item->setEditable(false);
 
     if (hasData)
