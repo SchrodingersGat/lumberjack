@@ -12,7 +12,9 @@
 #ifndef MAVLINK_IMPORTER_HPP
 #define MAVLINK_IMPORTER_HPP
 
-#include "data_source.hpp"
+
+#include "plugin_importer.hpp"
+
 
 
 /*
@@ -33,25 +35,47 @@ public:
 };
 
 
-class MavlinkImporter: public FileDataSource
+class MavlinkImporter: public ImportPlugin
 {
     Q_OBJECT
 
 public:
     MavlinkImporter();
-    virtual ~MavlinkImporter();
 
-    virtual QString getFileDescription(void) const override { return "Mavlink Log Files"; }
-    virtual QStringList getSupportedFileTypes(void) const override;
+    // Base plugin functionality
+    virtual QString pluginName(void) const override { return m_name; }
+    virtual QString pluginDescription(void) const override { return m_description; }
+    virtual QString pluginVersion(void) const override { return m_version; }
 
-    virtual bool setImportOptions(void) override;
-    virtual bool loadDataFromFile(QStringList& errors) override;
+    // Importer plugin functionality
+    virtual QStringList supportedFileTypes(void) const override;
+
+    virtual bool beforeImport(void) override;
+    virtual bool importData(QStringList &errors) override;
+    virtual void afterImport(void) override;
+    virtual void cancelImport(void) override;
+
+    virtual uint8_t getImportProgress(void) const override;
+
+    virtual QList<QSharedPointer<DataSeries>> getDataSeries(void) const override;
 
 protected:
+    //! Plugin metadata
+    const QString m_name = "Mavlink Importer";
+    const QString m_description = "Import data from mavlink files";
+    const QString m_version = "0.1.0";
 
     void processChunk(const QByteArray &bytes);
     bool validateFormatMessage(MavlinkFormatMessage &format);
     void processData(const MavlinkFormatMessage &format, QByteArray &bytes);
+
+    //! Number of bytes processed from the file
+    int64_t m_bytesRead = 0;
+
+    //! Total number of bytes in the file
+    int64_t m_fileSize = 0;
+
+    bool m_isImporting = false;
 
     int messageCount = 0;
 
@@ -65,21 +89,23 @@ protected:
         HEAD_1,
         HEAD_2,
         MSG_ID,
+        MSG_LENGTH,
         MSG_DATA,
+        MSG_CRC,
     };
 
     // Known message identifiers
     enum
     {
-        MSG_ID_FORMAT = 128,
+        MSG_ID_FORMAT = 0x80,  // Identifies a new message format
     };
 
     // Internal state variable
     uint16_t state = HEAD_1;
-
     uint8_t messageId = 0;
+    uint8_t expectedLength = 0;
 
-    int expectedLength = 0;
+    uint8_t messageChecksum(void) const;
 
     // Byte array containing incoming data
     QByteArray data;
@@ -89,6 +115,9 @@ protected:
 
     // Map message IDs to message formats
     QMap<int, MavlinkFormatMessage> messageFormats;
+
+    // Keep track of data columns while loading
+    QHash<QString, QSharedPointer<DataSeries>> m_columnMap;
 
     // Helper functions for extracting packed data from the log
     uint64_t extractUInt64(QByteArray &data, int byteCount=8);
