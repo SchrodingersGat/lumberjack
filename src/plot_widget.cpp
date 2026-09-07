@@ -1670,6 +1670,8 @@ bool PlotWidget::addSeries(DataSeriesPointer series, int axis_id, bool do_replot
         updateTimestampLimits();
     }
 
+    emit curvesChanged();
+
     return true;
 }
 
@@ -1696,6 +1698,8 @@ bool PlotWidget::removeSeries(DataSeriesPointer series)
             replot();
 
             updateTimestampLimits();
+
+            emit curvesChanged();
 
             return true;
         }
@@ -1740,6 +1744,8 @@ void PlotWidget::removeAllSeries()
     }
 
     replot();
+
+    emit curvesChanged();
 }
 
 

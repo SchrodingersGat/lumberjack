@@ -15,9 +15,94 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QTableWidget" name="statsTable">
+    <!--
+      No layout is set on this container in the .ui - StatsWidget's
+      constructor gives it a FlowLayout in code instead, so the controls
+      below wrap onto additional rows rather than forcing the panel wide
+      when the Stats View is narrowed.
+    -->
+    <widget class="QWidget" name="filterContainer" native="true">
+     <widget class="QComboBox" name="rangeModeCombo">
+      <property name="toolTip">
+       <string>Whether the Min/Max/Mean columns are calculated over the currently visible time range, or the whole trace</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="nameFilterEdit">
+      <property name="placeholderText">
+       <string>Filter by series name...</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="valueFilterCheck">
+      <property name="text">
+       <string>Filter by value:</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="valueFilterGroup" native="true">
+      <!--
+        valueColumnCombo/valueOpCombo/valueThresholdSpin are grouped into
+        this one widget (added to the FlowLayout as a single item) so they
+        always stay side-by-side and only ever wrap as a unit, never split
+        from one another.
+      -->
+      <layout class="QHBoxLayout" name="valueFilterGroupLayout">
+       <property name="spacing">
+        <number>4</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QComboBox" name="valueColumnCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="valueOpCombo">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="valueThresholdSpin">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimum">
+          <double>-1000000000.000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1000000000.000000000</double>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QPushButton" name="clearFiltersButton">
+      <property name="text">
+       <string>Clear</string>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QTableView" name="statsTable">
      <property name="editTriggers">
       <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

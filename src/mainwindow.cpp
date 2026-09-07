@@ -283,9 +283,45 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 {
     auto source = sender();
 
+    // Update the timescale on other plots
+    for (auto plot : plots)
+    {
+        // Ignore null pointers
+        if (plot.isNull()) continue;
+
+        // Ignore plots which are not synced
+        if (!plot->isTimescaleSynced()) continue;
+
+        // Prevent updating of same plot
+        if (plot == source) continue;
+
+        plot->setTimeInterval(viewInterval);
+    }
+
+    statsViewInterval = viewInterval;
+
+    // Update the "statistics" view
+    refreshStatsView();
+
+    // Update the "fft" view
+    fftView.updateInterval(viewInterval);
+}
+
+
+/*
+ * Rebuild the "statistics" view from the series currently visible on synced
+ * plots, using the last known view interval.
+ *
+ * This is a separate function (rather than being folded into
+ * onTimescaleChanged) because it's also connected to each plot's
+ * curvesChanged() signal - the set of series on a plot can change without
+ * its view interval changing (viewChanged() only fires when the axis
+ * layout itself changes, which isn't guaranteed on every add/remove).
+ */
+void MainWindow::refreshStatsView(void)
+{
     QList<DataSeriesPointer> seriesList;
 
-    // Update the timescale on other plots
     for (auto plot : plots)
     {
         // Ignore null pointers
@@ -304,18 +340,9 @@ void MainWindow::onTimescaleChanged(const QwtInterval &viewInterval)
 
             seriesList.append(series);
         }
-
-        // Prevent updating of same plot
-        if (plot == source) continue;
-
-        plot->setTimeInterval(viewInterval);
     }
 
-    // Update the "statistics" view
-    statsView.updateStats(seriesList, viewInterval);
-
-    // Update the "fft" view
-    fftView.updateInterval(viewInterval);
+    statsView.updateStats(seriesList, statsViewInterval);
 }
 
 
@@ -456,6 +483,7 @@ void MainWindow::seriesRemoved(DataSeriesPointer series)
     {
         if (plot.isNull()) continue;
 
+        // Triggers PlotWidget::curvesChanged(), which refreshes the statistics view
         plot->removeSeries(series);
     }
 }
@@ -507,6 +535,11 @@ void MainWindow::addPlot()
     connect(plot, &PlotWidget::viewChanged, &timelineView, &TimelineWidget::updateViewLimits);
     connect(plot, &PlotWidget::timestampLimitsChanged, &timelineView, &TimelineWidget::updateTimeLimits);
     connect(plot, &PlotWidget::fileDropped, this, &MainWindow::loadDataFromFile);
+
+    // viewChanged() only fires when the axis layout actually changes, so it's not
+    // a reliable way to know the set of curves on a plot changed - use curvesChanged()
+    // explicitly for that (e.g. keeping the statistics view in sync)
+    connect(plot, &PlotWidget::curvesChanged, this, &MainWindow::refreshStatsView);
 
     plots.append(QSharedPointer<PlotWidget>(plot));
 
