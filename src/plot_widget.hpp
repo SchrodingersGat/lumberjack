@@ -51,6 +51,12 @@ signals:
     void markerAdded(double dt, double dy);
     void markersRemoved();
 
+    // Emitted whenever a curve is added to or removed from this plot.
+    // Unlike viewChanged(), this does not depend on the axis layout
+    // actually changing, so it's the reliable signal to use for anything
+    // that needs to track "what series are currently on this plot".
+    void curvesChanged();
+
 public slots:
     int getHorizontalPixels(void) const;
 
