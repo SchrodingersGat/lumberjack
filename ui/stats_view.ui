@@ -15,63 +15,55 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="filterLayout">
-     <item>
-      <widget class="QComboBox" name="rangeModeCombo">
-       <property name="toolTip">
-        <string>Whether the Min/Max/Mean columns are calculated over the currently visible time range, or the whole trace</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="nameFilterEdit">
-       <property name="placeholderText">
-        <string>Filter by series name...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="valueFilterCheck">
-       <property name="text">
-        <string>Filter by value:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="valueColumnCombo">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="valueOpCombo">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDoubleSpinBox" name="valueThresholdSpin">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="minimum">
-        <double>-1000000000.000000000</double>
-       </property>
-       <property name="maximum">
-        <double>1000000000.000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="clearFiltersButton">
-       <property name="text">
-        <string>Clear</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <!--
+      No layout is set on this container in the .ui - StatsWidget's
+      constructor gives it a FlowLayout in code instead, so the controls
+      below wrap onto additional rows rather than forcing the panel wide
+      when the Stats View is narrowed.
+    -->
+    <widget class="QWidget" name="filterContainer" native="true">
+     <widget class="QComboBox" name="rangeModeCombo">
+      <property name="toolTip">
+       <string>Whether the Min/Max/Mean columns are calculated over the currently visible time range, or the whole trace</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="nameFilterEdit">
+      <property name="placeholderText">
+       <string>Filter by series name...</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="valueFilterCheck">
+      <property name="text">
+       <string>Filter by value:</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="valueColumnCombo">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="valueOpCombo">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="valueThresholdSpin">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimum">
+       <double>-1000000000.000000000</double>
+      </property>
+      <property name="maximum">
+       <double>1000000000.000000000</double>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="clearFiltersButton">
+      <property name="text">
+       <string>Clear</string>
+      </property>
+     </widget>
+    </widget>
    </item>
    <item row="1" column="0">
     <widget class="QTableView" name="statsTable">

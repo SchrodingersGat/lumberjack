@@ -1,5 +1,6 @@
 #include <QHeaderView>
 
+#include "flow_layout.hpp"
 #include "stats_widget.hpp"
 
 
@@ -8,6 +9,18 @@ StatsWidget::StatsWidget(QWidget *parent) : QWidget(parent)
     ui.setupUi(this);
 
     setWindowTitle("Statistics");
+
+    // The filter row's controls are laid out in code (rather than in the .ui)
+    // so they wrap onto additional rows instead of forcing the panel wide
+    // when the Stats View is narrowed
+    auto filterFlowLayout = new FlowLayout(ui.filterContainer, 0, 6, 6);
+    filterFlowLayout->addWidget(ui.rangeModeCombo);
+    filterFlowLayout->addWidget(ui.nameFilterEdit);
+    filterFlowLayout->addWidget(ui.valueFilterCheck);
+    filterFlowLayout->addWidget(ui.valueColumnCombo);
+    filterFlowLayout->addWidget(ui.valueOpCombo);
+    filterFlowLayout->addWidget(ui.valueThresholdSpin);
+    filterFlowLayout->addWidget(ui.clearFiltersButton);
 
     model = new QStandardItemModel(this);
     proxyModel = new StatsFilterProxyModel(this);

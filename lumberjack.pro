@@ -64,6 +64,7 @@ SOURCES += \
     src/widgets/dataview_tree.cpp \
     src/widgets/dataview_widget.cpp \
     src/widgets/debug_widget.cpp \
+    src/widgets/flow_layout.cpp \
     src/widgets/math_trace_dialog.cpp \
     src/widgets/plot_sampler.cpp \
     src/widgets/plugins_dialog.cpp \
@@ -103,6 +104,7 @@ HEADERS += \
     src/widgets/dataview_tree.hpp \
     src/widgets/dataview_widget.hpp \
     src/widgets/debug_widget.hpp \
+    src/widgets/flow_layout.hpp \
     src/widgets/math_trace_dialog.hpp \
     src/widgets/plot_sampler.hpp \
     src/widgets/plugins_dialog.hpp \
