@@ -1,4 +1,5 @@
 #include <QHeaderView>
+#include <QStyleOptionSpinBox>
 
 #include "flow_layout.hpp"
 #include "stats_widget.hpp"
@@ -10,16 +11,29 @@ StatsWidget::StatsWidget(QWidget *parent) : QWidget(parent)
 
     setWindowTitle("Statistics");
 
+    // Only enough width for ~5 digits - the spin box is for a filter
+    // threshold, not for reading back precise values. Ask the style itself
+    // how wide a spin box needs to be to fit that much text (rather than
+    // guessing a fixed padding), since the up/down buttons + frame take up
+    // a style/DPI-dependent amount of space on top of the text area.
+    int thresholdDigitsWidth = ui.valueThresholdSpin->fontMetrics().horizontalAdvance("00000");
+    QStyleOptionSpinBox thresholdSpinOpt;
+    thresholdSpinOpt.initFrom(ui.valueThresholdSpin);
+    QSize thresholdContentSize(thresholdDigitsWidth, ui.valueThresholdSpin->fontMetrics().height());
+    QSize thresholdTotalSize = ui.valueThresholdSpin->style()->sizeFromContents(
+        QStyle::CT_SpinBox, &thresholdSpinOpt, thresholdContentSize, ui.valueThresholdSpin);
+    ui.valueThresholdSpin->setMaximumWidth(thresholdTotalSize.width());
+
     // The filter row's controls are laid out in code (rather than in the .ui)
     // so they wrap onto additional rows instead of forcing the panel wide
-    // when the Stats View is narrowed
+    // when the Stats View is narrowed. valueColumnCombo/valueOpCombo/
+    // valueThresholdSpin are grouped into valueFilterGroup (see the .ui) so
+    // that trio always stays side-by-side and only ever wraps as a unit.
     auto filterFlowLayout = new FlowLayout(ui.filterContainer, 0, 6, 6);
     filterFlowLayout->addWidget(ui.rangeModeCombo);
     filterFlowLayout->addWidget(ui.nameFilterEdit);
     filterFlowLayout->addWidget(ui.valueFilterCheck);
-    filterFlowLayout->addWidget(ui.valueColumnCombo);
-    filterFlowLayout->addWidget(ui.valueOpCombo);
-    filterFlowLayout->addWidget(ui.valueThresholdSpin);
+    filterFlowLayout->addWidget(ui.valueFilterGroup);
     filterFlowLayout->addWidget(ui.clearFiltersButton);
 
     model = new QStandardItemModel(this);
